@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() => runApp(const LuumilApp());
+
+class LuumilApp extends StatelessWidget {
+  const LuumilApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(title: 'LuumilApp', home: const HomeScreen());
+  }
 }
 
 class MyApp extends StatelessWidget {
