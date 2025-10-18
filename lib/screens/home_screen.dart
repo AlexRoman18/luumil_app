@@ -37,7 +37,12 @@ class HomeScreen extends StatelessWidget {
                     text: 'Iniciar Sesión',
                     colorText: Colors.black,
                     onPressed: () {
-                      // Aquí puedes poner la navegación al login si la tienes
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterScreen(),
+                        ),
+                      );
                     },
                   ),
                 ),
