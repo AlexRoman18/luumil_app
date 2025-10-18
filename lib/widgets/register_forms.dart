@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/widgets/custom_text_field.dart';
+import 'package:luumil_app/screens/pantallainicio_screen.dart';
 
 class RegisterForm extends StatelessWidget {
   const RegisterForm({super.key});
@@ -27,12 +28,20 @@ class RegisterForm extends StatelessWidget {
                 const CustomTextField(hint: 'Nombre', icon: Icons.person),
                 const SizedBox(height: 14),
                 const CustomTextField(
-                    hint: 'Correo electrónico', icon: Icons.email),
+                  hint: 'Correo electrónico',
+                  icon: Icons.email,
+                ),
                 const SizedBox(height: 14),
                 const CustomTextField(
-                    hint: 'Contraseña', icon: Icons.lock, obscure: true),
+                  hint: 'Contraseña',
+                  icon: Icons.lock,
+                  obscure: true,
+                ),
                 const SizedBox(height: 14),
-                const CustomTextField(hint: 'Comunidad', icon: Icons.location_on),
+                const CustomTextField(
+                  hint: 'Comunidad',
+                  icon: Icons.location_on,
+                ),
                 const SizedBox(height: 6),
 
                 Align(
@@ -41,10 +50,7 @@ class RegisterForm extends StatelessWidget {
                     onPressed: () {},
                     child: const Text(
                       '¿Olvidó su contraseña?',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: Colors.black54, fontSize: 13),
                     ),
                   ),
                 ),
@@ -56,7 +62,14 @@ class RegisterForm extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PantallaInicio(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF007BFF),
                       shape: RoundedRectangleBorder(
@@ -108,8 +121,10 @@ class RegisterForm extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('¿Ya tiene cuenta?',
-                        style: TextStyle(fontSize: 14)),
+                    const Text(
+                      '¿Ya tiene cuenta?',
+                      style: TextStyle(fontSize: 14),
+                    ),
                     TextButton(
                       onPressed: () {
                         // Aquí navegas al login
@@ -121,7 +136,7 @@ class RegisterForm extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],
