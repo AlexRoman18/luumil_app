@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/widgets/custom_text_field.dart';
+import 'package:luumil_app/screens/pantallainicio_screen.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -26,12 +27,16 @@ class LoginForm extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 const CustomTextField(
-                    hint: 'Correo electrónico', icon: Icons.email),
+                  hint: 'Correo electrónico',
+                  icon: Icons.email,
+                ),
                 const SizedBox(height: 20),
                 const CustomTextField(
-                    hint: 'Contraseña', icon: Icons.lock, obscure: true),
-            
-                
+                  hint: 'Contraseña',
+                  icon: Icons.lock,
+                  obscure: true,
+                ),
+
                 const SizedBox(height: 2),
 
                 Align(
@@ -40,10 +45,7 @@ class LoginForm extends StatelessWidget {
                     onPressed: () {},
                     child: const Text(
                       '¿Olvidó su contraseña?',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: Colors.black54, fontSize: 13),
                     ),
                   ),
                 ),
@@ -55,7 +57,14 @@ class LoginForm extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PantallaInicio(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF007BFF),
                       shape: RoundedRectangleBorder(
@@ -107,8 +116,10 @@ class LoginForm extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('¿Ya tiene cuenta?',
-                        style: TextStyle(fontSize: 14)),
+                    const Text(
+                      '¿Ya tiene cuenta?',
+                      style: TextStyle(fontSize: 14),
+                    ),
                     TextButton(
                       onPressed: () {
                         // Aquí navegas al login
@@ -120,7 +131,7 @@ class LoginForm extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ],
