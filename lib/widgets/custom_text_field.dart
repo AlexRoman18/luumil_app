@@ -24,11 +24,11 @@ class CustomTextField extends StatelessWidget {
         contentPadding:
             const EdgeInsets.symmetric(vertical: 14.0, horizontal: 12.0),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFFE6E6E6)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
           borderSide: const BorderSide(color: Color(0xFF007BFF)),
         ),
       ),

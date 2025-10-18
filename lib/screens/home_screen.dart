@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luumil_app/screens/iniciarsesion_screen.dart';
 import 'package:luumil_app/screens/registro_screen.dart';
 import 'package:luumil_app/widgets/buttons.dart';
 
@@ -31,7 +32,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 SizedBox(
-                  width: 200,
+                  width: 300, // controla el ancho visible
                   child: Buttons(
                     color: Colors.white,
                     text: 'Iniciar Sesión',
@@ -40,15 +41,15 @@ class HomeScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
+                          builder: (context) => const LoginScreen(),
                         ),
                       );
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 SizedBox(
-                  width: 200,
+                  width: 300,
                   child: Buttons(
                     color: Colors.white,
                     text: 'Registrarse',

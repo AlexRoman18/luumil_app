@@ -74,7 +74,7 @@ class RegisterForm extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 14),
+                const SizedBox(height: 20),
 
                 // Botón Google
                 SizedBox(
@@ -94,7 +94,7 @@ class RegisterForm extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Colors.black26),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       foregroundColor: Colors.black87,
                       backgroundColor: Colors.white,
