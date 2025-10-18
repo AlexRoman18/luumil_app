@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:luumil_app/widgets/buttons.dart'; // Tu widget de botones
+import 'package:luumil_app/widgets/buttons.dart';
+import 'package:luumil_app/widgets/side_menu.dart';
 
 class PantallaInicio extends StatelessWidget {
   const PantallaInicio({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Clave para controlar el Scaffold y abrir el Drawer
+    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Colors.white,
+
+      // 🔹 Drawer (menú lateral)
+      drawer: const SideMenu(),
 
       // 🔹 AppBar superior
       appBar: AppBar(
@@ -16,7 +24,10 @@ class PantallaInicio extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {},
+          onPressed: () {
+            // 🔹 Abre el Drawer
+            scaffoldKey.currentState!.openDrawer();
+          },
         ),
         actions: [
           IconButton(
@@ -91,9 +102,7 @@ class PantallaInicio extends StatelessWidget {
                       color: Colors.white,
                       colorText: Colors.black,
                       text: 'Tipo de producto',
-                      onPressed: () {
-                        // Acción al presionar "Tipo de producto"
-                      },
+                      onPressed: () {},
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -102,9 +111,7 @@ class PantallaInicio extends StatelessWidget {
                       color: Colors.white,
                       colorText: Colors.black,
                       text: 'Por localidades',
-                      onPressed: () {
-                        // Acción al presionar "Por localidades"
-                      },
+                      onPressed: () {},
                     ),
                   ),
                 ],

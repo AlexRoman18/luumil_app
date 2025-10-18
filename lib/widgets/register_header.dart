@@ -14,15 +14,15 @@ class RegisterHeader extends StatelessWidget {
           children: [
             Image.asset(
               'assets/icons/logo.png',
-              width: 84,
-              height: 84,
+              width: 150,
+              height: 150,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             const Text(
               'Registro',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 26,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
