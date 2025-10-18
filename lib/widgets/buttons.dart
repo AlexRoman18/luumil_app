@@ -7,7 +7,7 @@ class Buttons extends StatelessWidget {
     required this.color,
     required this.text,
     this.onPressed,
-    required this.colorText 
+    required this.colorText,
   });
 
   final Color color;
@@ -21,13 +21,14 @@ class Buttons extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        minimumSize: const Size(double.infinity, 55), // 👈 ancho ocupa todo, alto 55
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(50),
         ),
         elevation: 5,
         textStyle: GoogleFonts.poppins(
           fontSize: 18,
+          fontWeight: FontWeight.w600,
         ),
       ),
       child: Text(
@@ -37,5 +38,3 @@ class Buttons extends StatelessWidget {
     );
   }
 }
-
-// (){} , () =>
