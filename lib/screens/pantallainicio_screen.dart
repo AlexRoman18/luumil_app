@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:luumil_app/screens/localidad_screen.dart';
 import 'package:luumil_app/widgets/buttons.dart';
 import 'package:luumil_app/widgets/side_menu.dart';
+import 'package:luumil_app/screens/categoria_screen.dart';
 
 class PantallaInicio extends StatelessWidget {
   const PantallaInicio({super.key});
@@ -102,7 +104,14 @@ class PantallaInicio extends StatelessWidget {
                       color: Colors.white,
                       colorText: Colors.black,
                       text: 'Tipo de producto',
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CategoriaScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(width: 20),
@@ -111,7 +120,14 @@ class PantallaInicio extends StatelessWidget {
                       color: Colors.white,
                       colorText: Colors.black,
                       text: 'Por localidades',
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LocalidadScreen(),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -146,18 +162,21 @@ class PantallaInicio extends StatelessWidget {
                         Container(
                           width: 70,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFE6E0EB),
+                            color: Color.fromARGB(255, 255, 255, 255),
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(15),
                               bottomLeft: Radius.circular(15),
                             ),
                           ),
-                          child: const Icon(Icons.image, color: Colors.black45),
+                          child: const Icon(
+                            Icons.storefront,
+                            color: Colors.black45,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         const Expanded(
                           child: Text(
-                            '',
+                            'Venta de chile',
                             style: TextStyle(color: Colors.black54),
                           ),
                         ),

@@ -21,20 +21,15 @@ class Buttons extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
-        minimumSize: const Size(double.infinity, 55), // 👈 ancho ocupa todo, alto 55
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(50),
-        ),
+        minimumSize: const Size(double.infinity, 55),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         elevation: 5,
         textStyle: GoogleFonts.poppins(
           fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
       ),
-      child: Text(
-        text,
-        style: TextStyle(color: colorText),
-      ),
+      child: Text(text, style: TextStyle(color: colorText)),
     );
   }
 }

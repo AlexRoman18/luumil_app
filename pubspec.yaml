@@ -51,6 +51,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/icons/buscar.png
+    - assets/icons/caja.png
   
   # To add assets to your application, add an assets section, like this:
   # assets:
