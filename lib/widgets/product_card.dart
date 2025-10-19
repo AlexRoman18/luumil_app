@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/screens/product_detail_screen.dart';
+import 'package:luumil_app/screens/perfil_screen.dart';
 
 class ProductCard extends StatelessWidget {
   final String title;
@@ -37,7 +38,7 @@ class ProductCard extends StatelessWidget {
                 color: AppColors.grayBackground,
                 borderRadius: BorderRadius.circular(10),
                 image: const DecorationImage(
-                    image: AssetImage('assets/images/vela.jpg'),
+                  image: AssetImage('assets/images/vela.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -52,7 +53,9 @@ class ProductCard extends StatelessWidget {
                   Text(
                     title,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(description),
@@ -67,11 +70,11 @@ class ProductCard extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ProductDetailScreen()),
-                                    );
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ProductDetailScreen(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.blue,
@@ -84,7 +87,14 @@ class ProductCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed: onGoToShop,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ProfileScreen(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.green,
                           foregroundColor: Colors.white, // 👈 texto blanco
@@ -98,7 +108,7 @@ class ProductCard extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
