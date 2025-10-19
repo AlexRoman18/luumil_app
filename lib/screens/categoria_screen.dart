@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:luumil_app/screens/products_screen.dart';
 import 'package:luumil_app/widgets/buttons.dart';
 
 class CategoriaScreen extends StatelessWidget {
@@ -74,7 +75,15 @@ class CategoriaScreen extends StatelessWidget {
                                 color: const Color(0xFF007BFF),
                                 text: categorias[index],
                                 colorText: Colors.white,
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const ProductsScreen(),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
