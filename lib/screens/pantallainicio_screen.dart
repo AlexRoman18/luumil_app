@@ -52,7 +52,7 @@ class PantallaInicio extends StatelessWidget {
             children: [
               // Título de bienvenida
               Text(
-                '¡Bienvenido, Angel!',
+                '¡Bienvenido, Papoi!',
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -149,7 +149,7 @@ class PantallaInicio extends StatelessWidget {
               // Lista de tarjetas de novedades
               Column(
                 children: List.generate(
-                  4,
+                  1,
                   (index) => Container(
                     margin: const EdgeInsets.only(bottom: 15),
                     height: 80,
@@ -177,6 +177,46 @@ class PantallaInicio extends StatelessWidget {
                         const Expanded(
                           child: Text(
                             'Venta de chile',
+                            style: TextStyle(color: Colors.black54),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          ),
+
+          // Segunda lista de novedades
+          Column(
+            children: List.generate(
+              3,
+              (index) => Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    height: 80,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 70,
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(15),
+                              bottomLeft: Radius.circular(15),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.storefront,
+                            color: Colors.black45,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(
+                          child: Text(
+                            'Venta de aguacate',
                             style: TextStyle(color: Colors.black54),
                           ),
                         ),
