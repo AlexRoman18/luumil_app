@@ -15,35 +15,35 @@ class Categoria2Screen extends StatelessWidget {
             "Piña cultivada en huertos locales, jugosa y naturalmente dulce",
         "price": 25.0,
         "stock": 50,
-        "image": 'assets/images/piña-miel.png',
+        "image": "assets/images/pina-miel.png",
       },
       {
         "title": "Papaya maradol",
         "desc": "Papaya fresca de la región, rica en sabor y vitaminas",
         "price": 20.0,
         "stock": 40,
-        "image": 'assets/images/papaya-maradol.png',
+        "image": "assets/images/papaya-maradol.png",
       },
       {
         "title": "Plátano criollo",
         "desc": "Plátano maduro cultivado de forma natural en la zona maya",
         "price": 18.0,
         "stock": 60,
-        "image": 'assets/images/platano-criollo.png',
+        "image": "assets/images/platano-criollo.png",
       },
       {
         "title": "Calabaza chayote",
         "desc": "Calabaza tierna de productores locales, ideal para guisos",
         "price": 15.0,
         "stock": 45,
-        "image": 'assets/images/calabaza-chayote.png',
+        "image": "assets/images/calabaza-chayote.png",
       },
       {
         "title": "Chile habanero",
         "desc": "Chile habanero fresco, picante y cultivado sin químicos",
         "price": 10.0,
         "stock": 80,
-        "image": 'assets/images/chile-habanero.png',
+        "image": "assets/images/chile-habanero.png",
       },
     ];
 
@@ -73,16 +73,8 @@ class Categoria2Screen extends StatelessWidget {
             description: p["desc"] as String,
             price: p["price"] as double,
             stock: p["stock"] as int,
-            image:
-                (p["image"] as String?) ?? 'assets/images/default-product.png',
-            onViewMore: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProductDetailScreen(),
-                ),
-              );
-            },
+            image: p["image"] as String,
+            onViewMore: () {},
             onGoToShop: () {
               Navigator.push(
                 context,
@@ -124,7 +116,7 @@ class _ProductCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            // Imagen del producto
+            // ✅ Imagen del producto
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Image.asset(
@@ -132,20 +124,18 @@ class _ProductCard extends StatelessWidget {
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  // Si no se encuentra la imagen, usa una por defecto
-                  return Image.asset(
-                    'assets/images/default-product.png',
-                    width: 120,
-                    height: 120,
-                    fit: BoxFit.cover,
-                  );
-                },
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 120,
+                  height: 120,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.image_not_supported, size: 50),
+                ),
               ),
             ),
+
             const SizedBox(width: 10),
 
-            // Información del producto
+            // ✅ Información del producto
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -164,7 +154,7 @@ class _ProductCard extends StatelessWidget {
                   Text("Disponible: $stock piezas"),
                   const SizedBox(height: 6),
 
-                  // Botones de acción
+                  // ✅ Botones
                   Row(
                     children: [
                       Expanded(
@@ -192,7 +182,7 @@ class _ProductCard extends StatelessWidget {
                             ),
                           ),
                           child: const Text(
-                            "Ir al perfil de la tienda",
+                            "Tienda",
                             style: TextStyle(fontSize: 12),
                           ),
                         ),

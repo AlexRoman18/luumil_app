@@ -68,14 +68,7 @@ class Categoria5Screen extends StatelessWidget {
             description: p["desc"] as String,
             price: p["price"] as double,
             stock: p["stock"] as int,
-            onViewMore: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProductDetailScreen(),
-                ),
-              );
-            },
+            onViewMore: () {},
             onGoToShop: () {
               Navigator.push(
                 context,

@@ -14,6 +14,7 @@ class Categoria3Screen extends StatelessWidget {
         "desc": "Tortillas hechas a mano con maíz criollo de la región",
         "price": 30.0,
         "stock": 100,
+        "image": "assets/images/tortillas-maiz.png",
       },
       {
         "title": "Pinole artesanal",
@@ -21,24 +22,28 @@ class Categoria3Screen extends StatelessWidget {
             "Harina de maíz tostado con canela y azúcar, ideal para bebidas",
         "price": 45.0,
         "stock": 35,
+        "image": "assets/images/pinole-artesanal.png",
       },
       {
         "title": "Pozol tradicional",
         "desc": "Bebida refrescante a base de maíz molido y cacao natural",
         "price": 25.0,
         "stock": 50,
+        "image": "assets/images/pozol-tradicional.png",
       },
       {
         "title": "Elote fresco",
         "desc": "Mazorca tierna cosechada por productores locales",
         "price": 10.0,
         "stock": 70,
+        "image": "assets/images/elote-fresco.png",
       },
       {
         "title": "Tostadas de maíz",
         "desc": "Crujientes y naturales, perfectas para antojitos mexicanos",
         "price": 20.0,
         "stock": 60,
+        "image": "assets/images/tostadas-maiz.png",
       },
     ];
 
@@ -52,7 +57,6 @@ class Categoria3Screen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 16),
@@ -69,14 +73,8 @@ class Categoria3Screen extends StatelessWidget {
             description: p["desc"] as String,
             price: p["price"] as double,
             stock: p["stock"] as int,
-            onViewMore: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProductDetailScreen(),
-                ),
-              );
-            },
+            image: p["image"] as String,
+            onViewMore: () {},
             onGoToShop: () {
               Navigator.push(
                 context,
@@ -95,6 +93,7 @@ class _ProductCard extends StatelessWidget {
   final String description;
   final double price;
   final int stock;
+  final String image;
   final VoidCallback onViewMore;
   final VoidCallback onGoToShop;
 
@@ -103,6 +102,7 @@ class _ProductCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.stock,
+    required this.image,
     required this.onViewMore,
     required this.onGoToShop,
   });
@@ -110,47 +110,62 @@ class _ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagen
+            // ✅ Imagen del producto
             Container(
-              width: 120,
-              height: 120,
+              width: 110,
+              height: 110,
               decoration: BoxDecoration(
-                color: AppColors.grayBackground,
                 borderRadius: BorderRadius.circular(10),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/vela.jpg'),
-                  fit: BoxFit.cover,
+                color: Colors.grey[300],
+              ),
+              clipBehavior: Clip.hardEdge,
+              child: Image.asset(
+                image,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(
+                  Icons.image_not_supported,
+                  size: 50,
+                  color: Colors.grey,
                 ),
               ),
             ),
+
             const SizedBox(width: 10),
 
-            // Información
+            // ✅ Información del producto
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(description),
+                  Text(
+                    description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   const SizedBox(height: 4),
                   Text("Costo: \$${price.toStringAsFixed(2)} c/u"),
                   Text("Disponible: $stock piezas"),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
-                  // Botones
+                  // ✅ Botones
                   Row(
                     children: [
                       Expanded(
@@ -159,6 +174,7 @@ class _ProductCard extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.blue,
                             foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -173,12 +189,13 @@ class _ProductCard extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.green,
                             foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
                           child: const Text(
-                            "Ir al perfil de la tienda",
+                            "Tienda",
                             style: TextStyle(fontSize: 12),
                           ),
                         ),

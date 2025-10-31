@@ -14,30 +14,35 @@ class Categoria4Screen extends StatelessWidget {
         "desc": "Pan artesanal horneado con receta familiar y azúcar morena",
         "price": 12.0,
         "stock": 80,
+        "image": "assets/images/pan_dulce.jpg",
       },
       {
         "title": "Galletas de miel melipona",
         "desc": "Galletas suaves hechas con miel natural de abejas meliponas",
         "price": 30.0,
         "stock": 40,
+        "image": "assets/images/galletas_miel.jpg",
       },
       {
         "title": "Pastel de yuca",
         "desc": "Repostería típica elaborada con yuca rallada y coco",
         "price": 55.0,
         "stock": 25,
+        "image": "assets/images/pastel_yuca.jpg",
       },
       {
         "title": "Pan de elote",
         "desc": "Pan casero con granos de elote fresco, dulce y esponjoso",
         "price": 40.0,
         "stock": 30,
+        "image": "assets/images/pan_elote.jpg",
       },
       {
         "title": "Empanadas de coco",
         "desc": "Empanadas rellenas de coco rallado y miel artesanal",
         "price": 35.0,
         "stock": 28,
+        "image": "assets/images/empanadas_coco.jpg",
       },
     ];
 
@@ -51,7 +56,6 @@ class Categoria4Screen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 16),
@@ -68,14 +72,8 @@ class Categoria4Screen extends StatelessWidget {
             description: p["desc"] as String,
             price: p["price"] as double,
             stock: p["stock"] as int,
-            onViewMore: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProductDetailScreen(),
-                ),
-              );
-            },
+            image: p["image"] as String,
+            onViewMore: () {},
             onGoToShop: () {
               Navigator.push(
                 context,
@@ -94,6 +92,7 @@ class _ProductCard extends StatelessWidget {
   final String description;
   final double price;
   final int stock;
+  final String image;
   final VoidCallback onViewMore;
   final VoidCallback onGoToShop;
 
@@ -102,6 +101,7 @@ class _ProductCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.stock,
+    required this.image,
     required this.onViewMore,
     required this.onGoToShop,
   });
@@ -115,22 +115,25 @@ class _ProductCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            // Imagen
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.grayBackground,
-                borderRadius: BorderRadius.circular(10),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/vela.jpg'),
-                  fit: BoxFit.cover,
+            // ✅ Imagen del producto
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                image,
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 120,
+                  height: 120,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.image_not_supported, size: 50),
                 ),
               ),
             ),
             const SizedBox(width: 10),
 
-            // Información
+            // ✅ Información del producto
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,7 +152,7 @@ class _ProductCard extends StatelessWidget {
                   Text("Disponible: $stock piezas"),
                   const SizedBox(height: 6),
 
-                  // Botones
+                  // ✅ Botones
                   Row(
                     children: [
                       Expanded(
@@ -177,7 +180,7 @@ class _ProductCard extends StatelessWidget {
                             ),
                           ),
                           child: const Text(
-                            "Ir al perfil de la tienda",
+                            "Tienda",
                             style: TextStyle(fontSize: 12),
                           ),
                         ),
