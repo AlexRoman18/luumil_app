@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:luumil_app/categorias/categoria2_screen.dart';
+import 'package:luumil_app/categorias/categoria3_screen.dart';
+import 'package:luumil_app/categorias/categoria4_screen.dart';
+import 'package:luumil_app/categorias/categoria5_screen.dart';
+import 'package:luumil_app/categorias/categoria6_screen.dart';
 import 'package:luumil_app/screens/products_screen.dart';
 import 'package:luumil_app/widgets/buttons.dart';
 
@@ -9,14 +14,12 @@ class CategoriaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categorias = [
-      'Categoría 1',
-      'Categoría 2',
-      'Categoría 3',
-      'Categoría 4',
+      'Velas aromáticas',
+      'Frutas y Verduras',
+      'Maíz y Derivados',
+      'Panadería y Repostería',
       'Categoría 5',
       'Categoría 6',
-      'Categoría 7',
-      'Categoría 8',
     ];
 
     return Scaffold(
@@ -76,11 +79,35 @@ class CategoriaScreen extends StatelessWidget {
                                 text: categorias[index],
                                 colorText: Colors.white,
                                 onPressed: () {
+                                  Widget destino;
+                                  switch (index) {
+                                    case 0:
+                                      destino = const ProductsScreen();
+                                      break;
+                                    case 1:
+                                      destino = const Categoria2Screen();
+                                      break;
+                                    case 2:
+                                      destino = const Categoria3Screen();
+                                      break;
+                                    case 3:
+                                      destino = const Categoria4Screen();
+                                      break;
+                                    case 4:
+                                      destino = const Categoria5Screen();
+                                      break;
+                                    case 5:
+                                      destino = const Categoria6Screen();
+                                      break;
+                                    default:
+                                      destino =
+                                          const ProductsScreen(); // pantalla por defecto si algo falla
+                                  }
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ProductsScreen(),
+                                      builder: (context) => destino,
                                     ),
                                   );
                                 },

@@ -50,6 +50,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icons/
+    - assets/images/
     - assets/images/vela.jpg
     - assets/icons/buscar.png
     - assets/icons/caja.png
