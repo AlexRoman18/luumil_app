@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/screens/perfil_screen.dart';
-import 'package:luumil_app/verMas_categories/categoria2.dart';
 
 class Categoria2Screen extends StatelessWidget {
   const Categoria2Screen({super.key});
@@ -12,35 +11,35 @@ class Categoria2Screen extends StatelessWidget {
       {
         "title": "Piña miel",
         "desc":
-            "Piña cultivada en huertos locales, jugosa y naturalmente dulce.",
+            "Piña cultivada en huertos locales, jugosa y naturalmente dulce",
         "price": 25.0,
         "stock": 50,
         "image": "assets/images/pina-miel.png",
       },
       {
         "title": "Papaya maradol",
-        "desc": "Papaya fresca de la región, rica en sabor y vitaminas.",
+        "desc": "Papaya fresca de la región, rica en sabor y vitaminas",
         "price": 20.0,
         "stock": 40,
         "image": "assets/images/papaya-maradol.png",
       },
       {
         "title": "Plátano criollo",
-        "desc": "Plátano maduro cultivado de forma natural en la zona maya.",
+        "desc": "Plátano maduro cultivado de forma natural en la zona maya",
         "price": 18.0,
         "stock": 60,
         "image": "assets/images/platano-criollo.png",
       },
       {
         "title": "Calabaza chayote",
-        "desc": "Calabaza tierna de productores locales, ideal para guisos.",
+        "desc": "Calabaza tierna de productores locales, ideal para guisos",
         "price": 15.0,
         "stock": 45,
         "image": "assets/images/calabaza-chayote.png",
       },
       {
         "title": "Chile habanero",
-        "desc": "Chile habanero fresco, picante y cultivado sin químicos.",
+        "desc": "Chile habanero fresco, picante y cultivado sin químicos",
         "price": 10.0,
         "stock": 80,
         "image": "assets/images/chile-habanero.png",
@@ -74,25 +73,11 @@ class Categoria2Screen extends StatelessWidget {
             price: p["price"] as double,
             stock: p["stock"] as int,
             image: p["image"] as String,
-            onViewMore: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Categoria2(
-                    title: p["title"] as String,
-                    image: p["image"] as String,
-                    price: p["price"] as double,
-                    description: p["desc"] as String,
-                  ),
-                ),
-              );
-            },
+            onViewMore: () {},
             onGoToShop: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfileScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
               );
             },
           );
@@ -173,7 +158,8 @@ class _ProductCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: onViewMore,
+                          onPressed: () {
+                            },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.blue,
                             foregroundColor: Colors.white,
