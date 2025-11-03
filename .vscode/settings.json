@@ -1,3 +1,11 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+
+    "java.import.gradle.initScripts": [],
+    "java.import.gradle.wrapper.checksums": [],
+    "java.silentInstall": false,
+    "java.import.generatesMetadataFilesAtProjectRoot": true,
+    "java.import.gradle.enabled": true,
+    "java.import.gradle.wrapper.enabled": true,
+    "java.import.gradle.offline.enabled": false
 }

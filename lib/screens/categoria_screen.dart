@@ -18,8 +18,8 @@ class CategoriaScreen extends StatelessWidget {
       'Frutas y Verduras',
       'Maíz y Derivados',
       'Panadería y Repostería',
-      'Categoría 5',
-      'Categoría 6',
+      'Limpieza y Hogar',
+      'Dulcería y Snacks',
     ];
 
     return Scaffold(
@@ -73,7 +73,7 @@ class CategoriaScreen extends StatelessWidget {
                             const SizedBox(height: 12),
                             SizedBox(
                               width: 200, //Ajustar tamaños botones
-                              height: 40,
+                              height: 50,
                               child: Buttons(
                                 color: const Color(0xFF007BFF),
                                 text: categorias[index],

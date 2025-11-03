@@ -1,17 +1,27 @@
 import 'package:flutter/material.dart';
 import '../widgets/product_image.dart';
 import '../widgets/product_info_section.dart';
-import '../widgets/color_selector.dart';
 import '../widgets/product_description.dart';
 
-class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({super.key});
+class Categoria2 extends StatefulWidget {
+  final String title;
+  final String image;
+  final double price;
+  final String description;
+
+  const Categoria2({
+    super.key,
+    required this.title,
+    required this.image,
+    required this.price,
+    required this.description,
+  });
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  State<Categoria2> createState() => _Categoria2State();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _Categoria2State extends State<Categoria2> {
   bool isFavorite = false;
 
   @override
@@ -30,26 +40,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => Navigator.pop(context),
                   ),
-                  const Expanded(
+                  Expanded(
                     child: Center(
                       child: Text(
-                        "Velas aromáticas",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        widget.title,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 48), // para balancear visualmente
+                  const SizedBox(width: 48),
                 ],
               ),
 
-              ProductImage(image: Image.asset('assets/images/vela.jpg')),
+              ProductImage(image: Image.asset(widget.image)),
               const SizedBox(height: 8),
 
               ProductInfoSection(
-                price: 60,
+                price: widget.price,
                 rating: 5,
                 isFavorite: isFavorite,
                 onFavoriteToggle: () {
@@ -60,20 +68,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               const SizedBox(height: 16),
 
-              const ColorSelector(
-                colors: [
-                  Colors.amber,
-                  Colors.purple,
-                  Colors.greenAccent,
-                  Colors.teal,
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              const ProductDescription(
-                title: "Velas aromáticas con cera de abeja",
-                description:
-                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam...",
+              ProductDescription(
+                title: widget.title,
+                description: widget.description,
               ),
               const SizedBox(height: 12),
               const ProductDescription(
