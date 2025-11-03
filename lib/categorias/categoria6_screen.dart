@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
-import 'package:luumil_app/screens/product_detail_screen.dart';
 import 'package:luumil_app/screens/perfil_screen.dart';
+import 'package:luumil_app/verMas_categories/categoria2.dart';
 
 class Categoria6Screen extends StatelessWidget {
   const Categoria6Screen({super.key});
@@ -10,34 +10,39 @@ class Categoria6Screen extends StatelessWidget {
   Widget build(BuildContext context) {
     final products = [
       {
-        "title": "Vela aaaaa",
-        "desc": "Vela con cera de abeja olor naranja",
+        "title": "Mazapanes de cacahuate",
+        "desc": "Mazapanes artesanales hechas con cacahuate natural",
         "price": 60.0,
         "stock": 34,
+        "image": "assets/images/mazapan.png",
       },
-      {
-        "title": "Vela aromática de vainilla",
-        "desc": "Vela natural con esencia de vainilla y cera vegetal",
+      { "title": "Caramelos de miel",
+        "desc": "Caramelos suaves elaborados con miel pura",
         "price": 65.0,
         "stock": 28,
+        "image": "assets/images/miel.png",
       },
       {
-        "title": "Vela aromática de coco",
-        "desc": "Vela artesanal con aroma tropical a coco fresco",
+        "title": "Palanquetas de cacahuete",
+        "desc": "Palanquetas crujientes hechas con cacahuate y miel",
         "price": 70.0,
         "stock": 40,
+        "image": "assets/images/palanquetas.png",
       },
       {
-        "title": "Vela aromática de canela",
-        "desc": "Vela con notas cálidas de canela y cera de abeja pura",
+        
+        "title": "Dulce de papaya",
+        "desc": "Dulce tradicional hecho con papaya natural y azúcar",
         "price": 75.0,
         "stock": 25,
+        "image": "assets/images/dulcePapaya.png",
       },
       {
-        "title": "Vela de lavanda relajante",
-        "desc": "Vela con aroma a lavanda, ideal para relajación y descanso",
+        "title": "Cocadas",
+        "desc": "Cocadas frescas elaboradas con coco rallado y azúcar",
         "price": 80.0,
-        "stock": 32,
+        "stock":32,
+        "image": "assets/images/cocada.png",
       },
     ];
 
@@ -51,7 +56,6 @@ class Categoria6Screen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-
         actions: const [
           Padding(
             padding: EdgeInsets.only(right: 16),
@@ -68,11 +72,26 @@ class Categoria6Screen extends StatelessWidget {
             description: p["desc"] as String,
             price: p["price"] as double,
             stock: p["stock"] as int,
-            onViewMore: () {},
+            image: p["image"] as String,
+            onViewMore: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Categoria2(
+                    title: p["title"] as String,
+                    image: p["image"] as String,
+                    price: p["price"] as double,
+                    description: p["desc"] as String,
+                  ),
+                ),
+              );
+            },
             onGoToShop: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const ProfileScreen(),
+                ),
               );
             },
           );
@@ -87,6 +106,7 @@ class _ProductCard extends StatelessWidget {
   final String description;
   final double price;
   final int stock;
+  final String image;
   final VoidCallback onViewMore;
   final VoidCallback onGoToShop;
 
@@ -95,6 +115,7 @@ class _ProductCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.stock,
+    required this.image,
     required this.onViewMore,
     required this.onGoToShop,
   });
@@ -108,22 +129,26 @@ class _ProductCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            // Imagen
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.grayBackground,
-                borderRadius: BorderRadius.circular(10),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/vela.jpg'),
-                  fit: BoxFit.cover,
+            // ✅ Imagen del producto
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                image,
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 120,
+                  height: 120,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.image_not_supported, size: 50),
                 ),
               ),
             ),
+
             const SizedBox(width: 10),
 
-            // Información
+            // ✅ Información del producto
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +167,7 @@ class _ProductCard extends StatelessWidget {
                   Text("Disponible: $stock piezas"),
                   const SizedBox(height: 6),
 
-                  // Botones
+                  // ✅ Botones
                   Row(
                     children: [
                       Expanded(
@@ -170,7 +195,7 @@ class _ProductCard extends StatelessWidget {
                             ),
                           ),
                           child: const Text(
-                            "Ir al perfil de la tienda",
+                            "Tienda",
                             style: TextStyle(fontSize: 12),
                           ),
                         ),

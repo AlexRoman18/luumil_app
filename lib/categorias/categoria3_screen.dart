@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
-import 'package:luumil_app/screens/product_detail_screen.dart';
 import 'package:luumil_app/screens/perfil_screen.dart';
 
 class Categoria3Screen extends StatelessWidget {
