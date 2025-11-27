@@ -184,13 +184,13 @@ class PantallaInicio extends StatelessWidget {
                     ),
                   ),
                 ),
-          ),
+              ),
 
-          // Segunda lista de novedades
-          Column(
-            children: List.generate(
-              3,
-              (index) => Container(
+              // Segunda lista de novedades
+              Column(
+                children: List.generate(
+                  3,
+                  (index) => Container(
                     margin: const EdgeInsets.only(bottom: 15),
                     height: 80,
                     decoration: BoxDecoration(
