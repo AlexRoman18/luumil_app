@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:luumil_app/widgets/custom_text_field.dart';
 import 'package:luumil_app/screens/pantallainicio_screen.dart';
 
+import '../screens/iniciarsesion_screen.dart';
+
 class RegisterForm extends StatelessWidget {
   const RegisterForm({super.key});
 
@@ -126,11 +128,12 @@ class RegisterForm extends StatelessWidget {
                       style: TextStyle(fontSize: 14),
                     ),
                     TextButton(
-                      onPressed: () {
-                        // Aquí navegas al login
-                      },
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      ),
                       child: const Text(
-                        'inicie sesión',
+                        'Inicie sesión',
                         style: TextStyle(
                           color: Color(0xFF007BFF),
                           fontWeight: FontWeight.bold,

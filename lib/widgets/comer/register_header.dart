@@ -5,20 +5,37 @@ class RegisterHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset('assets/icons/logo.png', width: 150, height: 150),
-        const SizedBox(height: 5),
-        const Text(
-          'Solicitud de registro',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 40,
-            fontWeight: FontWeight.bold,
+    final width = MediaQuery.of(context).size.width;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 30, bottom: 12),
+      // 👆 Ajusta la posición vertical
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Logo responsivo
+          Image.asset(
+            'assets/icons/logo.png',
+            width: width * 0.25,
+            height: width * 0.25,
           ),
-        ),
-      ],
+
+          const SizedBox(height: 10),
+
+          // Texto centrado y más proporcionado
+          Text(
+            'Solicitud de registro',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: width * 0.075, // antes 0.085
+              fontWeight: FontWeight.bold,
+              height: 1.1,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
