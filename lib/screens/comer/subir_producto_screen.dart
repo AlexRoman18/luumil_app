@@ -34,15 +34,16 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 14,
+        ),
       );
     }
 
     Widget photoCard() {
       return GestureDetector(
-        onTap: () {
-         
-        },
+        onTap: () {},
         child: Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
@@ -55,8 +56,10 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
             children: [
               const Icon(Icons.camera_alt, size: 50, color: Colors.black87),
               const SizedBox(height: 10),
-              const Text('Añadir fotos',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Text(
+                'Añadir fotos',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
               const SizedBox(height: 5),
               const Text(
                 'Muestra tu producto desde diferentes ángulos',
@@ -65,9 +68,7 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
               ),
               const SizedBox(height: 10),
               ElevatedButton(
-                onPressed: () {
-                 
-                },
+                onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue,
@@ -83,7 +84,10 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nuevo producto', style: TextStyle(color: Colors.black)),
+        title: const Text(
+          'Nuevo producto',
+          style: TextStyle(color: Colors.black),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -98,8 +102,10 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Nombre del producto',
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Nombre del producto',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 5),
               TextFormField(
                 controller: nombreController,
@@ -110,24 +116,32 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 },
               ),
               const SizedBox(height: 15),
-              const Text('Descripción del producto',
-                  style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Descripción del producto',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 5),
               TextFormField(
                 controller: descripcionController,
                 maxLines: 3,
                 decoration: fieldDecoration('Describe a detalle tu producto'),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty) return 'Ingrese la descripción';
+                  if (v == null || v.trim().isEmpty)
+                    return 'Ingrese la descripción';
                   return null;
                 },
               ),
               const SizedBox(height: 15),
-              const Text('Precio', style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Precio',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 5),
               TextFormField(
                 controller: precioController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
                 decoration: fieldDecoration('\$ 0.00'),
                 validator: (v) {
                   if (v == null || v.trim().isEmpty) return 'Ingrese el precio';
@@ -138,7 +152,10 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 },
               ),
               const SizedBox(height: 15),
-              const Text('Categoría', style: TextStyle(fontWeight: FontWeight.w500)),
+              const Text(
+                'Categoría',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
               const SizedBox(height: 5),
               DropdownButtonFormField<String>(
                 value: categoriaSeleccionada,
@@ -146,17 +163,23 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 isExpanded: true,
                 decoration: fieldDecoration(''),
                 items: categorias
-                    .map((value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ))
+                    .map(
+                      (value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ),
+                    )
                     .toList(),
-                onChanged: (value) => setState(() => categoriaSeleccionada = value),
-                validator: (v) => v == null || v.isEmpty ? 'Seleccione categoría' : null,
+                onChanged: (value) =>
+                    setState(() => categoriaSeleccionada = value),
+                validator: (v) =>
+                    v == null || v.isEmpty ? 'Seleccione categoría' : null,
               ),
               const SizedBox(height: 25),
-              const Text('Fotos',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+              const Text(
+                'Fotos',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+              ),
               const SizedBox(height: 10),
               photoCard(),
               const SizedBox(height: 30),
@@ -177,11 +200,16 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   child: const Text(
                     'Guardar y subir',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      //color: Colors.white, // 👈 AQUÍ
+                    ),
                   ),
                 ),
               ),

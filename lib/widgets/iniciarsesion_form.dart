@@ -118,7 +118,7 @@ class LoginForm extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      '¿Ya tiene cuenta?',
+                      '¿No tiene cuenta?',
                       style: TextStyle(fontSize: 14),
                     ),
                     TextButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:luumil_app/categorias/categoria6_screen.dart';
 import 'package:luumil_app/widgets/buttons.dart';
 
 class LocalidadScreen extends StatelessWidget {
@@ -8,14 +9,14 @@ class LocalidadScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categorias = [
-      'X-Hazil',
-      'Localidad 2',
-      'Localidad 3',
-      'Localidad 4',
-      'localidad 5',
-      'Localidad 6',
-      'Localidad 7',
-      'Localidad 8',
+      'X-Hazil Sur',
+      'Chunhuhub',
+      'X-Pichil',
+      'Noh-Bec',
+      'Señor',
+      'Tihosuco',
+      'Tepich',
+      'Chumpón',
     ];
 
     return Scaffold(
@@ -25,7 +26,7 @@ class LocalidadScreen extends StatelessWidget {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              // Campo de búsqueda
+              // 🔍 Campo de búsqueda
               TextField(
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
@@ -38,6 +39,8 @@ class LocalidadScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
+
+              // 🟦 Grid de localidades
               Expanded(
                 child: GridView.builder(
                   itemCount: categorias.length,
@@ -55,8 +58,8 @@ class LocalidadScreen extends StatelessWidget {
                       ),
                       padding: const EdgeInsets.all(10),
                       child: SizedBox(
-                        width: 150, // ajusta el ancho del contenido
-                        height: 130, // ajusta la altura del contenedor
+                        width: 150,
+                        height: 130,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -67,13 +70,52 @@ class LocalidadScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 12),
                             SizedBox(
-                              width: 210, //Ajustar tamaños botones
+                              width: 210,
                               height: 45,
                               child: Buttons(
                                 color: const Color(0xFF007BFF),
                                 text: categorias[index],
                                 colorText: Colors.white,
-                                onPressed: () {},
+
+                                onPressed: () {
+                                  Widget destino = const Categoria6Screen();
+
+                                  switch (index) {
+                                    case 0:
+                                      destino = const Categoria6Screen();
+                                      break;
+                                    case 1:
+                                      //   destino = const ChunhuhubScreen();
+                                      break;
+                                    case 2:
+                                      //   destino = const XPichilScreen();
+                                      break;
+                                    case 3:
+                                      //    destino = const NohBecScreen();
+                                      break;
+                                    case 4:
+                                      //     destino = const SenorScreen();
+                                      break;
+                                    case 5:
+                                      //     destino = const TihosucoScreen();
+                                      break;
+                                    case 6:
+                                      //      destino = const TepichScreen();
+                                      break;
+                                    case 7:
+                                      //       destino = const ChumponScreen();
+                                      break;
+                                    default:
+                                    //        destino = const XHazilScreen();
+                                  }
+
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => destino,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
