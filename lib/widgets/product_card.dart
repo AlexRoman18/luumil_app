@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/screens/product_detail_screen.dart';
 import 'package:luumil_app/screens/perfil_screen.dart';
 
@@ -23,6 +22,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -35,7 +35,9 @@ class ProductCard extends StatelessWidget {
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: AppColors.grayBackground,
+                color: theme.colorScheme.surface.withAlpha(
+                  (0.98 * 255).round(),
+                ),
                 borderRadius: BorderRadius.circular(10),
                 image: const DecorationImage(
                   image: AssetImage('assets/images/vela.jpg'),
@@ -73,13 +75,14 @@ class ProductCard extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ProductDetailScreen(),
+                                builder: (context) =>
+                                    const ProductDetailScreen(),
                               ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.blue,
-                            foregroundColor: Colors.white, // 👈 texto blanco
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -99,17 +102,16 @@ class ProductCard extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.green,
-                            foregroundColor: Colors.white, // 👈 texto blanco
+                            backgroundColor: theme.colorScheme.secondary,
+                            foregroundColor: theme.colorScheme.onSecondary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
-                            
                             ),
                           ),
-                          child: const Text( "Ir al perfil de la tienda" ,style: TextStyle(
-                            fontSize: 12
-                          ),),
-                          
+                          child: const Text(
+                            "Tienda",
+                            style: TextStyle(fontSize: 15),
+                          ),
                         ),
                       ),
                     ],

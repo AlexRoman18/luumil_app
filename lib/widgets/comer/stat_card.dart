@@ -16,6 +16,7 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -51,7 +52,7 @@ class StatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          Icon(icon, size: 28, color: Colors.black),
+          Icon(icon, size: 28, color: theme.colorScheme.onSurface),
         ],
       ),
     );

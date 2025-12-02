@@ -10,6 +10,7 @@ class RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
     return Align(
@@ -17,17 +18,19 @@ class RegisterForm extends StatelessWidget {
       child: Container(
         height: size.height * heightFactor,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(36),
             topRight: Radius.circular(36),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black26,
+              color: theme.colorScheme.onSurface.withAlpha(
+                (0.12 * 255).round(),
+              ),
               blurRadius: 10,
-              offset: Offset(0, -5),
+              offset: const Offset(0, -5),
             ),
           ],
         ),
@@ -54,9 +57,14 @@ class RegisterForm extends StatelessWidget {
                 const SizedBox(height: 18),
 
                 // 🔹 Texto para imágenes
-                const Text(
+                Text(
                   'Por favor, adjunte mínimo 3 imágenes que evidencien la existencia de sus ventas',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.75 * 255).round(),
+                    ),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
@@ -79,17 +87,18 @@ class RegisterForm extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007BFF),
+                      backgroundColor: theme.colorScheme.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(50),
                       ),
+                      elevation: 6,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Enviar solicitud',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                   ),

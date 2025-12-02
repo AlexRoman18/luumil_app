@@ -38,10 +38,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
-      selectedItemColor: Colors.purple,
-      unselectedItemColor: Colors.grey,
+      selectedItemColor: theme.colorScheme.primary,
+      unselectedItemColor: theme.colorScheme.onSurface.withAlpha((0.6 * 255).round()),
       onTap: _onItemTapped,
       items: const [
         BottomNavigationBarItem(

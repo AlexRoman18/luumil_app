@@ -7,18 +7,31 @@ class RegisterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
           // Fondo
-          Image.asset('assets/icons/interfaz.png', fit: BoxFit.cover),
+          // Fondo temático en lugar de imagen decorativa
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [theme.colorScheme.primary, theme.colorScheme.surface],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
 
           // Degradado
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.black45, Colors.transparent],
+                colors: [
+                  theme.colorScheme.onSurface.withAlpha((0.45 * 255).round()),
+                  Colors.transparent,
+                ],
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
               ),

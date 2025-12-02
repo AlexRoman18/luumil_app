@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/config/theme/app_colors.dart';
-
 
 class ProductInfoSection extends StatelessWidget {
   final double price;
@@ -18,6 +16,7 @@ class ProductInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -26,16 +25,17 @@ class ProductInfoSection extends StatelessWidget {
           children: [
             Text(
               "\$$price",
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 8),
             Row(
               children: List.generate(
                 rating,
-                (index) => const Icon(Icons.star, color: Colors.amber, size: 20),
+                (index) => Icon(
+                  Icons.star,
+                  color: theme.colorScheme.secondary,
+                  size: 20,
+                ),
               ),
             ),
           ],
@@ -45,7 +45,9 @@ class ProductInfoSection extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.thumb_up,
-            color: isFavorite ? AppColors.blue : Colors.black54,
+            color: isFavorite
+                ? theme.colorScheme.secondary
+                : theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
           ),
           onPressed: onFavoriteToggle,
         ),

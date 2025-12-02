@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/config/theme/app_colors.dart';
 
 class ProductImage extends StatelessWidget {
   final Image image;
@@ -7,17 +6,17 @@ class ProductImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       height: 280,
       margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.grayBackground,
+        color: theme.colorScheme.surface.withAlpha((0.98 * 255).round()),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black26),
-        image: DecorationImage(
-          image: image.image,
-          fit: BoxFit.cover,
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withAlpha((0.12 * 255).round()),
         ),
+        image: DecorationImage(image: image.image, fit: BoxFit.cover),
       ),
     );
   }

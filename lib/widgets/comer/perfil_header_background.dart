@@ -5,15 +5,17 @@ class PerfilHeaderBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Stack(
       children: [
-        // 🖼️ Fondo con imagen
+        // Fondo temático (reemplaza imagen decorativa)
         Container(
           height: 180,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/icons/interfaz.png'),
-              fit: BoxFit.cover,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [theme.colorScheme.primary, theme.colorScheme.surface],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
           ),
         ),
@@ -23,7 +25,10 @@ class PerfilHeaderBackground extends StatelessWidget {
           height: 180,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.black.withOpacity(0.25), Colors.transparent],
+              colors: [
+                theme.colorScheme.onSurface.withAlpha((0.25 * 255).round()),
+                Colors.transparent,
+              ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -33,10 +38,7 @@ class PerfilHeaderBackground extends StatelessWidget {
         // 🔙 Botón de retroceso
         SafeArea(
           child: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Color.fromARGB(255, 0, 0, 0),
-            ),
+            icon: Icon(Icons.arrow_back, color: theme.colorScheme.onPrimary),
             onPressed: () => Navigator.pop(context),
           ),
         ),

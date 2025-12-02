@@ -14,24 +14,30 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return TextField(
       obscureText: obscure,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: Icon(icon, color: Colors.black54),
+        prefixIcon: Icon(
+          icon,
+          color: theme.colorScheme.onSurface.withAlpha((0.7 * 255).round()),
+        ),
         filled: true,
-        fillColor: const Color(0xFFF7F7F8),
+        fillColor: theme.colorScheme.surface,
         contentPadding: const EdgeInsets.symmetric(
           vertical: 14.0,
           horizontal: 12.0,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Color(0xFFE6E6E6)),
+          borderSide: BorderSide(
+            color: theme.colorScheme.onSurface.withAlpha((0.12 * 255).round()),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
-          borderSide: const BorderSide(color: Color(0xFF007BFF)),
+          borderSide: BorderSide(color: theme.colorScheme.primary),
         ),
       ),
     );

@@ -36,14 +36,17 @@ class _CameraButtonState extends State<CameraButton> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       // 👉 Altura mínima, pero deja que crezca si hay muchas fotos
       constraints: const BoxConstraints(minHeight: 160),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
+        color: theme.colorScheme.surface.withAlpha((0.98 * 255).round()),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade400),
+        border: Border.all(
+          color: theme.colorScheme.onSurface.withAlpha((0.12 * 255).round()),
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -73,15 +76,23 @@ class _CameraButtonState extends State<CameraButton> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEDEDED),
+                  color: theme.colorScheme.surface.withAlpha(
+                    (0.95 * 255).round(),
+                  ),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade400),
+                  border: Border.all(
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.12 * 255).round(),
+                    ),
+                  ),
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.add_circle_outline,
                     size: 32,
-                    color: Colors.grey,
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.7 * 255).round(),
+                    ),
                   ),
                 ),
               ),

@@ -7,20 +7,24 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Fondo azul superior
+            // Fondo superior temático (reemplaza imagen decorativa)
             Container(
               height: 160,
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/icons/interfaz.png'),
-                  fit: BoxFit
-                      .cover, // 👈 ajusta la imagen para cubrir todo el contenedor
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.surface,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
               ),
 
@@ -28,7 +32,10 @@ class ProfileScreen extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.topLeft,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    icon: Icon(
+                      Icons.arrow_back,
+                      color: theme.colorScheme.onPrimary,
+                    ),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ),
@@ -46,6 +53,7 @@ class ProfileScreen extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.onSurface,
                 ),
               ),
             ),
@@ -67,9 +75,16 @@ class ProfileScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: theme.colorScheme.surface.withAlpha(
+                        (0.9 * 255).round(),
+                      ),
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.grey.shade400, width: 1),
+                      border: Border.all(
+                        color: theme.colorScheme.onSurface.withAlpha(
+                          (0.12 * 255).round(),
+                        ),
+                        width: 1,
+                      ),
                     ),
                   );
                 },

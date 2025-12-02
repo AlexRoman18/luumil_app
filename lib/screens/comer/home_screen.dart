@@ -9,16 +9,25 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Fondo con degradado o imagen
-          Image.asset('assets/icons/interfaz.png', fit: BoxFit.cover),
+          // Fondo basado en el tema (reemplaza imagen decorativa)
           Container(
-            color: Colors.black.withOpacity(0.2), // Sutil capa para contraste
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [theme.colorScheme.primary, theme.colorScheme.surface],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
           ),
+          Container(
+            color: theme.colorScheme.onSurface.withAlpha((0.12 * 255).round()),
+          ), // Sutil capa para contraste
           // Contenido principal
           Center(
             child: SingleChildScrollView(
@@ -34,22 +43,18 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Nombre de la app
-                  const Text(
+                  Text(
                     'LuumilApp',
-                    style: TextStyle(
-                      fontSize: 32,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                    style: theme.textTheme.titleLarge?.copyWith(
                       letterSpacing: 1.2,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 50),
 
                   // Botón Iniciar Sesión
                   Buttons(
-                    color: Colors.white,
                     text: 'Iniciar Sesión',
-                    colorText: Colors.black,
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -61,9 +66,7 @@ class HomeScreen extends StatelessWidget {
 
                   // Botón Registrarse
                   Buttons(
-                    color: Colors.white,
                     text: 'Registrarse',
-                    colorText: Colors.black,
                     onPressed: () => Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const RegisterScreen()),

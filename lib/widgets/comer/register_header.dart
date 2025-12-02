@@ -5,6 +5,7 @@ class RegisterHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
 
     return Padding(
@@ -27,10 +28,9 @@ class RegisterHeader extends StatelessWidget {
           Text(
             'Solicitud de registro',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: width * 0.075, // antes 0.085
-              fontWeight: FontWeight.bold,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontSize: width * 0.075,
+              color: theme.colorScheme.onPrimary,
               height: 1.1,
             ),
           ),

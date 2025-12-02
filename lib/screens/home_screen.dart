@@ -8,12 +8,24 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo con imagen
+          // Fondo temático (reemplaza imagen decorativa)
           Positioned.fill(
-            child: Image.asset('assets/icons/interfaz.png', fit: BoxFit.cover),
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.surface,
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
           ),
           // Contenido encima del fondo
           Center(
@@ -22,21 +34,19 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Image.asset('assets/icons/logo.png', width: 120),
                 const SizedBox(height: 20),
-                const Text(
-                  'LuumilApp',
-                  style: TextStyle(
-                    fontSize: 32,
+                Text(
+                  ' LuumilApp',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: 40,
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 40),
                 SizedBox(
                   width: 300, // controla el ancho visible
                   child: Buttons(
-                    color: Colors.white,
                     text: 'Iniciar Sesión',
-                    colorText: Colors.black,
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -51,9 +61,7 @@ class HomeScreen extends StatelessWidget {
                 SizedBox(
                   width: 300,
                   child: Buttons(
-                    color: Colors.white,
                     text: 'Registrarse',
-                    colorText: Colors.black,
                     onPressed: () {
                       Navigator.push(
                         context,

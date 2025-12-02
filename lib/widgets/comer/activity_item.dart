@@ -15,11 +15,12 @@ class ActivityItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9F9FF),
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -29,10 +30,18 @@ class ActivityItem extends StatelessWidget {
           Expanded(
             child: Text(
               '$name\n$action',
-              style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: theme.colorScheme.onSurface.withAlpha(
+                  (0.87 * 255).round(),
+                ),
+              ),
             ),
           ),
-          const Icon(Icons.more_vert, color: Colors.grey),
+          Icon(
+            Icons.more_vert,
+            color: theme.colorScheme.onSurface.withAlpha((0.6 * 255).round()),
+          ),
         ],
       ),
     );

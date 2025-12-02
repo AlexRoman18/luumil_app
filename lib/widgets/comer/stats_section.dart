@@ -6,32 +6,33 @@ class StatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       children: [
-        const StatCard(
+        StatCard(
           label: 'Valoraciones de la tienda',
           value: '4.8',
           icon: Icons.star,
-          color: Color(0xFFDFF3FF),
+          color: theme.colorScheme.primaryContainer,
         ),
         const SizedBox(height: 10),
         Row(
-          children: const [
+          children: [
             Expanded(
               child: StatCard(
                 label: 'Likes de la tienda',
                 value: '100',
                 icon: Icons.favorite,
-                color: Color(0xFFDFF3FF),
+                color: theme.colorScheme.primaryContainer,
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: StatCard(
                 label: 'Likes totales de tus publicaciones',
                 value: '780',
                 icon: Icons.favorite,
-                color: Color(0xFFDFF3FF),
+                color: theme.colorScheme.primaryContainer,
               ),
             ),
           ],

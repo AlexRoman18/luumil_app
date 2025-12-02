@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/screens/perfil_screen.dart';
+import 'package:luumil_app/widgets/search_bar_header.dart';
 
 class Categoria3Screen extends StatelessWidget {
   const Categoria3Screen({super.key});
@@ -46,42 +46,49 @@ class Categoria3Screen extends StatelessWidget {
       },
     ];
 
+    final theme = Theme.of(context);
+    const bg = Color.fromRGBO(244, 220, 197, 1);
+
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        title: const Text("Buscar...", style: TextStyle(color: Colors.black54)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+      backgroundColor: bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 🔹 MISMA BARRA DE BÚSQUEDA QUE EN LAS DEMÁS
+            SearchBarHeader(
+              onBack: () => Navigator.pop(context),
+              onSearch: (value) {
+                // aquí luego puedes agregar filtro si quieres
+              },
+            ),
+
+            // 🔹 Lista de productos
+            Expanded(
+              child: ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final p = products[index];
+                  return _ProductCard(
+                    title: p["title"] as String,
+                    description: p["desc"] as String,
+                    price: p["price"] as double,
+                    stock: p["stock"] as int,
+                    image: p["image"] as String,
+                    onViewMore: () {},
+                    onGoToShop: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final p = products[index];
-          return _ProductCard(
-            title: p["title"] as String,
-            description: p["desc"] as String,
-            price: p["price"] as double,
-            stock: p["stock"] as int,
-            image: p["image"] as String,
-            onViewMore: () {},
-            onGoToShop: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          );
-        },
       ),
     );
   }
@@ -108,22 +115,28 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const cardColor = Color.fromRGBO(255, 247, 238, 1);
+
     return Card(
+      color: cardColor,
       elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ Imagen del producto
+            // Imagen
             Container(
               width: 110,
               height: 110,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(12),
+                color: theme.colorScheme.onSurface.withAlpha(
+                  (0.06 * 255).round(),
+                ),
               ),
               clipBehavior: Clip.hardEdge,
               child: Image.asset(
@@ -136,10 +149,9 @@ class _ProductCard extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 12),
 
-            const SizedBox(width: 10),
-
-            // ✅ Información del producto
+            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,9 +160,9 @@ class _ProductCard extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -158,27 +170,45 @@ class _ProductCard extends StatelessWidget {
                     description,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
                   ),
                   const SizedBox(height: 4),
-                  Text("Costo: \$${price.toStringAsFixed(2)} c/u"),
-                  Text("Disponible: $stock piezas"),
+                  Text(
+                    "Costo: \$${price.toStringAsFixed(2)} c/u",
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  Text(
+                    "Disponible: $stock piezas",
+                    style: const TextStyle(fontSize: 13),
+                  ),
                   const SizedBox(height: 8),
 
-                  // ✅ Botones
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
                           onPressed: onViewMore,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.blue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 20,
+                            ),
+                            minimumSize: const Size(0, 40),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(22),
+                            ),
+                            elevation: 3,
+                          ),
+                          child: Text(
+                            "Ver más",
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: 15,
+                              color: theme.colorScheme.onPrimary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          child: const Text("Ver más"),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -186,16 +216,26 @@ class _ProductCard extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: onGoToShop,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.green,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                            backgroundColor: theme.colorScheme.secondary,
+                            foregroundColor: theme.colorScheme.onSecondary,
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 20,
                             ),
+                            minimumSize: const Size(0, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(22),
+                            ),
+                            elevation: 3,
                           ),
-                          child: const Text(
+                          child: Text(
                             "Tienda",
-                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSecondary,
+                            ),
                           ),
                         ),
                       ),

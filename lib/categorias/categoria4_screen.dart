@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/screens/perfil_screen.dart';
+import 'package:luumil_app/widgets/search_bar_header.dart';
 
 class Categoria4Screen extends StatelessWidget {
   const Categoria4Screen({super.key});
@@ -45,42 +45,45 @@ class Categoria4Screen extends StatelessWidget {
       },
     ];
 
+    const bg = Color.fromRGBO(244, 220, 197, 1);
+
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        title: const Text("Buscar...", style: TextStyle(color: Colors.black54)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+      backgroundColor: bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            SearchBarHeader(
+              onBack: () => Navigator.pop(context),
+              onSearch: (value) {
+                // si luego quieres filtro, aquí lo conectas
+              },
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final p = products[index];
+                  return _ProductCard(
+                    title: p["title"] as String,
+                    description: p["desc"] as String,
+                    price: p["price"] as double,
+                    stock: p["stock"] as int,
+                    image: p["image"] as String,
+                    onViewMore: () {},
+                    onGoToShop: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final p = products[index];
-          return _ProductCard(
-            title: p["title"] as String,
-            description: p["desc"] as String,
-            price: p["price"] as double,
-            stock: p["stock"] as int,
-            image: p["image"] as String,
-            onViewMore: () {},
-            onGoToShop: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-            },
-          );
-        },
       ),
     );
   }
@@ -107,59 +110,91 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    const cardColor = Color.fromRGBO(255, 247, 238, 1); // cremita del card
+
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: cardColor,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ✅ Imagen del producto
+            // Imagen del producto
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                image,
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 120,
-                  height: 120,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported, size: 50),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 110,
+                height: 110,
+                color: theme.colorScheme.onSurface.withAlpha(
+                  (0.06 * 255).round(),
+                ),
+                child: Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.12 * 255).round(),
+                    ),
+                    child: Icon(
+                      Icons.image_not_supported,
+                      size: 40,
+                      color: theme.colorScheme.onSurface.withAlpha(
+                        (0.6 * 255).round(),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 10),
 
-            // ✅ Información del producto
+            const SizedBox(width: 12),
+
+            // Información del producto
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 15,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(description),
+                  Text(
+                    description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                  ),
                   const SizedBox(height: 4),
-                  Text("Costo: \$${price.toStringAsFixed(2)} c/u"),
-                  Text("Disponible: $stock piezas"),
-                  const SizedBox(height: 6),
+                  Text(
+                    "Costo: \$${price.toStringAsFixed(2)} c/u",
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  Text(
+                    "Disponible: $stock piezas",
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
 
-                  // ✅ Botones
+                  // Botones
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
                           onPressed: onViewMore,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.blue,
-                            foregroundColor: Colors.white,
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -172,15 +207,21 @@ class _ProductCard extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: onGoToShop,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.green,
-                            foregroundColor: Colors.white,
+                            backgroundColor: theme.colorScheme.secondary,
+                            foregroundColor: theme.colorScheme.onSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Tienda",
-                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSecondary,
+                            ),
                           ),
                         ),
                       ),

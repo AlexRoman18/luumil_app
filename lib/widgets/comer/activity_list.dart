@@ -32,10 +32,6 @@ class ActivityList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Actividad reciente',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
         const SizedBox(height: 10),
         ...activities.map(
           (a) => ActivityItem(

@@ -16,6 +16,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -60,12 +61,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               const SizedBox(height: 16),
 
-              const ColorSelector(
+              ColorSelector(
                 colors: [
-                  Colors.amber,
-                  Colors.purple,
-                  Colors.greenAccent,
-                  Colors.teal,
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                  theme.colorScheme.tertiary,
+                  theme.colorScheme.secondaryContainer,
                 ],
               ),
               const SizedBox(height: 16),

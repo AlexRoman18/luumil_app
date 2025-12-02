@@ -5,6 +5,7 @@ class RegisterHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Align(
       alignment: Alignment.topCenter,
       child: Padding(
@@ -12,16 +13,12 @@ class RegisterHeader extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/icons/logo.png',
-              width: 150,
-              height: 150,
-            ),
+            Image.asset('assets/icons/logo.png', width: 150, height: 150),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Registro',
-              style: TextStyle(
-                color: Colors.white,
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: theme.colorScheme.onPrimary,
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),

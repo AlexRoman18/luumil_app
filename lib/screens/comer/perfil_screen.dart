@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:luumil_app/widgets/comer/perfil_header.dart';
 import 'package:luumil_app/widgets/comer/perfil_post_card.dart';
 import 'package:luumil_app/widgets/comer/perfil_section.dart';
@@ -11,8 +10,9 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.colorScheme.surface,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -49,10 +49,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Text(
                     "Publicaciones",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: theme.textTheme.titleLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 10),
                   const ProfilePostCard(),

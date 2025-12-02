@@ -10,223 +10,255 @@ class PantallaInicio extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Clave para controlar el Scaffold y abrir el Drawer
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+    final theme = Theme.of(context);
+
+    const bg = Color.fromRGBO(244, 220, 197, 1);
+    const cardColor = Color.fromRGBO(255, 247, 238, 1);
 
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: Colors.white,
-
-      // 🔹 Drawer (menú lateral)
+      backgroundColor: bg,
       drawer: const SideMenu(),
 
-      // 🔹 AppBar superior
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [theme.colorScheme.primary, bg],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
-          onPressed: () {
-            // 🔹 Abre el Drawer
-            scaffoldKey.currentState!.openDrawer();
-          },
+          icon: Icon(Icons.menu, color: theme.colorScheme.onSurface),
+          onPressed: () => scaffoldKey.currentState!.openDrawer(),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline, color: Colors.black),
+            icon: Icon(
+              Icons.person_outline,
+              color: theme.colorScheme.onSurface,
+            ),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.black),
+            icon: Icon(
+              Icons.notifications_none,
+              color: theme.colorScheme.onSurface,
+            ),
             onPressed: () {},
           ),
+          const SizedBox(width: 8),
         ],
       ),
 
-      // 🔹 Contenido principal
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Título de bienvenida
-              Text(
-                '¡Bienvenido, Papoi!',
-                style: GoogleFonts.poppins(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 🌤️ HEADER ANTIGUO (SIN CARD)
+            Text(
+              '¡Bienvenido, Papoi!',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 20),
-
-              // Barra de búsqueda
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black54),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.search, color: Colors.black54),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Buscar...',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Encuentra productos locales y apoya a productores de tu región.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontSize: 14,
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
               ),
+            ),
 
-              const SizedBox(height: 25),
+            const SizedBox(height: 25),
 
-              // Subtítulo
-              Text(
-                'Seleccione su estilo de búsqueda',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+            // 🔍 Búsqueda
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: theme.colorScheme.onSurface.withAlpha(40),
                 ),
-              ),
-              const SizedBox(height: 15),
-
-              // 🔹 Dos botones personalizados
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Buttons(
-                      color: Colors.white,
-                      colorText: Colors.black,
-                      text: 'Tipo de producto',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const CategoriaScreen(),
-                          ),
-                        );
-                      },
-                    ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
                   ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Buttons(
-                      color: Colors.white,
-                      colorText: Colors.black,
-                      text: 'Por localidades',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LocalidadScreen(),
-                          ),
-                        );
-                      },
+                ],
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.search,
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Buscar...',
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
                 ],
               ),
+            ),
 
-              const SizedBox(height: 30),
+            const SizedBox(height: 24),
 
-              // Sección de novedades
-              Text(
-                'Novedades',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+            // 🌟 Subtítulo
+            Text(
+              'Seleccione su estilo de búsqueda',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
+            ),
+            const SizedBox(height: 14),
 
-              const SizedBox(height: 15),
-
-              // Lista de tarjetas de novedades
-              Column(
-                children: List.generate(
-                  1,
-                  (index) => Container(
-                    margin: const EdgeInsets.only(bottom: 15),
-                    height: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black12),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 70,
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.storefront,
-                            color: Colors.black45,
-                          ),
+            // 🔘 Botones
+            Row(
+              children: [
+                Expanded(
+                  child: Buttons(
+                    text: 'Tipo de producto',
+                    color: const Color.fromRGBO(255, 247, 238, 1),
+                    colorText: Colors.black,
+                    borderColor: Colors.white,
+                    borderWidth: 1,
+                    borderRadius: 18,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CategoriaScreen(),
                         ),
-                        const SizedBox(width: 10),
-                        const Expanded(
-                          child: Text(
-                            'Venta de chile',
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
-              ),
-
-              // Segunda lista de novedades
-              Column(
-                children: List.generate(
-                  3,
-                  (index) => Container(
-                    margin: const EdgeInsets.only(bottom: 15),
-                    height: 80,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black12),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 70,
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.storefront,
-                            color: Colors.black45,
-                          ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Buttons(
+                    text: 'Por localidades',
+                    color: const Color.fromRGBO(255, 247, 238, 1),
+                    colorText: Colors.black,
+                    borderColor: Colors.white,
+                    borderWidth: 1,
+                    borderRadius: 18,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LocalidadScreen(),
                         ),
-                        const SizedBox(width: 10),
-                        const Expanded(
-                          child: Text(
-                            'Venta de aguacate',
-                            style: TextStyle(color: Colors.black54),
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+
+            // 🔔 Publicaciones recientes
+            Text(
+              'Publicaciones recientes',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 14),
+
+            // 🧺 Lista de tarjetas
+            ...List.generate(
+              3,
+              (index) => Container(
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: cardColor,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(21),
+                      ),
+                      child: Icon(
+                        Icons.shopping_bag_outlined,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            index == 0
+                                ? 'Venta de tomate'
+                                : index == 1
+                                ? 'Venta de limones'
+                                : 'Venta de naranja',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            index == 0
+                                ? '\$12 por kilo'
+                                : index == 1
+                                ? '\$18 por kilo'
+                                : '\$10 por kilo',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 12,
+                              color: theme.colorScheme.onSurface.withOpacity(
+                                0.7,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.more_vert,
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

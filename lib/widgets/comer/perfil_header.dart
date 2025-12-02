@@ -6,17 +6,20 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Transform.translate(
       offset: const Offset(0, -60),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: theme.colorScheme.onSurface.withAlpha(
+                (0.08 * 255).round(),
+              ),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -38,7 +41,12 @@ class ProfileHeader extends StatelessWidget {
             ),
             Text(
               "Productos orgánicos y abarrotes",
-              style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: theme.colorScheme.onSurface.withAlpha(
+                  (0.85 * 255).round(),
+                ),
+              ),
             ),
           ],
         ),

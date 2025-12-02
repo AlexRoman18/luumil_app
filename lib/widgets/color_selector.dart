@@ -7,6 +7,7 @@ class ColorSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -25,7 +26,11 @@ class ColorSelector extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: color,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black12),
+                    border: Border.all(
+                      color: theme.colorScheme.onSurface.withAlpha(
+                        (0.12 * 255).round(),
+                      ),
+                    ),
                   ),
                 ),
               )

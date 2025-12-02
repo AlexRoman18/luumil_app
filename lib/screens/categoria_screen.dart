@@ -1,18 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:luumil_app/categorias/categoria2_screen.dart';
 import 'package:luumil_app/categorias/categoria3_screen.dart';
 import 'package:luumil_app/categorias/categoria4_screen.dart';
 import 'package:luumil_app/categorias/categoria5_screen.dart';
 import 'package:luumil_app/categorias/categoria6_screen.dart';
 import 'package:luumil_app/screens/products_screen.dart';
-import 'package:luumil_app/widgets/buttons.dart';
 
 class CategoriaScreen extends StatelessWidget {
   const CategoriaScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    const bg = Color.fromRGBO(244, 220, 197, 1); // fondo cálido global
+    const cardColor = Color.fromRGBO(
+      255,
+      247,
+      238,
+      1,
+    ); // fondo crema suave para tarjetas
+
     final categorias = [
       'Velas aromáticas',
       'Frutas y Verduras',
@@ -32,46 +40,71 @@ class CategoriaScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bg,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             children: [
-              // 🔍 Barra de búsqueda
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Buscar...',
-                  hintStyle: GoogleFonts.poppins(fontSize: 14),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
+              // 🔍 Barra de búsqueda estilo igual que PantallaInicio
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color: theme.colorScheme.onSurface.withOpacity(0.25),
+                  ),
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                    hintText: 'Buscar...',
+                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                    ),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
               ),
+
               const SizedBox(height: 20),
 
-              // 🟦 Cuadrícula de categorías
+              // 🟫 Cuadrícula de categorías con el estilo de card unificado
               Expanded(
                 child: GridView.builder(
                   itemCount: categorias.length,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: 0.88, // 🔥 Más pequeño y balanceado
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 18,
+                    childAspectRatio: 0.87,
                   ),
                   itemBuilder: (context, index) {
                     return Container(
                       decoration: BoxDecoration(
+                        color: cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade300),
-                        color: Colors.white,
+                        border: Border.all(
+                          color: theme.colorScheme.onSurface.withOpacity(0.15),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                            color: theme.colorScheme.onSurface.withOpacity(
+                              0.10,
+                            ),
+                          ),
+                        ],
                       ),
+
+                      // Contenido del card
                       child: Column(
                         children: [
-                          // 👉 Imagen más pequeña
+                          // 📷 imagen
                           Expanded(
                             flex: 5,
                             child: ClipRRect(
@@ -82,35 +115,30 @@ class CategoriaScreen extends StatelessWidget {
                               child: Image.asset(
                                 imagenes[index],
                                 width: double.infinity,
-                                fit: BoxFit
-                                    .contain, // 🔥 NO recorta y se ve más limpio
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),
 
                           const SizedBox(height: 6),
 
+                          // 🔘 botón estilo unificado
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 6,
                             ),
                             child: SizedBox(
+                              height: 44,
                               width: double.infinity,
-                              height:
-                                  44, // 🔥 Intermedio (no muy alto, no muy pequeño)
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF007BFF),
-                                  elevation: 2,
-                                  shadowColor: Colors.black26,
+                                  backgroundColor: theme.colorScheme.primary,
+                                  elevation: 3,
+                                  shadowColor: theme.colorScheme.onSurface
+                                      .withOpacity(0.25),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      18,
-                                    ), // 🔥 Curvatura moderna
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
                                 onPressed: () {
@@ -149,11 +177,10 @@ class CategoriaScreen extends StatelessWidget {
                                 child: Text(
                                   categorias[index],
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onPrimary,
+                                    fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    fontSize:
-                                        14, // 🔥 Más grande para que se vea bonito
                                   ),
                                 ),
                               ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/screens/perfil_screen.dart';
 import 'package:luumil_app/verMas_categories/categoria2.dart';
+import 'package:luumil_app/widgets/search_bar_header.dart';
 
 class Categoria6Screen extends StatelessWidget {
   const Categoria6Screen({super.key});
@@ -16,7 +16,8 @@ class Categoria6Screen extends StatelessWidget {
         "stock": 34,
         "image": "assets/images/mazapan.png",
       },
-      { "title": "Caramelos de miel",
+      {
+        "title": "Caramelos de miel",
         "desc": "Caramelos suaves elaborados con miel pura",
         "price": 65.0,
         "stock": 28,
@@ -30,7 +31,6 @@ class Categoria6Screen extends StatelessWidget {
         "image": "assets/images/palanquetas.png",
       },
       {
-        
         "title": "Dulce de papaya",
         "desc": "Dulce tradicional hecho con papaya natural y azúcar",
         "price": 75.0,
@@ -41,61 +41,61 @@ class Categoria6Screen extends StatelessWidget {
         "title": "Cocadas",
         "desc": "Cocadas frescas elaboradas con coco rallado y azúcar",
         "price": 80.0,
-        "stock":32,
+        "stock": 32,
         "image": "assets/images/cocada.png",
       },
     ];
 
+    final theme = Theme.of(context);
+    const bg = Color.fromRGBO(244, 220, 197, 1);
+
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        title: const Text("Buscar...", style: TextStyle(color: Colors.black54)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final p = products[index];
-          return _ProductCard(
-            title: p["title"] as String,
-            description: p["desc"] as String,
-            price: p["price"] as double,
-            stock: p["stock"] as int,
-            image: p["image"] as String,
-            onViewMore: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Categoria2(
+      backgroundColor: bg,
+      body: SafeArea(
+        child: Column(
+          children: [
+            SearchBarHeader(
+              onBack: () => Navigator.pop(context),
+              onSearch: (value) {},
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final p = products[index];
+                  return _ProductCard(
                     title: p["title"] as String,
-                    image: p["image"] as String,
-                    price: p["price"] as double,
                     description: p["desc"] as String,
-                  ),
-                ),
-              );
-            },
-            onGoToShop: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfileScreen(),
-                ),
-              );
-            },
-          );
-        },
+                    price: p["price"] as double,
+                    stock: p["stock"] as int,
+                    image: p["image"] as String,
+                    onViewMore: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Categoria2(
+                            title: p["title"] as String,
+                            image: p["image"] as String,
+                            price: p["price"] as double,
+                            description: p["desc"] as String,
+                          ),
+                        ),
+                      );
+                    },
+                    onGoToShop: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileScreen(),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -122,6 +122,7 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -140,8 +141,16 @@ class _ProductCard extends StatelessWidget {
                 errorBuilder: (context, error, stackTrace) => Container(
                   width: 120,
                   height: 120,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported, size: 50),
+                  color: theme.colorScheme.onSurface.withAlpha(
+                    (0.12 * 255).round(),
+                  ),
+                  child: Icon(
+                    Icons.image_not_supported,
+                    size: 50,
+                    color: theme.colorScheme.onSurface.withAlpha(
+                      (0.6 * 255).round(),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -167,15 +176,15 @@ class _ProductCard extends StatelessWidget {
                   Text("Disponible: $stock piezas"),
                   const SizedBox(height: 6),
 
-                  // ✅ Botones
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
                           onPressed: onViewMore,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.blue,
-                            foregroundColor: Colors.white,
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: theme.colorScheme.onPrimary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -188,15 +197,21 @@ class _ProductCard extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: onGoToShop,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.green,
-                            foregroundColor: Colors.white,
+                            backgroundColor: theme.colorScheme.secondary,
+                            foregroundColor: theme.colorScheme.onSecondary,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             "Tienda",
-                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSecondary,
+                            ),
                           ),
                         ),
                       ),

@@ -8,13 +8,14 @@ class LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Align(
       alignment: Alignment.bottomCenter,
       child: Container(
         height: MediaQuery.of(context).size.height * 0.55,
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(36),
             topRight: Radius.circular(36),
@@ -44,9 +45,14 @@ class LoginForm extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {},
-                    child: const Text(
+                    child: Text(
                       '¿Olvidó su contraseña?',
-                      style: TextStyle(color: Colors.black54, fontSize: 13),
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withAlpha(
+                          (0.7 * 255).round(),
+                        ),
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
@@ -67,17 +73,18 @@ class LoginForm extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007BFF),
+                      backgroundColor: theme.colorScheme.primary,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(50),
                       ),
+                      elevation: 6,
                     ),
-                    child: const Text(
+                    child: Text(
                       'Iniciar Sesión',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -86,27 +93,35 @@ class LoginForm extends StatelessWidget {
                 const SizedBox(height: 18),
 
                 // Botón Google
+                // Botón Google con icono personalizado
                 SizedBox(
                   width: double.infinity,
-                  height: 46,
+                  height: 48,
                   child: OutlinedButton.icon(
                     onPressed: () {},
                     icon: Image.asset(
-                      'assets/icons/buscar.png',
+                      "assets/icons/buscar.png",
                       width: 22,
                       height: 22,
                     ),
-                    label: const Text(
+                    label: Text(
                       'Continuar con Google',
-                      style: TextStyle(fontSize: 15),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.black26),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(
+                        color: theme.colorScheme.onSurface.withAlpha(
+                          (0.12 * 255).round(),
+                        ),
                       ),
-                      foregroundColor: Colors.black87,
-                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      foregroundColor: theme.colorScheme.onSurface,
+                      backgroundColor: theme.colorScheme.surface,
                     ),
                   ),
                 ),
@@ -128,10 +143,10 @@ class LoginForm extends StatelessWidget {
                           builder: (_) => const RegisterScreen(),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Registrese',
                         style: TextStyle(
-                          color: Color(0xFF007BFF),
+                          color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

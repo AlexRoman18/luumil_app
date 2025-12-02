@@ -7,125 +7,142 @@ class ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      transform: Matrix4.translationValues(
-        0,
-        -60,
-        0,
-      ), // sube sobre el fondo azul
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const CircleAvatar(
-            radius: 40,
-            backgroundColor: Colors.white,
-            child: Icon(Icons.person_outline, size: 50, color: Colors.black),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            "Tienda",
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
+    final theme = Theme.of(context);
+    return Transform.translate(
+      offset: const Offset(0, -60),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.onSurface.withAlpha(
+                (0.08 * 255).round(),
+              ),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildStat("2M", "Seguidores"),
-              _divider(),
-              _buildStat("120", "Me gusta"),
-              _divider(),
-              _buildStat("20", "Productos"),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit.",
-            textAlign: TextAlign.center,
-            style: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700]),
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(
-                child: Buttons(
-                  color: Colors.blue,
-                  text: "Seguir",
-                  colorText: Colors.white,
-                  onPressed: () {},
+          ],
+        ),
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: theme.colorScheme.surface,
+              child: Icon(
+                Icons.person_outline,
+                size: 50,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Tienda",
+              style: GoogleFonts.poppins(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildStat(context, "2M", "Seguidores"),
+                _divider(context),
+                _buildStat(context, "120", "Me gusta"),
+                _divider(context),
+                _buildStat(context, "20", "Productos"),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              "Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: theme.colorScheme.onSurface.withAlpha(
+                  (0.85 * 255).round(),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Buttons(
-                  color: Colors.white,
-                  text: "Mensaje",
-                  colorText: Colors.blue,
-                  onPressed: () {},
+            ),
+            const SizedBox(height: 15),
+            Row(
+              children: [
+                Expanded(
+                  child: Buttons(text: "Seguir", onPressed: () {}),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Buttons(
+                    color: theme.colorScheme.surface,
+                    text: "Mensaje",
+                    colorText: theme.colorScheme.primary,
+                    onPressed: () {},
+                  ),
                 ),
-                child: const Icon(
-                  Icons.thumb_up_alt_outlined,
-                  color: Colors.blue,
-                  size: 22,
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.onSurface.withAlpha(
+                          (0.08 * 255).round(),
+                        ),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.thumb_up_alt_outlined,
+                    color: theme.colorScheme.primary,
+                    size: 22,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  static Widget _buildStat(String number, String label) {
+  Widget _buildStat(BuildContext context, String number, String label) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         Text(
           number,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            color: theme.colorScheme.onSurface,
+          ),
         ),
         Text(
           label,
-          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[700]),
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            color: theme.colorScheme.onSurface.withAlpha((0.85 * 255).round()),
+          ),
         ),
       ],
     );
   }
 
-  static Widget _divider() {
+  Widget _divider(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
       height: 25,
       width: 1,
-      color: Colors.grey[400],
+      color: theme.colorScheme.onSurface.withAlpha((0.12 * 255).round()),
     );
   }
 }

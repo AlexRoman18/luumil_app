@@ -8,6 +8,7 @@ class ProductsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromRGBO(244, 220, 197, 1),
       body: SafeArea(
         child: Column(
           children: [

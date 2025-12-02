@@ -1,3 +1,5 @@
+// Deprecated: prefer using Theme.of(context).colorScheme tokens.
+// Kept for backward compatibility; migrate callers to use Theme.
 import 'package:flutter/material.dart';
 
 class AppColors {

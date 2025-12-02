@@ -23,20 +23,35 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final formKey = GlobalKey<FormState>();
 
     InputDecoration fieldDecoration(String hint) {
       return InputDecoration(
         hintText: hint,
         filled: true,
-        fillColor: Colors.grey[200],
+        fillColor: theme.colorScheme.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: theme.colorScheme.onSurface.withOpacity(0.25),
+            width: 1.2,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: theme.colorScheme.onSurface.withOpacity(0.25),
+            width: 1.2,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.6),
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 14,
+          horizontal: 14,
+          vertical: 16,
         ),
       );
     }
@@ -48,31 +63,47 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
           decoration: BoxDecoration(
-            color: Colors.blue[50],
-            border: Border.all(color: Colors.blueAccent, width: 1),
+            color: theme.colorScheme.surface.withAlpha((0.95 * 255).round()),
+            border: Border.all(
+              color: theme.colorScheme.primary.withAlpha((0.12 * 255).round()),
+              width: 1,
+            ),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
             children: [
-              const Icon(Icons.camera_alt, size: 50, color: Colors.black87),
+              Icon(
+                Icons.camera_alt,
+                size: 50,
+                color: theme.colorScheme.onSurface,
+              ),
               const SizedBox(height: 10),
               const Text(
                 'Añadir fotos',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 5),
-              const Text(
+              Text(
                 'Muestra tu producto desde diferentes ángulos',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.black54, fontSize: 13),
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface.withAlpha(
+                    (0.7 * 255).round(),
+                  ),
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.blue,
-                  side: const BorderSide(color: Colors.blueAccent),
+                  backgroundColor: theme.colorScheme.surface,
+                  foregroundColor: theme.colorScheme.primary,
+                  side: BorderSide(
+                    color: theme.colorScheme.primary.withAlpha(
+                      (0.24 * 255).round(),
+                    ),
+                  ),
                 ),
                 child: const Text('Subir fotos'),
               ),
@@ -84,15 +115,15 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Nuevo producto',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: theme.colorScheme.onSurface),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: theme.colorScheme.surface,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -102,9 +133,12 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Nombre del producto',
-                style: TextStyle(fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 5),
               TextFormField(
@@ -116,9 +150,12 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 },
               ),
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 'Descripción del producto',
-                style: TextStyle(fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 5),
               TextFormField(
@@ -126,15 +163,19 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 maxLines: 3,
                 decoration: fieldDecoration('Describe a detalle tu producto'),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty)
+                  if (v == null || v.trim().isEmpty) {
                     return 'Ingrese la descripción';
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 'Precio',
-                style: TextStyle(fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 5),
               TextFormField(
@@ -152,13 +193,16 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 },
               ),
               const SizedBox(height: 15),
-              const Text(
+              Text(
                 'Categoría',
-                style: TextStyle(fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 5),
               DropdownButtonFormField<String>(
-                value: categoriaSeleccionada,
+                initialValue: categoriaSeleccionada,
                 hint: const Text('Seleccione la categoría del producto'),
                 isExpanded: true,
                 decoration: fieldDecoration(''),
@@ -176,9 +220,13 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                     v == null || v.isEmpty ? 'Seleccione categoría' : null,
               ),
               const SizedBox(height: 25),
-              const Text(
+              Text(
                 'Fotos',
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 10),
               photoCard(),
@@ -198,17 +246,18 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: theme.colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
+                    elevation: 4,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Guardar y subir',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      //color: Colors.white, // 👈 AQUÍ
+                      color: theme.colorScheme.onPrimary,
                     ),
                   ),
                 ),
