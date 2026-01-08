@@ -1,16 +1,15 @@
-# luumil_app
+# Gemini App
 
-A new Flutter project.
+## Dev
 
-## Getting Started
+1. Clonar el archivo `.env.template` y renombrarlo a `.env` y completar los valores
 
-This project is a starting point for a Flutter application.
+2. Ejecutar el comando de:
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```dart
+dart run build_runner watch
+/*ese codigo se ejecuta cuando ya trabajamos con 
+part 'user_provider.g.dart';  
+para tener todo el gestor de estado para ese proveedor
+*/
+```
