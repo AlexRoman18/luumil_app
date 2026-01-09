@@ -1,11 +1,72 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:luumil_app/auth/auth_service.dart';
 import 'package:luumil_app/widgets/custom_text_field.dart';
-import 'package:luumil_app/screens/pantallainicio_screen.dart';
-
 import '../screens/iniciarsesion_screen.dart';
 
-class RegisterForm extends StatelessWidget {
+class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
+
+  @override
+  State<RegisterForm> createState() => _RegisterFormState();
+}
+
+class _RegisterFormState extends State<RegisterForm> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final AuthService authService = AuthService();
+
+  Future<void> registerUser() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    // Validaciones mínimas (NO regex)
+    if (email.isEmpty) {
+      _showMessage("Ingrese un correo electrónico");
+      return;
+    }
+
+    if (password.length < 6) {
+      _showMessage("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    try {
+      print('INTENTANDO REGISTRO...');
+      final result = await authService.registerWithEmailPassword(
+        email,
+        password,
+      );
+      print('USUARIO CREADO: ${result.user?.uid}');
+    } catch (e, stack) {
+      print('🔥 ERROR REGISTRO 🔥');
+      print(e);
+      print(stack);
+    }
+  }
+
+  void _handleFirebaseError(FirebaseAuthException e) {
+    String message = "Error al registrarse";
+
+    switch (e.code) {
+      case 'email-already-in-use':
+        message = "Este correo ya está registrado";
+        break;
+      case 'invalid-email':
+        message = "El correo no tiene un formato válido";
+        break;
+      case 'weak-password':
+        message = "La contraseña es muy débil";
+        break;
+    }
+
+    _showMessage(message);
+  }
+
+  void _showMessage(String text) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,15 +90,17 @@ class RegisterForm extends StatelessWidget {
                 const SizedBox(height: 12),
                 const CustomTextField(hint: 'Nombre', icon: Icons.person),
                 const SizedBox(height: 14),
-                const CustomTextField(
+                CustomTextField(
                   hint: 'Correo electrónico',
                   icon: Icons.email,
+                  controller: emailController,
                 ),
                 const SizedBox(height: 14),
-                const CustomTextField(
+                CustomTextField(
                   hint: 'Contraseña',
                   icon: Icons.lock,
                   obscure: true,
+                  controller: passwordController,
                 ),
                 const SizedBox(height: 14),
                 const CustomTextField(
@@ -59,19 +122,11 @@ class RegisterForm extends StatelessWidget {
 
                 const SizedBox(height: 6),
 
-                // Botón principal
                 SizedBox(
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PantallaInicio(),
-                        ),
-                      );
-                    },
+                    onPressed: registerUser,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF007BFF),
                       shape: RoundedRectangleBorder(
@@ -89,44 +144,12 @@ class RegisterForm extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 20),
-
-                // Botón Google
-                SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Image.asset(
-                      'assets/icons/buscar.png',
-                      width: 22,
-                      height: 22,
-                    ),
-                    label: const Text(
-                      'Continuar con Google',
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.black26),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      foregroundColor: Colors.black87,
-                      backgroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: 16),
 
-                // Texto de inicio de sesión
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
-                      '¿Ya tiene cuenta?',
-                      style: TextStyle(fontSize: 14),
-                    ),
+                    const Text('¿Ya tiene cuenta?'),
                     TextButton(
                       onPressed: () => Navigator.push(
                         context,
