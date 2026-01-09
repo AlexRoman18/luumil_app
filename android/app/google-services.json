@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "951591986722",
+    "project_id": "luumilapp-607aa",
+    "storage_bucket": "luumilapp-607aa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:951591986722:android:31ed75b611e8f293a54c7b",
+        "android_client_info": {
+          "package_name": "com.yourapp.luumil_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlToHwoaa35OHAi5MUuOAmzfMEMOqx-ow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
