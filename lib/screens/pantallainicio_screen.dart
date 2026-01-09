@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luumil_app/screens/localidad_screen.dart';
 import 'package:luumil_app/widgets/buttons.dart';
@@ -184,13 +185,13 @@ class PantallaInicio extends StatelessWidget {
                     ),
                   ),
                 ),
-          ),
+              ),
 
-          // Segunda lista de novedades
-          Column(
-            children: List.generate(
-              3,
-              (index) => Container(
+              // Segunda lista de novedades
+              Column(
+                children: List.generate(
+                  3,
+                  (index) => Container(
                     margin: const EdgeInsets.only(bottom: 15),
                     height: 80,
                     decoration: BoxDecoration(
@@ -226,6 +227,20 @@ class PantallaInicio extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        onPressed: () {
+          context.push('/history-chat');
+        },
+        child: const Text(
+          'IA',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 0, 0, 0),
+            fontSize: 16,
           ),
         ),
       ),

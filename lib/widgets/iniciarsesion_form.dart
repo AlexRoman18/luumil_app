@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luumil_app/screens/registro_screen.dart';
 import 'package:luumil_app/widgets/custom_text_field.dart';
 import 'package:luumil_app/screens/pantallainicio_screen.dart';
 
@@ -117,13 +118,16 @@ class LoginForm extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      '¿Ya tiene cuenta?',
+                      '¿No tiene cuenta?',
                       style: TextStyle(fontSize: 14),
                     ),
                     TextButton(
-                      onPressed: () {
-                        // Aquí navegas al login
-                      },
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterScreen(),
+                        ),
+                      ),
                       child: const Text(
                         'Registrese',
                         style: TextStyle(
