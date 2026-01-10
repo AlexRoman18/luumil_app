@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:luumil_app/screens/iniciarsesion_screen.dart';
+import 'package:luumil_app/screens/comer/home_screen.dart';
 import 'package:luumil_app/screens/pantallainicio_screen.dart';
 
 class AuthGate extends StatelessWidget {
@@ -24,7 +24,7 @@ class AuthGate extends StatelessWidget {
         }
 
         // Usuario NO logueado
-        return const LoginScreen();
+        return const HomeScreen();
       },
     );
   }

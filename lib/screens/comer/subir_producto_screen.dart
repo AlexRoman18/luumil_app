@@ -126,8 +126,9 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 maxLines: 3,
                 decoration: fieldDecoration('Describe a detalle tu producto'),
                 validator: (v) {
-                  if (v == null || v.trim().isEmpty)
+                  if (v == null || v.trim().isEmpty) {
                     return 'Ingrese la descripción';
+                  }
                   return null;
                 },
               ),
@@ -158,7 +159,7 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
               ),
               const SizedBox(height: 5),
               DropdownButtonFormField<String>(
-                value: categoriaSeleccionada,
+                initialValue: categoriaSeleccionada,
                 hint: const Text('Seleccione la categoría del producto'),
                 isExpanded: true,
                 decoration: fieldDecoration(''),

@@ -20,7 +20,7 @@ class GeminiImp {
       );
 
       return response.data?.toString() ?? '';
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       print(e);
       throw Exception('Error al obtener la respuesta de Gemini: ${e.message}');
     } catch (e) {
