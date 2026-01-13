@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luumil_app/screens/localidad_screen.dart';
 import 'package:luumil_app/widgets/buttons.dart';
-import 'package:luumil_app/widgets/mapa_ubicacion.dart';
 import 'package:luumil_app/widgets/side_menu.dart';
 import 'package:luumil_app/screens/categoria_screen.dart';
 
