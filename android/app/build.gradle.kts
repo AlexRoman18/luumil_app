@@ -32,7 +32,9 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        manifestPlaceholders = [ MAPS_API_KEY: System.getenv("MAPS_API_KEY") ?: "" ]
+        manifestPlaceholders.putAll(
+        mapOf("MAPS_API_KEY" to (System.getenv("MAPS_API_KEY") ?: ""))
+    )
 
     }
 
