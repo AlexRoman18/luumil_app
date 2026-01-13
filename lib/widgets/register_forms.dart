@@ -38,6 +38,13 @@ class _RegisterFormState extends State<RegisterForm> {
         password,
       );
       print('USUARIO CREADO: ${result.user?.uid}');
+
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
     } catch (e, stack) {
       print('🔥 ERROR REGISTRO 🔥');
       print(e);
