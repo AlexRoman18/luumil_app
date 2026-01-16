@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:luumil_app/widgets/perfil_header.dart';
+import 'package:luumil_app/widgets/usuario/perfil_header.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

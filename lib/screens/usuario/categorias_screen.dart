@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:luumil_app/categorias/categoria2_screen.dart';
-import 'package:luumil_app/categorias/categoria3_screen.dart';
-import 'package:luumil_app/categorias/categoria4_screen.dart';
-import 'package:luumil_app/categorias/categoria5_screen.dart';
-import 'package:luumil_app/categorias/categoria6_screen.dart';
-import 'package:luumil_app/screens/products_screen.dart';
+import 'package:luumil_app/screens/categorias/dulce_products_screen.dart';
+import 'package:luumil_app/screens/categorias/frutas_products_screen.dart';
+import 'package:luumil_app/screens/categorias/limpieza_products_screen.dart';
+import 'package:luumil_app/screens/categorias/otros_products_screen.dart';
+import 'package:luumil_app/screens/categorias/verdura_products_screen.dart';
+import 'package:luumil_app/screens/categorias/zapatos_products_screen.dart';
 
 class CategoriaScreen extends StatelessWidget {
   const CategoriaScreen({super.key});
@@ -13,12 +13,12 @@ class CategoriaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final categorias = [
-      'Velas aromáticas',
-      'Frutas y Verduras',
-      'Maíz y Derivados',
-      'Panadería y Repostería',
-      'Limpieza y Hogar',
-      'Dulcería y Snacks',
+      'Dulces',
+      'Verduras',
+      'Frutas',
+      'Limpieza',
+      'Zapatos',
+      'Otros',
     ];
 
     final imagenes = [
@@ -114,30 +114,33 @@ class CategoriaScreen extends StatelessWidget {
                                 ),
                                 onPressed: () {
                                   Widget destino;
-
                                   switch (index) {
                                     case 0:
-                                      destino = const ProductsScreen();
+                                      destino = const DulcesScreen();
                                       break;
                                     case 1:
-                                      destino = const Categoria2Screen();
+                                      destino =
+                                          const VerduraProductsScreen(); // Verduras está en posición 1
                                       break;
                                     case 2:
-                                      destino = const Categoria3Screen();
+                                      destino =
+                                          const FrutasProductsScreen(); // Frutas está en posición 2
                                       break;
                                     case 3:
-                                      destino = const Categoria4Screen();
+                                      destino =
+                                          const LimpiezaProductsScreen(); // Limpieza está en posición 3
                                       break;
                                     case 4:
-                                      destino = const Categoria5Screen();
+                                      destino =
+                                          const ZapatosProductsScreen(); // Zapatos está en posición 4
                                       break;
                                     case 5:
-                                      destino = const Categoria6Screen();
+                                      destino =
+                                          const OthersProductsScreen(); // Otros está en posición 5
                                       break;
                                     default:
-                                      destino = const ProductsScreen();
+                                      destino = const DulcesScreen();
                                   }
-
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(

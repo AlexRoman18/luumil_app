@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/widgets/register_forms.dart';
-import 'package:luumil_app/widgets/register_header.dart';
+import 'package:luumil_app/widgets/usuario/iniciarsesion_form.dart';
+import 'package:luumil_app/widgets/usuario/login_header.dart';
 
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    
-    
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -21,8 +19,8 @@ class RegisterScreen extends StatelessWidget {
               ),
             ),
             // Contenido encima del fondo
-            const RegisterHeader(),
-            const RegisterForm(),
+            const LoginHeader(),
+            const LoginForm(),
           ],
         ),
       ),

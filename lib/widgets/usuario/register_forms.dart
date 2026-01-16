@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:luumil_app/auth/auth_service.dart';
-import 'package:luumil_app/widgets/custom_text_field.dart';
-import '../screens/iniciarsesion_screen.dart';
+import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
+import '../../screens/usuario/iniciarsesion_screen.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});

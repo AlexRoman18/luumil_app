@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/screens/iniciarsesion_screen.dart';
-import 'package:luumil_app/screens/registro_screen.dart';
-import 'package:luumil_app/widgets/buttons.dart';
+import 'package:luumil_app/screens/usuario/iniciarsesion_screen.dart';
+import 'package:luumil_app/screens/usuario/registro_screen.dart';
+import 'package:luumil_app/widgets/usuario/buttons.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

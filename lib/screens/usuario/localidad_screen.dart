@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:luumil_app/categorias/categoria6_screen.dart';
-import 'package:luumil_app/widgets/buttons.dart';
+import 'package:luumil_app/widgets/usuario/buttons.dart';
 
 class LocalidadScreen extends StatelessWidget {
   const LocalidadScreen({super.key});
@@ -78,11 +77,11 @@ class LocalidadScreen extends StatelessWidget {
                                 colorText: Colors.white,
 
                                 onPressed: () {
-                                  Widget destino = const Categoria6Screen();
+                                  //  Widget destino = const Categoria6Screen();
 
                                   switch (index) {
                                     case 0:
-                                      destino = const Categoria6Screen();
+                                      //  destino = const Categoria6Screen();
                                       break;
                                     case 1:
                                       //   destino = const ChunhuhubScreen();
@@ -109,12 +108,12 @@ class LocalidadScreen extends StatelessWidget {
                                     //        destino = const XHazilScreen();
                                   }
 
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => destino,
-                                    ),
-                                  );
+                                  //  Navigator.push(
+                                  //    context,
+                                  //    MaterialPageRoute(
+                                  //     builder: (context) => destino,
+                                  //     ),
+                                  //   );
                                 },
                               ),
                             ),

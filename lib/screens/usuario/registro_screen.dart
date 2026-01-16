@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:luumil_app/widgets/iniciarsesion_form.dart';
-import 'package:luumil_app/widgets/login_header.dart';
+import 'package:luumil_app/widgets/usuario/register_forms.dart';
+import 'package:luumil_app/widgets/usuario/register_header.dart';
 
-
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +19,8 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             // Contenido encima del fondo
-            const LoginHeader(),
-            const LoginForm(),
+            const RegisterHeader(),
+            const RegisterForm(),
           ],
         ),
       ),
