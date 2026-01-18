@@ -6,7 +6,7 @@ import 'package:luumil_app/categorias/categoria4_screen.dart';
 import 'package:luumil_app/categorias/categoria5_screen.dart';
 import 'package:luumil_app/categorias/categoria6_screen.dart';
 import 'package:luumil_app/screens/products_screen.dart';
-import 'package:luumil_app/widgets/buttons.dart';
+
 
 class CategoriaScreen extends StatelessWidget {
   const CategoriaScreen({super.key});
