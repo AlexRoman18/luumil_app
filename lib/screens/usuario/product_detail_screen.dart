@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/product_image.dart';
-import '../widgets/product_info_section.dart';
-import '../widgets/color_selector.dart';
-import '../widgets/product_description.dart';
+import '../../widgets/usuario/product_image.dart';
+import '../../widgets/usuario/product_info_section.dart';
+import '../../widgets/usuario/color_selector.dart';
+import '../../widgets/usuario/product_description.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});

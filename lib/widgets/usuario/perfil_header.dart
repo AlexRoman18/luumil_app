@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:luumil_app/widgets/buttons.dart';
+import 'package:luumil_app/widgets/usuario/buttons.dart';
 
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({super.key});

@@ -4,7 +4,22 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CameraButton extends StatefulWidget {
-  const CameraButton({super.key});
+  final bool showBorder;
+  final Color backgroundColor;
+  final Color iconColor;
+  final Color borderColor;
+
+  // 👇 propiedad para el callback
+  final ValueChanged<File>? onImageCaptured;
+
+  const CameraButton({
+    super.key,
+    this.showBorder = true,
+    this.backgroundColor = const Color(0xFFF2F2F2),
+    this.iconColor = Colors.grey,
+    this.borderColor = const Color(0xFFBDBDBD),
+    this.onImageCaptured, // 👈 ahora opcional
+  });
 
   @override
   State<CameraButton> createState() => _CameraButtonState();
@@ -21,9 +36,16 @@ class _CameraButtonState extends State<CameraButton> {
       final XFile? image = await picker.pickImage(source: ImageSource.camera);
 
       if (image != null && mounted) {
+        final file = File(image.path);
+
         setState(() {
-          _images.add(File(image.path));
+          _images.add(file);
         });
+
+        // 👇 aquí notificamos al padre
+        widget.onImageCaptured?.call(file);
+
+        print('📸 Imagen capturada: ${file.path}');
       }
     } else if (status.isDenied && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -38,23 +60,22 @@ class _CameraButtonState extends State<CameraButton> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      // 👉 Altura mínima, pero deja que crezca si hay muchas fotos
       constraints: const BoxConstraints(minHeight: 160),
       decoration: BoxDecoration(
-        color: const Color(0xFFF2F2F2),
+        color: widget.backgroundColor,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey.shade400),
+        border: widget.showBorder
+            ? Border.all(color: widget.borderColor, width: 2)
+            : null, // 👈 ahora sí respeta showBorder
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Wrap(
-          // 👇 Cambia esto:
-          alignment: WrapAlignment.center, // antes: start
-          runAlignment: WrapAlignment.center, // para centrar también las filas
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
           spacing: 8,
           runSpacing: 8,
           children: [
-            // fotos
             for (final img in _images)
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
@@ -65,23 +86,23 @@ class _CameraButtonState extends State<CameraButton> {
                   fit: BoxFit.cover,
                 ),
               ),
-
-            // botón con la cruz
             GestureDetector(
               onTap: _takePhoto,
               child: Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEDEDED),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey.shade400),
+                  border: widget.showBorder
+                      ? Border.all(color: widget.borderColor, width: 2)
+                      : null, // 👈 también aquí
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.add_circle_outline,
                     size: 32,
-                    color: Colors.grey,
+                    color: widget.iconColor,
                   ),
                 ),
               ),

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
-import 'package:luumil_app/screens/product_detail_screen.dart';
-import 'package:luumil_app/screens/perfil_screen.dart';
 
+/// Tarjeta de producto reutilizable
 class ProductCard extends StatelessWidget {
   final String title;
   final String description;
   final double price;
   final int stock;
+  final String? imageUrl;
   final VoidCallback onViewMore;
   final VoidCallback onGoToShop;
 
@@ -17,6 +17,7 @@ class ProductCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.stock,
+    this.imageUrl,
     required this.onViewMore,
     required this.onGoToShop,
   });
@@ -30,17 +31,20 @@ class ProductCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Row(
           children: [
-            // Imagen
+            // Imagen dinámica
             Container(
               width: 120,
               height: 120,
               decoration: BoxDecoration(
                 color: AppColors.grayBackground,
                 borderRadius: BorderRadius.circular(10),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/vela.jpg'),
-                  fit: BoxFit.cover,
-                ),
+                image: imageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(imageUrl!),
+                        fit:
+                            BoxFit.cover, // 👈 agregado para que no se desborde
+                      )
+                    : null,
               ),
             ),
             const SizedBox(width: 10),
@@ -69,47 +73,32 @@ class ProductCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ProductDetailScreen(),
-                              ),
-                            );
-                          },
+                          onPressed: onViewMore,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.blue,
-                            foregroundColor: Colors.white, // 👈 texto blanco
+                            foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
                           ),
-                          child: const Text("Ver más"),
+                          child: const Text("Ver tiendas"),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ProfileScreen(),
-                              ),
-                            );
-                          },
+                          onPressed: onGoToShop,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.green,
-                            foregroundColor: Colors.white, // 👈 texto blanco
+                            foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
-                            
                             ),
                           ),
-                          child: const Text( "Ir al perfil de la tienda" ,style: TextStyle(
-                            fontSize: 12
-                          ),),
-                          
+                          child: const Text(
+                            "Conocer la tradición",
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ),
                       ),
                     ],
