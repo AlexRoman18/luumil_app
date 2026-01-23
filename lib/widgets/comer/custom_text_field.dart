@@ -4,17 +4,20 @@ class CustomTextField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final bool obscure;
+  final TextEditingController? controller; // 🔹 nuevo parámetro
 
   const CustomTextField({
     super.key,
     required this.hint,
     required this.icon,
     this.obscure = false,
+    this.controller, // 🔹 lo incluimos en el constructor
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller, // 🔹 lo usamos aquí
       obscureText: obscure,
       decoration: InputDecoration(
         hintText: hint,

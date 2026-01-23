@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luumil_app/screens/usuario/localidad_screen.dart';
 import 'package:luumil_app/widgets/usuario/buttons.dart';
+import 'package:luumil_app/widgets/usuario/mapa_ubicacion.dart';
 import 'package:luumil_app/widgets/usuario/side_menu.dart';
 import 'package:luumil_app/screens/usuario/categorias_screen.dart';
+import 'package:luumil_app/widgets/usuario/notification_badge.dart';
 
 class PantallaInicio extends StatelessWidget {
   const PantallaInicio({super.key});
@@ -37,10 +39,8 @@ class PantallaInicio extends StatelessWidget {
             icon: const Icon(Icons.person_outline, color: Colors.black),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.black),
-            onPressed: () {},
-          ),
+          const NotificationBadge(),
+          const SizedBox(width: 8),
         ],
       ),
 
@@ -134,7 +134,7 @@ class PantallaInicio extends StatelessWidget {
                 ],
               ),
 
-              // const MapaUbicacion(),
+              const MapaUbicacion(),
               const SizedBox(height: 20),
 
               // Sección de novedades

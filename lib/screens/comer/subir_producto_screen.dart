@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:luumil_app/widgets/comer/cameraButton.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
-import 'package:luumil_app/services/firebase_product_service.dart';
+import 'package:luumil_app/screens/comer/pasos_producto_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NuevoProductoPage extends StatefulWidget {
   const NuevoProductoPage({super.key});
@@ -20,6 +22,7 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
   final stockController = TextEditingController();
 
   String? categoriaSeleccionada;
+  String? subcategoriaSeleccionada;
   final List<File> _imagenesSeleccionadas = [];
 
   final formKey = GlobalKey<FormState>();
@@ -32,6 +35,39 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
     'Zapatos',
     'Otros',
   ];
+
+  // Mapa de subcategorías por categoría
+  final Map<String, List<String>> subcategorias = {
+    'Dulces': ['Chocolate', 'Caramelos', 'Gomitas', 'Paletas', 'Otros dulces'],
+    'Verduras': [
+      'Hojas verdes',
+      'Raíces',
+      'Tubérculos',
+      'Chiles',
+      'Otras verduras',
+    ],
+    'Frutas': [
+      'Cítricos',
+      'Tropicales',
+      'Berries',
+      'Frutas de temporada',
+      'Otras frutas',
+    ],
+    'Limpieza': [
+      'Jabones',
+      'Detergentes',
+      'Desinfectantes',
+      'Utensilios',
+      'Otros',
+    ],
+    'Zapatos': ['Tradicionales', 'Deportivos', 'Casual', 'Sandalias', 'Otros'],
+    'Otros': ['Artesanías', 'Textiles', 'Joyería', 'Decoración', 'Otros'],
+  };
+
+  List<String> get subcategoriasDisponibles {
+    if (categoriaSeleccionada == null) return [];
+    return subcategorias[categoriaSeleccionada] ?? [];
+  }
 
   InputDecoration fieldDecoration(String hint) {
     return InputDecoration(
@@ -76,34 +112,6 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
         ],
       ),
     );
-  }
-
-  Future<void> guardarProducto() async {
-    final urls = <String>[];
-
-    for (final img in _imagenesSeleccionadas) {
-      final url = await CloudinaryService.subirImagen(img);
-      urls.add(url);
-    }
-
-    await FirebaseProductoService.guardarProducto(
-      nombre: nombreController.text.trim(),
-      descripcion: descripcionController.text.trim(),
-      precio: double.parse(precioController.text.trim().replaceAll(',', '.')),
-      categoria: categoriaSeleccionada ?? 'Otros',
-      fotos: urls,
-      stock: int.parse(stockController.text.trim()),
-    );
-
-    setState(() {
-      nombreController.clear();
-      descripcionController.clear();
-      precioController.clear();
-      stockController.clear();
-      categoriaSeleccionada = null;
-      _imagenesSeleccionadas.clear();
-      _cameraKey = UniqueKey();
-    });
   }
 
   @override
@@ -177,19 +185,40 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
 
               const Text('Categoría'),
               DropdownButtonFormField<String>(
-                value: categoriaSeleccionada,
-                decoration: fieldDecoration('Categoría'),
+                initialValue: categoriaSeleccionada,
+                decoration: fieldDecoration('Selecciona categoría'),
                 items: categorias
                     .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),
-                onChanged: (v) => setState(() => categoriaSeleccionada = v),
+                onChanged: (v) => setState(() {
+                  categoriaSeleccionada = v;
+                  subcategoriaSeleccionada = null; // Resetear subcategoría
+                }),
                 validator: (v) => v == null ? 'Seleccione categoría' : null,
               ),
-              const SizedBox(height: 25),
+              const SizedBox(height: 15),
+
+              // Subcategoría (solo si hay categoría seleccionada)
+              if (categoriaSeleccionada != null) ...[
+                const Text('Subcategoría'),
+                DropdownButtonFormField<String>(
+                  initialValue: subcategoriaSeleccionada,
+                  decoration: fieldDecoration('Selecciona subcategoría'),
+                  items: subcategoriasDisponibles
+                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                      .toList(),
+                  onChanged: (v) =>
+                      setState(() => subcategoriaSeleccionada = v),
+                  validator: (v) =>
+                      v == null ? 'Seleccione subcategoría' : null,
+                ),
+                const SizedBox(height: 15),
+              ],
 
               photoCard(),
               const SizedBox(height: 30),
 
+              // Botón para continuar a pasos
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -202,23 +231,180 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                             content: Text('Debe tomar al menos una foto'),
                           ),
                         );
-                        return; // 👈 Detiene el flujo si no hay fotos
+                        return;
                       }
 
-                      await guardarProducto();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Producto guardado correctamente'),
-                        ),
+                      // Mostrar indicador de carga
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) =>
+                            const Center(child: CircularProgressIndicator()),
                       );
+
+                      try {
+                        // Subir imágenes del producto a Cloudinary
+                        final urls = <String>[];
+                        for (final img in _imagenesSeleccionadas) {
+                          final url = await CloudinaryService.subirImagen(img);
+                          urls.add(url);
+                        }
+
+                        // Cerrar indicador de carga
+                        if (context.mounted) Navigator.pop(context);
+
+                        // Navegar a pantalla de pasos
+                        if (context.mounted) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PasosProductoScreen(
+                                nombre: nombreController.text.trim(),
+                                descripcion: descripcionController.text.trim(),
+                                precio: double.parse(
+                                  precioController.text.trim().replaceAll(
+                                    ',',
+                                    '.',
+                                  ),
+                                ),
+                                stock: int.parse(stockController.text.trim()),
+                                categoria: categoriaSeleccionada!,
+                                subcategoria: subcategoriaSeleccionada!,
+                                fotosProducto: urls,
+                              ),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        // Cerrar indicador de carga
+                        if (context.mounted) Navigator.pop(context);
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error al subir imágenes: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromRGBO(33, 150, 243, 1),
                   ),
                   child: const Text(
-                    'Guardar y subir',
+                    'Agregar pasos de elaboración →',
                     style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Botón para guardar sin pasos
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    if (formKey.currentState!.validate()) {
+                      if (_imagenesSeleccionadas.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Debe tomar al menos una foto'),
+                          ),
+                        );
+                        return;
+                      }
+
+                      // Mostrar indicador de carga
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) =>
+                            const Center(child: CircularProgressIndicator()),
+                      );
+
+                      try {
+                        // Subir imágenes del producto a Cloudinary
+                        final urls = <String>[];
+                        for (final img in _imagenesSeleccionadas) {
+                          final url = await CloudinaryService.subirImagen(img);
+                          urls.add(url);
+                        }
+
+                        // Guardar directamente en Firebase sin pasos
+                        final userId = FirebaseAuth.instance.currentUser?.uid;
+                        await FirebaseFirestore.instance
+                            .collection('productos')
+                            .add({
+                              'nombre': nombreController.text.trim(),
+                              'descripcion': descripcionController.text.trim(),
+                              'precio': double.parse(
+                                precioController.text.trim().replaceAll(
+                                  ',',
+                                  '.',
+                                ),
+                              ),
+                              'stock': int.parse(stockController.text.trim()),
+                              'categoria': categoriaSeleccionada,
+                              'subcategoria': subcategoriaSeleccionada,
+                              'fotos': urls,
+                              'pasos': [], // Sin pasos
+                              'vendedorId': userId,
+                              'fecha': FieldValue.serverTimestamp(),
+                            });
+
+                        // Cerrar indicador de carga
+                        if (context.mounted) Navigator.pop(context);
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Producto guardado exitosamente'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+
+                          // Limpiar formulario
+                          nombreController.clear();
+                          descripcionController.clear();
+                          precioController.clear();
+                          stockController.clear();
+                          setState(() {
+                            categoriaSeleccionada = null;
+                            subcategoriaSeleccionada = null;
+                            _imagenesSeleccionadas.clear();
+                            _cameraKey = UniqueKey();
+                          });
+                        }
+                      } catch (e) {
+                        // Cerrar indicador de carga
+                        if (context.mounted) Navigator.pop(context);
+
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error al guardar: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(
+                      color: Color.fromRGBO(33, 150, 243, 1),
+                    ),
+                  ),
+                  child: const Text(
+                    'Guardar sin pasos',
+                    style: TextStyle(
+                      color: Color.fromRGBO(33, 150, 243, 1),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),

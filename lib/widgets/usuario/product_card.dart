@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
+import 'package:luumil_app/widgets/usuario/pasos_modal.dart';
 
 /// Tarjeta de producto reutilizable
 class ProductCard extends StatelessWidget {
@@ -8,6 +9,7 @@ class ProductCard extends StatelessWidget {
   final double price;
   final int stock;
   final String? imageUrl;
+  final List<dynamic>? pasos; // 🔹 Nuevo parámetro
   final VoidCallback onViewMore;
   final VoidCallback onGoToShop;
 
@@ -18,6 +20,7 @@ class ProductCard extends StatelessWidget {
     required this.price,
     required this.stock,
     this.imageUrl,
+    this.pasos, // 🔹 Opcional
     required this.onViewMore,
     required this.onGoToShop,
   });
@@ -32,20 +35,60 @@ class ProductCard extends StatelessWidget {
         child: Row(
           children: [
             // Imagen dinámica
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: AppColors.grayBackground,
-                borderRadius: BorderRadius.circular(10),
-                image: imageUrl != null
-                    ? DecorationImage(
-                        image: NetworkImage(imageUrl!),
-                        fit:
-                            BoxFit.cover, // 👈 agregado para que no se desborde
-                      )
-                    : null,
-              ),
+            Stack(
+              children: [
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    color: AppColors.grayBackground,
+                    borderRadius: BorderRadius.circular(10),
+                    image: imageUrl != null
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                ),
+                // 🔹 Ícono de pasos (solo si tiene pasos)
+                if (pasos != null && pasos!.isNotEmpty)
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => PasosModal(pasos: pasos!),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF007BFF),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.4),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.info,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: 10),
 

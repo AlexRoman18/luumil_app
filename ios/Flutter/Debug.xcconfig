@@ -1,1 +1,4 @@
 #include "Generated.xcconfig"
+
+// IMPORTANTE: Reemplaza TU_API_KEY_AQUI con tu API key real de Google Cloud Console
+GOOGLE_MAPS_API_KEY=AIzaSyCFfdVVtQjW6k4MnE04u4vAqrOPupEKmOM

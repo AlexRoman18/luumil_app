@@ -6,6 +6,7 @@ import 'package:luumil_app/screens/categorias/limpieza_products_screen.dart';
 import 'package:luumil_app/screens/categorias/otros_products_screen.dart';
 import 'package:luumil_app/screens/categorias/verdura_products_screen.dart';
 import 'package:luumil_app/screens/categorias/zapatos_products_screen.dart';
+import 'package:luumil_app/widgets/usuario/search_bar_header.dart';
 
 class CategoriaScreen extends StatelessWidget {
   const CategoriaScreen({super.key});
@@ -37,19 +38,29 @@ class CategoriaScreen extends StatelessWidget {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              // 🔍 Barra de búsqueda
-              TextField(
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
-                  hintText: 'Buscar...',
-                  hintStyle: GoogleFonts.poppins(fontSize: 14),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
+              // 🔍 Flecha + buscador
+              SearchBarHeader(
+                onBack: () => Navigator.pop(context),
+                onSearch: (value) {
+                  // Aquí puedes implementar búsqueda si quieres
+                },
+              ),
+
+              // 📌 Texto centrado con Google Fonts
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: Text(
+                    'Explora los sabores y productos que se elabora',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16, // 👈 consistente con tus botones
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
 
               // 🟦 Cuadrícula de categorías
               Expanded(
@@ -59,7 +70,7 @@ class CategoriaScreen extends StatelessWidget {
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 20,
-                    childAspectRatio: 0.88, // 🔥 Más pequeño y balanceado
+                    childAspectRatio: 0.88,
                   ),
                   itemBuilder: (context, index) {
                     return Container(
@@ -70,7 +81,6 @@ class CategoriaScreen extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          // 👉 Imagen más pequeña
                           Expanded(
                             flex: 5,
                             child: ClipRRect(
@@ -81,14 +91,11 @@ class CategoriaScreen extends StatelessWidget {
                               child: Image.asset(
                                 imagenes[index],
                                 width: double.infinity,
-                                fit: BoxFit
-                                    .contain, // 🔥 NO recorta y se ve más limpio
+                                fit: BoxFit.contain,
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 6),
-
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
@@ -96,17 +103,14 @@ class CategoriaScreen extends StatelessWidget {
                             ),
                             child: SizedBox(
                               width: double.infinity,
-                              height:
-                                  44, // 🔥 Intermedio (no muy alto, no muy pequeño)
+                              height: 44,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF007BFF),
                                   elevation: 2,
                                   shadowColor: Colors.black26,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      18,
-                                    ), // 🔥 Curvatura moderna
+                                    borderRadius: BorderRadius.circular(18),
                                   ),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 12,
@@ -119,24 +123,19 @@ class CategoriaScreen extends StatelessWidget {
                                       destino = const DulcesScreen();
                                       break;
                                     case 1:
-                                      destino =
-                                          const VerduraProductsScreen(); // Verduras está en posición 1
+                                      destino = const VerduraProductsScreen();
                                       break;
                                     case 2:
-                                      destino =
-                                          const FrutasProductsScreen(); // Frutas está en posición 2
+                                      destino = const FrutasProductsScreen();
                                       break;
                                     case 3:
-                                      destino =
-                                          const LimpiezaProductsScreen(); // Limpieza está en posición 3
+                                      destino = const LimpiezaProductsScreen();
                                       break;
                                     case 4:
-                                      destino =
-                                          const ZapatosProductsScreen(); // Zapatos está en posición 4
+                                      destino = const ZapatosProductsScreen();
                                       break;
                                     case 5:
-                                      destino =
-                                          const OthersProductsScreen(); // Otros está en posición 5
+                                      destino = const OthersProductsScreen();
                                       break;
                                     default:
                                       destino = const DulcesScreen();
@@ -154,14 +153,12 @@ class CategoriaScreen extends StatelessWidget {
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
-                                    fontSize:
-                                        14, // 🔥 Más grande para que se vea bonito
+                                    fontSize: 14,
                                   ),
                                 ),
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 8),
                         ],
                       ),

@@ -39,16 +39,16 @@ class _RegisterFormState extends State<RegisterForm> {
       );
       print('USUARIO CREADO: ${result.user?.uid}');
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
-      }
+      // ✅ El usuario ya está autenticado después de createUserWithEmailAndPassword
+      // AuthGate detectará automáticamente el cambio gracias al StreamBuilder
+      // No hacemos navegación manual - GoRouter lo maneja declarativamente
+    } on FirebaseAuthException catch (e) {
+      _handleFirebaseError(e);
     } catch (e, stack) {
       print('🔥 ERROR REGISTRO 🔥');
       print(e);
       print(stack);
+      _showMessage("Error inesperado al registrarse");
     }
   }
 

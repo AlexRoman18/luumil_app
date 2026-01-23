@@ -3,6 +3,8 @@ import 'package:luumil_app/navigation/bottom_nav_bar.dart';
 import 'package:luumil_app/widgets/comer/activity_list.dart';
 import 'package:luumil_app/widgets/comer/dashboard_header.dart';
 import 'package:luumil_app/widgets/comer/stats_section.dart';
+import 'package:luumil_app/widgets/usuario/notification_badge.dart';
+import 'package:luumil_app/widgets/usuario/side_menu.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -11,15 +13,12 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: const Drawer(), // Opcional: menú lateral
+      drawer: const SideMenu(),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
         iconTheme: const IconThemeData(color: Colors.black),
-        actions: const [
-          Icon(Icons.notifications_none, color: Colors.black),
-          SizedBox(width: 16),
-        ],
+        actions: const [NotificationBadge(), SizedBox(width: 8)],
       ),
       body: const SingleChildScrollView(
         padding: EdgeInsets.all(16),

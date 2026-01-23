@@ -8,6 +8,17 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Leer archivo .env
+val dotenvFile = rootProject.file("../.env")
+val googleMapsApiKey = if (dotenvFile.exists()) {
+    dotenvFile.readLines()
+        .firstOrNull { it.startsWith("GOOGLE_MAPS_API_KEY=") }
+        ?.substringAfter("=")
+        ?: ""
+} else {
+    ""
+}
+
 android {
     namespace = "com.yourapp.luumil_app"
     compileSdk = flutter.compileSdkVersion
@@ -31,7 +42,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-
+        resValue("string", "google_maps_api_key", googleMapsApiKey)
     }
 
     buildTypes {

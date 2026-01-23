@@ -7,12 +7,9 @@ import 'package:luumil_app/screens/gemini/chat_context/chat_context_screen.dart'
 final authNotifier = AuthNotifier();
 
 final appRouter = GoRouter(
-  refreshListenable: authNotifier, 
+  refreshListenable: authNotifier,
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const AuthGate(),
-    ),
+    GoRoute(path: '/', builder: (context, state) => const AuthGate()),
     GoRoute(
       path: '/basic-prompt',
       builder: (context, state) => const BasicPromptScreen(),

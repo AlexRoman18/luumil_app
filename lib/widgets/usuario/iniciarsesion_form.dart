@@ -1,10 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/screens/usuario/registro_screen.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
-import 'package:luumil_app/screens/usuario/pantallainicio_screen.dart';
+import 'package:luumil_app/auth/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
+
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    // Validar campos
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Por favor ingrese correo y contraseña'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Iniciar sesión con Firebase
+      await _authService.signInWithEmailPassword(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
+      // ✅ AuthGate detectará el cambio automáticamente gracias al StreamBuilder
+      // No hacemos navegación manual - GoRouter lo maneja declarativamente
+    } on FirebaseAuthException catch (e) {
+      String message = 'Error al iniciar sesión';
+
+      switch (e.code) {
+        case 'user-not-found':
+          message = 'Usuario no encontrado';
+          break;
+        case 'wrong-password':
+          message = 'Contraseña incorrecta';
+          break;
+        case 'invalid-email':
+          message = 'Correo electrónico inválido';
+          break;
+        case 'user-disabled':
+          message = 'Usuario deshabilitado';
+          break;
+        case 'too-many-requests':
+          message = 'Demasiados intentos. Intente más tarde';
+          break;
+        default:
+          message = 'Error: ${e.message}';
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error inesperado: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +113,17 @@ class LoginForm extends StatelessWidget {
               children: [
                 const SizedBox(height: 12),
 
-                const CustomTextField(
+                CustomTextField(
                   hint: 'Correo electrónico',
                   icon: Icons.email,
+                  controller: _emailController,
                 ),
                 const SizedBox(height: 20),
-                const CustomTextField(
+                CustomTextField(
                   hint: 'Contraseña',
                   icon: Icons.lock,
                   obscure: true,
+                  controller: _passwordController,
                 ),
 
                 const SizedBox(height: 2),
@@ -58,28 +146,30 @@ class LoginForm extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PantallaInicio(),
-                        ),
-                      );
-                    },
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF007BFF),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
                     ),
-                    child: const Text(
-                      'Iniciar Sesión',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Iniciar Sesión',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
 
