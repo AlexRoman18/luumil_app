@@ -111,4 +111,55 @@ class VendorService {
         .orderBy('fecha', descending: true)
         .snapshots();
   }
+
+  // Obtener datos del perfil del vendedor
+  Future<Map<String, dynamic>?> getPerfilVendedor() async {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return null;
+
+    final doc = await _firestore.collection('usuarios').doc(userId).get();
+    if (!doc.exists) return null;
+
+    return doc.data();
+  }
+
+  // Actualizar datos del perfil
+  Future<bool> actualizarPerfil({
+    String? nombre,
+    String? descripcion,
+    String? comunidad,
+    String? fotoPerfil,
+    String? historia,
+  }) async {
+    try {
+      final userId = _auth.currentUser?.uid;
+      if (userId == null) return false;
+
+      final Map<String, dynamic> updates = {};
+      if (nombre != null) updates['nombre'] = nombre;
+      if (descripcion != null) updates['descripcion'] = descripcion;
+      if (comunidad != null) updates['comunidad'] = comunidad;
+      if (fotoPerfil != null) updates['fotoPerfil'] = fotoPerfil;
+      if (historia != null) updates['historia'] = historia;
+
+      if (updates.isEmpty) return false;
+
+      await _firestore.collection('usuarios').doc(userId).update(updates);
+      return true;
+    } catch (e) {
+      print('Error al actualizar perfil: $e');
+      return false;
+    }
+  }
+
+  // Eliminar producto
+  Future<bool> eliminarProducto(String productoId) async {
+    try {
+      await _firestore.collection('productos').doc(productoId).delete();
+      return true;
+    } catch (e) {
+      print('Error al eliminar producto: $e');
+      return false;
+    }
+  }
 }

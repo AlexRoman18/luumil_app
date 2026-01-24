@@ -46,8 +46,9 @@ class _LoginFormState extends State<LoginForm> {
         _passwordController.text,
       );
 
-      // ✅ AuthGate detectará el cambio automáticamente gracias al StreamBuilder
-      // No hacemos navegación manual - GoRouter lo maneja declarativamente
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     } on FirebaseAuthException catch (e) {
       String message = 'Error al iniciar sesión';
 

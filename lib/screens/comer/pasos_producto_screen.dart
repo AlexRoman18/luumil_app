@@ -144,7 +144,7 @@ class _PasosProductoScreenState extends State<PasosProductoScreen> {
         'stock': widget.stock,
         'categoria': widget.categoria,
         'subcategoria': widget.subcategoria,
-        'fotos': widget.fotosProducto,
+        'imagenes': widget.fotosProducto,
         'pasos': pasosList,
         'vendedorId': userId,
         'fecha': FieldValue.serverTimestamp(),

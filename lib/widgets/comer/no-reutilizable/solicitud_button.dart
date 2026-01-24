@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 class SolicitudButton extends StatelessWidget {
   final String nombre;
   final String descripcion;
-  final String comunidad;
   final List<String> imagenes;
   final bool Function()? onValidate;
 
@@ -13,7 +12,6 @@ class SolicitudButton extends StatelessWidget {
     super.key,
     required this.nombre,
     required this.descripcion,
-    required this.comunidad,
     required this.imagenes,
     this.onValidate,
   });
@@ -80,7 +78,14 @@ class SolicitudButton extends StatelessWidget {
               return;
             }
 
-            // Guardar solicitud con userId
+            // Obtener comunidad del perfil del usuario
+            final userDoc = await firestore
+                .collection('usuarios')
+                .doc(user.uid)
+                .get();
+            final comunidad = userDoc.data()?['comunidad'] ?? '';
+
+            // Guardar solicitud con userId (sin imágenes)
             await firestore.collection("solicitudes").add({
               "userId": user.uid,
               "email": user.email ?? '',
@@ -88,7 +93,6 @@ class SolicitudButton extends StatelessWidget {
               "descripcion": descripcion,
               "comunidad": comunidad,
               "estado": "pendiente",
-              "imagenes": imagenes,
               "fecha": FieldValue.serverTimestamp(),
             });
 

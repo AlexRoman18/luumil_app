@@ -145,8 +145,10 @@ class _LimpiezaProductsScreenState extends State<LimpiezaProductsScreen> {
                         description: data['descripcion'] ?? '',
                         price: (data['precio'] ?? 0).toDouble(),
                         stock: data['stock'] ?? 0,
-                        imageUrl: (data['fotos'] as List).isNotEmpty
-                            ? (data['fotos'] as List).first
+                        imageUrl:
+                            data['imagenes'] != null &&
+                                (data['imagenes'] as List).isNotEmpty
+                            ? (data['imagenes'] as List).first
                             : null,
                         pasos: data['pasos'] as List<dynamic>?,
                         onViewMore: () {

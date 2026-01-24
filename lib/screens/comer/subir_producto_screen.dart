@@ -350,7 +350,7 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                               'stock': int.parse(stockController.text.trim()),
                               'categoria': categoriaSeleccionada,
                               'subcategoria': subcategoriaSeleccionada,
-                              'fotos': urls,
+                              'imagenes': urls,
                               'pasos': [], // Sin pasos
                               'vendedorId': userId,
                               'fecha': FieldValue.serverTimestamp(),

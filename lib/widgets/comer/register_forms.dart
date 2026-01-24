@@ -17,24 +17,9 @@ class RegisterForm extends StatefulWidget {
 class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController descripcionController = TextEditingController();
-  String? comunidadSeleccionada;
 
   List<String> imagenesUrls = [];
   bool _subiendoImagen = false; // Flag para evitar duplicados
-
-  final List<String> comunidades = [
-    "Noh-Bec",
-    "Uh-May",
-    "Chunhuhub",
-    "Santa Rosa",
-    "X-Hazil Sur",
-    "X-Hazil Norte",
-    "Tihosuco",
-    "Señor",
-    "Polyuc",
-    "San Antonio Nuevo",
-    // ... agrega todas las demás comunidades aquí
-  ];
 
   /// 🔹 Método para subir imagen a Cloudinary y guardar URL
   Future<void> _subirImagen(File imagen) async {
@@ -109,45 +94,6 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
                 const SizedBox(height: 18),
 
-                // 🔹 Selector de comunidad
-                DropdownButtonFormField<String>(
-                  initialValue: comunidadSeleccionada,
-                  items: comunidades.map((comunidad) {
-                    return DropdownMenuItem(
-                      value: comunidad,
-                      child: Text(comunidad),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      comunidadSeleccionada = value;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    labelText: "Selecciona tu comunidad",
-                    prefixIcon: const Icon(Icons.location_city),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.grey,
-                        width: 1.5,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF007BFF),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 18),
-
                 const Text(
                   'Por favor, adjunte mínimo 3 imágenes que evidencien la existencia de sus ventas',
                   style: TextStyle(fontSize: 14, color: Colors.black54),
@@ -169,7 +115,6 @@ class _RegisterFormState extends State<RegisterForm> {
                   builder: (context) => SolicitudButton(
                     nombre: nombreController.text,
                     descripcion: descripcionController.text,
-                    comunidad: comunidadSeleccionada ?? "",
                     imagenes: imagenesUrls,
                     // Validación antes de enviar
                     onValidate: () {
@@ -186,16 +131,6 @@ class _RegisterFormState extends State<RegisterForm> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Ingrese la descripción'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                        return false;
-                      }
-                      if (comunidadSeleccionada == null ||
-                          comunidadSeleccionada!.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Seleccione una comunidad'),
                             backgroundColor: Colors.red,
                           ),
                         );

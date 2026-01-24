@@ -12,15 +12,24 @@ class RegisterForm extends StatefulWidget {
 }
 
 class _RegisterFormState extends State<RegisterForm> {
+  final TextEditingController nombreController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController comunidadController = TextEditingController();
   final AuthService authService = AuthService();
 
   Future<void> registerUser() async {
+    final nombre = nombreController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
+    final comunidad = comunidadController.text.trim();
 
-    // Validaciones mínimas (NO regex)
+    // Validaciones mínimas
+    if (nombre.isEmpty) {
+      _showMessage("Ingrese su nombre");
+      return;
+    }
+
     if (email.isEmpty) {
       _showMessage("Ingrese un correo electrónico");
       return;
@@ -31,17 +40,24 @@ class _RegisterFormState extends State<RegisterForm> {
       return;
     }
 
+    if (comunidad.isEmpty) {
+      _showMessage("Ingrese su comunidad");
+      return;
+    }
+
     try {
       print('INTENTANDO REGISTRO...');
       final result = await authService.registerWithEmailPassword(
         email,
         password,
+        nombre,
+        comunidad,
       );
       print('USUARIO CREADO: ${result.user?.uid}');
 
-      // ✅ El usuario ya está autenticado después de createUserWithEmailAndPassword
-      // AuthGate detectará automáticamente el cambio gracias al StreamBuilder
-      // No hacemos navegación manual - GoRouter lo maneja declarativamente
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     } on FirebaseAuthException catch (e) {
       _handleFirebaseError(e);
     } catch (e, stack) {
@@ -95,7 +111,11 @@ class _RegisterFormState extends State<RegisterForm> {
             child: Column(
               children: [
                 const SizedBox(height: 12),
-                const CustomTextField(hint: 'Nombre', icon: Icons.person),
+                CustomTextField(
+                  hint: 'Nombre',
+                  icon: Icons.person,
+                  controller: nombreController,
+                ),
                 const SizedBox(height: 14),
                 CustomTextField(
                   hint: 'Correo electrónico',
@@ -110,9 +130,10 @@ class _RegisterFormState extends State<RegisterForm> {
                   controller: passwordController,
                 ),
                 const SizedBox(height: 14),
-                const CustomTextField(
+                CustomTextField(
                   hint: 'Comunidad',
                   icon: Icons.location_on,
+                  controller: comunidadController,
                 ),
                 const SizedBox(height: 6),
 
