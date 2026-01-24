@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:luumil_app/auth/auth_service.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
 import '../../screens/usuario/iniciarsesion_screen.dart';
@@ -55,8 +56,12 @@ class _RegisterFormState extends State<RegisterForm> {
       );
       print('USUARIO CREADO: ${result.user?.uid}');
 
+      // Cerrar todas las pantallas y volver a AuthGate
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        // Cerrar pantallas hasta llegar a la raíz (AuthGate)
+        while (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     } on FirebaseAuthException catch (e) {
       _handleFirebaseError(e);

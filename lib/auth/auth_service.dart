@@ -12,22 +12,38 @@ class AuthService {
     String nombre,
     String comunidad,
   ) async {
-    final credential = await _auth.createUserWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
+    try {
+      print('📝 Iniciando registro...');
+      print('Email: $email');
+      print('Nombre: $nombre');
+      print('Comunidad: $comunidad');
 
-    // Guardar datos adicionales en Firestore
-    await _firestore.collection('usuarios').doc(credential.user!.uid).set({
-      'nombre': nombre,
-      'email': email,
-      'comunidad': comunidad,
-      'rol': 'usuario',
-      'puedeSerVendedor': false,
-      'fechaRegistro': FieldValue.serverTimestamp(),
-    });
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    return credential;
+      print('✅ Usuario creado en Auth: ${credential.user!.uid}');
+
+      // Guardar datos adicionales en Firestore
+      await _firestore.collection('usuarios').doc(credential.user!.uid).set({
+        'nombre': nombre,
+        'email': email,
+        'comunidad': comunidad,
+        'rol': 'usuario',
+        'puedeSerVendedor': false,
+        'fechaRegistro': FieldValue.serverTimestamp(),
+      });
+
+      print('✅ Datos guardados en Firestore');
+
+      return credential;
+    } catch (e, stack) {
+      print('❌ ERROR en registerWithEmailPassword:');
+      print(e);
+      print(stack);
+      rethrow;
+    }
   }
 
   // Iniciar sesión

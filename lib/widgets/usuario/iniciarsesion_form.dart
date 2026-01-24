@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:luumil_app/screens/usuario/registro_screen.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
 import 'package:luumil_app/auth/auth_service.dart';
@@ -46,8 +47,12 @@ class _LoginFormState extends State<LoginForm> {
         _passwordController.text,
       );
 
+      // Cerrar todas las pantallas y volver a AuthGate
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        // Cerrar pantallas hasta llegar a la raíz (AuthGate)
+        while (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     } on FirebaseAuthException catch (e) {
       String message = 'Error al iniciar sesión';

@@ -5,6 +5,8 @@ import 'package:luumil_app/widgets/comer/perfil_section.dart';
 import 'package:luumil_app/widgets/comer/perfil_header_background.dart';
 import 'package:luumil_app/services/vendor_service.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
+import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
+import 'package:luumil_app/screens/comer/editar_producto_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
@@ -230,38 +232,181 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         itemBuilder: (context, index) {
                           final producto = snapshot.data!.docs[index];
                           final data = producto.data() as Map<String, dynamic>;
+                          final imagenes = data['imagenes'] as List? ?? [];
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 15),
-                            child: ListTile(
-                              leading:
-                                  data['imagenes'] != null &&
-                                      (data['imagenes'] as List).isNotEmpty
-                                  ? Image.network(
-                                      data['imagenes'][0],
-                                      width: 60,
-                                      height: 60,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Container(
-                                      width: 60,
-                                      height: 60,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.image),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        DetalleProductoScreen(producto: data),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  children: [
+                                    // Imagen con indicador de múltiples fotos
+                                    Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          child: imagenes.isNotEmpty
+                                              ? Image.network(
+                                                  imagenes[0],
+                                                  width: 80,
+                                                  height: 80,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
+                                                        return Container(
+                                                          width: 80,
+                                                          height: 80,
+                                                          color:
+                                                              Colors.grey[300],
+                                                          child: const Icon(
+                                                            Icons.broken_image,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        );
+                                                      },
+                                                )
+                                              : Container(
+                                                  width: 80,
+                                                  height: 80,
+                                                  color: Colors.grey[300],
+                                                  child: const Icon(
+                                                    Icons.image,
+                                                  ),
+                                                ),
+                                        ),
+                                        // Indicador de múltiples imágenes
+                                        if (imagenes.length > 1)
+                                          Positioned(
+                                            bottom: 4,
+                                            right: 4,
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 6,
+                                                    vertical: 3,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black87,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.photo_library,
+                                                    size: 12,
+                                                    color: Colors.white,
+                                                  ),
+                                                  const SizedBox(width: 3),
+                                                  Text(
+                                                    '${imagenes.length}',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 11,
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
-                              title: Text(
-                                data['nombre'] ?? 'Sin nombre',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                                    const SizedBox(width: 16),
+                                    // Información del producto
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            data['nombre'] ?? 'Sin nombre',
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            '\$${data['precio'] ?? 0}',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: const Color(0xFF007BFF),
+                                            ),
+                                          ),
+                                          if (data['categoria'] != null) ...[
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              data['categoria'],
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                    // Botones de acción
+                                    Column(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.edit,
+                                            color: Color(0xFF007BFF),
+                                          ),
+                                          onPressed: () async {
+                                            final resultado =
+                                                await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        EditarProductoScreen(
+                                                          productoId:
+                                                              producto.id,
+                                                          producto: data,
+                                                        ),
+                                                  ),
+                                                );
+                                            // Si se guardaron cambios, actualizar la vista
+                                            if (resultado == true && mounted) {
+                                              setState(() {});
+                                            }
+                                          },
+                                          tooltip: 'Editar',
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () =>
+                                              _eliminarProducto(producto.id),
+                                          tooltip: 'Eliminar',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              subtitle: Text('\$${data['precio'] ?? 0}'),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () => _eliminarProducto(producto.id),
                               ),
                             ),
                           );

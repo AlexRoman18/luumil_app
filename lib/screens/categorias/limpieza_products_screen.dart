@@ -143,7 +143,11 @@ class _LimpiezaProductsScreenState extends State<LimpiezaProductsScreen> {
                       return ProductCard(
                         title: data['nombre'] ?? '',
                         description: data['descripcion'] ?? '',
-                        price: (data['precio'] ?? 0).toDouble(),
+                        price:
+                            double.tryParse(
+                              data['precio']?.toString() ?? '0',
+                            ) ??
+                            0.0,
                         stock: data['stock'] ?? 0,
                         imageUrl:
                             data['imagenes'] != null &&
