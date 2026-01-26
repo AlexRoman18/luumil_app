@@ -26,16 +26,36 @@ class AuthService {
       print('✅ Usuario creado en Auth: ${credential.user!.uid}');
 
       // Guardar datos adicionales en Firestore
-      await _firestore.collection('usuarios').doc(credential.user!.uid).set({
-        'nombre': nombre,
+      final userData = {
+        'nombrePersonal': nombre,
         'email': email,
         'comunidad': comunidad,
         'rol': 'usuario',
         'puedeSerVendedor': false,
         'fechaRegistro': FieldValue.serverTimestamp(),
-      });
+      };
 
-      print('✅ Datos guardados en Firestore');
+      print('📤 Guardando en Firestore:');
+      print('   - nombrePersonal: $nombre');
+      print('   - email: $email');
+      print('   - comunidad: $comunidad');
+
+      await _firestore
+          .collection('usuarios')
+          .doc(credential.user!.uid)
+          .set(userData);
+
+      print('✅ Datos guardados en Firestore correctamente');
+
+      // Verificar que se guardó correctamente
+      final doc = await _firestore
+          .collection('usuarios')
+          .doc(credential.user!.uid)
+          .get();
+      print('🔍 Verificación - Datos recuperados de Firestore:');
+      print('   - nombrePersonal: ${doc.data()?['nombrePersonal']}');
+      print('   - email: ${doc.data()?['email']}');
+      print('   - comunidad: ${doc.data()?['comunidad']}');
 
       return credential;
     } catch (e, stack) {

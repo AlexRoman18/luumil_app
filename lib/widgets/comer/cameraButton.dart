@@ -44,8 +44,6 @@ class _CameraButtonState extends State<CameraButton> {
 
         // 👇 aquí notificamos al padre
         widget.onImageCaptured?.call(file);
-
-        print('📸 Imagen capturada: ${file.path}');
       }
     } else if (status.isDenied && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

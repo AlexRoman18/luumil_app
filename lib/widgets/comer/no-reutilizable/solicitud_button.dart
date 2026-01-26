@@ -89,7 +89,7 @@ class SolicitudButton extends StatelessWidget {
             await firestore.collection("solicitudes").add({
               "userId": user.uid,
               "email": user.email ?? '',
-              "nombre": nombre,
+              "nombreTienda": nombre,
               "descripcion": descripcion,
               "comunidad": comunidad,
               "estado": "pendiente",

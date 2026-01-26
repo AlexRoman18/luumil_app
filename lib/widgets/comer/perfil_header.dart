@@ -45,10 +45,17 @@ class ProfileHeader extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 45,
+                    backgroundColor: Colors.white,
                     backgroundImage: fotoPerfil != null
                         ? NetworkImage(fotoPerfil!)
-                        : const AssetImage('assets/icons/tienda.png')
-                              as ImageProvider,
+                        : null,
+                    child: fotoPerfil == null
+                        ? Icon(
+                            Icons.person_rounded,
+                            size: 45,
+                            color: Colors.grey[600],
+                          )
+                        : null,
                   ),
                   if (onEditFoto != null)
                     Positioned(
@@ -86,7 +93,11 @@ class ProfileHeader extends StatelessWidget {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: onEditNombre,
-                    child: const Icon(Icons.edit, size: 18, color: Colors.blue),
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: Colors.black54,
+                    ),
                   ),
                 ],
               ],
@@ -108,7 +119,11 @@ class ProfileHeader extends StatelessWidget {
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: onEditDescripcion,
-                    child: const Icon(Icons.edit, size: 16, color: Colors.blue),
+                    child: const Icon(
+                      Icons.edit_outlined,
+                      size: 16,
+                      color: Colors.black54,
+                    ),
                   ),
                 ],
               ],

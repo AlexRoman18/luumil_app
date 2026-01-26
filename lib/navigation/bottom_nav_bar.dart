@@ -13,26 +13,32 @@ class _BottomNavBarState extends State<BottomNavBar> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
     if (index == 1) {
       // Ir a la pantalla de "Subir productos"
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const NuevoProductoPage()),
-      );
+      ).then((_) {
+        // Resetear a Principal cuando regresa
+        setState(() {
+          _selectedIndex = 0;
+        });
+      });
     } else if (index == 0) {
-      // Aquí puedes agregar navegación a la pantalla principal
-      // Ejemplo: Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
+      // Ya estamos en Principal, no hacer nada
+      setState(() {
+        _selectedIndex = 0;
+      });
     } else if (index == 2) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ProfileScreen()),
-      );
-      // Aquí puedes agregar navegación al perfilJ
-      // Ejemplo: Navigator.push(context, MaterialPageRoute(builder: (context) => const PerfilPage()));
+      ).then((_) {
+        // Resetear a Principal cuando regresa
+        setState(() {
+          _selectedIndex = 0;
+        });
+      });
     }
   }
 
@@ -40,7 +46,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: _selectedIndex,
-      selectedItemColor: Colors.purple,
+      selectedItemColor: const Color(0xFF2196F3),
       unselectedItemColor: Colors.grey,
       onTap: _onItemTapped,
       items: const [

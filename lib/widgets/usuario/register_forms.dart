@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:luumil_app/auth/auth_service.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
 import '../../screens/usuario/iniciarsesion_screen.dart';
@@ -47,14 +46,12 @@ class _RegisterFormState extends State<RegisterForm> {
     }
 
     try {
-      print('INTENTANDO REGISTRO...');
       final result = await authService.registerWithEmailPassword(
         email,
         password,
         nombre,
         comunidad,
       );
-      print('USUARIO CREADO: ${result.user?.uid}');
 
       // Cerrar todas las pantallas y volver a AuthGate
       if (mounted) {
@@ -65,10 +62,7 @@ class _RegisterFormState extends State<RegisterForm> {
       }
     } on FirebaseAuthException catch (e) {
       _handleFirebaseError(e);
-    } catch (e, stack) {
-      print('🔥 ERROR REGISTRO 🔥');
-      print(e);
-      print(stack);
+    } catch (e) {
       _showMessage("Error inesperado al registrarse");
     }
   }

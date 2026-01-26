@@ -622,7 +622,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
         ],
       ),
       child: DropdownButtonFormField<String>(
-        value: _categoriaSeleccionada,
+        initialValue: _categoriaSeleccionada,
         decoration: InputDecoration(
           labelText: 'Categoría',
           labelStyle: GoogleFonts.poppins(

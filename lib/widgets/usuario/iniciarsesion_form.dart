@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:luumil_app/screens/usuario/registro_screen.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
 import 'package:luumil_app/auth/auth_service.dart';

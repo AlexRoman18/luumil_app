@@ -7,6 +7,7 @@ import 'package:luumil_app/services/vendor_service.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
 import 'package:luumil_app/screens/comer/editar_producto_screen.dart';
+import 'package:luumil_app/auth/auth_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
@@ -20,6 +21,7 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   final VendorService _vendorService = VendorService();
+  final AuthService _authService = AuthService();
   final ImagePicker _picker = ImagePicker();
 
   String? _fotoPerfil;
@@ -40,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (perfil != null && mounted) {
       setState(() {
         _fotoPerfil = perfil['fotoPerfil'];
-        _nombre = perfil['nombre'] ?? 'Vendedor';
+        _nombre = perfil['nombreTienda'] ?? 'Vendedor';
         _descripcion = perfil['descripcion'] ?? 'Descripción del negocio';
         _historiaController.text = perfil['historia'] ?? 'Nuestra historia...';
         _cargando = false;
@@ -141,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       bool exito = false;
 
       if (campo == 'Nombre') {
-        exito = await _vendorService.actualizarPerfil(nombre: resultado);
+        exito = await _vendorService.actualizarPerfil(nombreTienda: resultado);
         if (exito) setState(() => _nombre = resultado);
       } else if (campo == 'Descripción') {
         exito = await _vendorService.actualizarPerfil(descripcion: resultado);
@@ -167,260 +169,419 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const PerfilHeaderBackground(),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const PerfilHeaderBackground(),
 
-            ProfileHeader(
-              fotoPerfil: _fotoPerfil,
-              nombre: _nombre,
-              descripcion: _descripcion,
-              onEditFoto: _cambiarFotoPerfil,
-              onEditNombre: () => _editarCampo('Nombre', _nombre),
-              onEditDescripcion: () =>
-                  _editarCampo('Descripción', _descripcion),
-            ),
+                ProfileHeader(
+                  fotoPerfil: _fotoPerfil,
+                  nombre: _nombre,
+                  descripcion: _descripcion,
+                  onEditFoto: _cambiarFotoPerfil,
+                  onEditNombre: () => _editarCampo('Nombre', _nombre),
+                  onEditDescripcion: () =>
+                      _editarCampo('Descripción', _descripcion),
+                ),
 
-            // 🏷️ Nuestra Historia (Editable)
-            GestureDetector(
-              onTap: () {
-                _editarHistoria();
-              },
-              child: ProfileSection(
-                title: 'Nuestra Historia',
-                icon: Icons.edit_outlined,
-                content: _historiaController.text,
-              ),
-            ),
-
-            // 📰 Mis Productos
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Mis Productos",
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
+                // 🏷️ Nuestra Historia (Editable)
+                GestureDetector(
+                  onTap: () {
+                    _editarHistoria();
+                  },
+                  child: ProfileSection(
+                    title: 'Nuestra Historia',
+                    icon: Icons.edit_outlined,
+                    content: _historiaController.text,
                   ),
-                  const SizedBox(height: 10),
+                ),
 
-                  StreamBuilder<QuerySnapshot>(
-                    stream: _vendorService.getMisProductos(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                // 📰 Mis Productos
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Mis Productos",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
 
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return Container(
-                          padding: const EdgeInsets.all(40),
-                          child: const Center(
-                            child: Text('No tienes productos publicados'),
-                          ),
-                        );
-                      }
+                      StreamBuilder<QuerySnapshot>(
+                        stream: _vendorService.getMisProductos(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
 
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: snapshot.data!.docs.length,
-                        itemBuilder: (context, index) {
-                          final producto = snapshot.data!.docs[index];
-                          final data = producto.data() as Map<String, dynamic>;
-                          final imagenes = data['imagenes'] as List? ?? [];
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
+                            return Container(
+                              padding: const EdgeInsets.all(40),
+                              child: const Center(
+                                child: Text('No tienes productos publicados'),
+                              ),
+                            );
+                          }
 
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 15),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        DetalleProductoScreen(producto: data),
-                                  ),
-                                );
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(12),
-                                child: Row(
-                                  children: [
-                                    // Imagen con indicador de múltiples fotos
-                                    Stack(
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          child: imagenes.isNotEmpty
-                                              ? Image.network(
-                                                  imagenes[0],
-                                                  width: 80,
-                                                  height: 80,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) {
-                                                        return Container(
-                                                          width: 80,
-                                                          height: 80,
-                                                          color:
-                                                              Colors.grey[300],
-                                                          child: const Icon(
-                                                            Icons.broken_image,
-                                                            color: Colors.grey,
-                                                          ),
-                                                        );
-                                                      },
-                                                )
-                                              : Container(
-                                                  width: 80,
-                                                  height: 80,
-                                                  color: Colors.grey[300],
-                                                  child: const Icon(
-                                                    Icons.image,
-                                                  ),
-                                                ),
-                                        ),
-                                        // Indicador de múltiples imágenes
-                                        if (imagenes.length > 1)
-                                          Positioned(
-                                            bottom: 4,
-                                            right: 4,
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 6,
-                                                    vertical: 3,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black87,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                              ),
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  const Icon(
-                                                    Icons.photo_library,
-                                                    size: 12,
-                                                    color: Colors.white,
-                                                  ),
-                                                  const SizedBox(width: 3),
-                                                  Text(
-                                                    '${imagenes.length}',
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 11,
-                                                      color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 16),
-                                    // Información del producto
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            data['nombre'] ?? 'Sin nombre',
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            '\$${data['precio'] ?? 0}',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: const Color(0xFF007BFF),
-                                            ),
-                                          ),
-                                          if (data['categoria'] != null) ...[
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              data['categoria'],
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 12,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                    // Botones de acción
-                                    Column(
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.edit,
-                                            color: Color(0xFF007BFF),
-                                          ),
-                                          onPressed: () async {
-                                            final resultado =
-                                                await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        EditarProductoScreen(
-                                                          productoId:
-                                                              producto.id,
-                                                          producto: data,
-                                                        ),
-                                                  ),
-                                                );
-                                            // Si se guardaron cambios, actualizar la vista
-                                            if (resultado == true && mounted) {
-                                              setState(() {});
-                                            }
-                                          },
-                                          tooltip: 'Editar',
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
-                                          ),
-                                          onPressed: () =>
-                                              _eliminarProducto(producto.id),
-                                          tooltip: 'Eliminar',
-                                        ),
-                                      ],
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (context, index) {
+                              final producto = snapshot.data!.docs[index];
+                              final data =
+                                  producto.data() as Map<String, dynamic>;
+                              final imagenes = data['imagenes'] as List? ?? [];
+
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              DetalleProductoScreen(
+                                                producto: data,
+                                              ),
+                                        ),
+                                      );
+                                    },
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Imagen con indicador de múltiples fotos
+                                          Stack(
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                child: imagenes.isNotEmpty
+                                                    ? Image.network(
+                                                        imagenes[0],
+                                                        width: 100,
+                                                        height: 100,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder:
+                                                            (
+                                                              context,
+                                                              error,
+                                                              stackTrace,
+                                                            ) {
+                                                              return Container(
+                                                                width: 100,
+                                                                height: 100,
+                                                                decoration: BoxDecoration(
+                                                                  gradient: LinearGradient(
+                                                                    begin: Alignment
+                                                                        .topLeft,
+                                                                    end: Alignment
+                                                                        .bottomRight,
+                                                                    colors: [
+                                                                      Colors
+                                                                          .grey[200]!,
+                                                                      Colors
+                                                                          .grey[300]!,
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                child: Icon(
+                                                                  Icons
+                                                                      .broken_image_rounded,
+                                                                  color: Colors
+                                                                      .grey[400],
+                                                                  size: 32,
+                                                                ),
+                                                              );
+                                                            },
+                                                      )
+                                                    : Container(
+                                                        width: 100,
+                                                        height: 100,
+                                                        decoration: BoxDecoration(
+                                                          gradient: LinearGradient(
+                                                            begin: Alignment
+                                                                .topLeft,
+                                                            end: Alignment
+                                                                .bottomRight,
+                                                            colors: [
+                                                              Colors.grey[200]!,
+                                                              Colors.grey[300]!,
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        child: Icon(
+                                                          Icons.image_rounded,
+                                                          color:
+                                                              Colors.grey[400],
+                                                          size: 32,
+                                                        ),
+                                                      ),
+                                              ),
+                                              // Indicador de múltiples imágenes
+                                              if (imagenes.length > 1)
+                                                Positioned(
+                                                  top: 6,
+                                                  right: 6,
+                                                  child: Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black
+                                                          .withOpacity(0.75),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(
+                                                          Icons
+                                                              .collections_rounded,
+                                                          size: 14,
+                                                          color: Colors.white,
+                                                        ),
+                                                        const SizedBox(
+                                                          width: 4,
+                                                        ),
+                                                        Text(
+                                                          '${imagenes.length}',
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                fontSize: 12,
+                                                                color: Colors
+                                                                    .white,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                              ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: 14),
+                                          // Información del producto
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  data['nombre'] ??
+                                                      'Sin nombre',
+                                                  style: GoogleFonts.poppins(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 16,
+                                                    height: 1.3,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 6),
+                                                Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 4,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    gradient:
+                                                        const LinearGradient(
+                                                          colors: [
+                                                            Color(0xFF007BFF),
+                                                            Color(0xFF0056D2),
+                                                          ],
+                                                        ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    '\$${data['precio'] ?? 0}',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                                if (data['categoria'] !=
+                                                    null) ...[
+                                                  const SizedBox(height: 8),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
+                                                        Icons.category_rounded,
+                                                        size: 14,
+                                                        color: Colors.grey[500],
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        data['categoria'],
+                                                        style:
+                                                            GoogleFonts.poppins(
+                                                              fontSize: 12,
+                                                              color: Colors
+                                                                  .grey[600],
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          // Botones de acción
+                                          Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFF007BFF,
+                                                  ).withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                    Icons.edit_rounded,
+                                                    color: Color(0xFF007BFF),
+                                                    size: 22,
+                                                  ),
+                                                  onPressed: () async {
+                                                    final resultado =
+                                                        await Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                EditarProductoScreen(
+                                                                  productoId:
+                                                                      producto
+                                                                          .id,
+                                                                  producto:
+                                                                      data,
+                                                                ),
+                                                          ),
+                                                        );
+                                                    if (resultado == true &&
+                                                        mounted) {
+                                                      setState(() {});
+                                                    }
+                                                  },
+                                                  tooltip: 'Editar',
+                                                  padding: const EdgeInsets.all(
+                                                    8,
+                                                  ),
+                                                  constraints:
+                                                      const BoxConstraints(),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red.withOpacity(
+                                                    0.1,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                    Icons.delete_rounded,
+                                                    color: Colors.red,
+                                                    size: 22,
+                                                  ),
+                                                  onPressed: () =>
+                                                      _eliminarProducto(
+                                                        producto.id,
+                                                      ),
+                                                  tooltip: 'Eliminar',
+                                                  padding: const EdgeInsets.all(
+                                                    8,
+                                                  ),
+                                                  constraints:
+                                                      const BoxConstraints(),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
-                      );
-                    },
-                  ),
+                      ),
 
-                  const SizedBox(height: 20),
-                ],
-              ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+
+          // Botón flotante de cerrar sesión
+          Positioned(
+            top: 40,
+            right: 20,
+            child: IconButton(
+              icon: const Icon(
+                Icons.logout_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+              onPressed: _cerrarSesion,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -508,6 +669,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: exito ? Colors.green : Colors.red,
           ),
         );
+      }
+    }
+  }
+
+  Future<void> _cerrarSesion() async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Cerrar Sesión',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        content: Text(
+          '¿Estás seguro de que quieres cerrar sesión?',
+          style: GoogleFonts.poppins(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancelar', style: GoogleFonts.poppins()),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              'Cerrar Sesión',
+              style: GoogleFonts.poppins(
+                color: Colors.red,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar == true) {
+      await _authService.signOut();
+      if (mounted) {
+        // Eliminar todas las rutas y volver al home
+        while (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     }
   }

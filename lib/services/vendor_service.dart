@@ -51,46 +51,17 @@ class VendorService {
   // Stream de notificaciones del usuario
   Stream<QuerySnapshot> getNotificaciones() {
     final userId = _auth.currentUser?.uid;
-    final email = _auth.currentUser?.email;
-    print('🔍🔍🔍 getNotificaciones() llamado');
-    print('   📧 Email: $email');
-    print('   🆔 userId: $userId');
 
     if (userId == null) {
-      print('⚠️⚠️⚠️ Usuario no autenticado, retornando stream vacío');
       return const Stream.empty();
     }
 
-    print('   ✅ Consultando Firestore...');
-    print('   📂 Colección: notificaciones');
-    print('   🔑 Filtro userId: $userId');
-    print('   👁️ Filtro leida: false');
-
-    final stream = _firestore
+    return _firestore
         .collection('notificaciones')
         .where('userId', isEqualTo: userId)
         .where('leida', isEqualTo: false)
         .orderBy('fecha', descending: true)
         .snapshots();
-
-    // Debug: escuchar el stream para ver qué llega
-    stream.listen(
-      (snapshot) {
-        print('📨📨📨 Stream recibió datos:');
-        print('   📊 Total documentos: ${snapshot.docs.length}');
-        for (var doc in snapshot.docs) {
-          final data = doc.data() as Map<String, dynamic>;
-          print(
-            '   - ${doc.id}: ${data['titulo']} (userId: ${data['userId']})',
-          );
-        }
-      },
-      onError: (error) {
-        print('❌❌❌ Error en stream: $error');
-      },
-    );
-
-    return stream;
   }
 
   // Marcar notificación como leída
@@ -125,7 +96,7 @@ class VendorService {
 
   // Actualizar datos del perfil
   Future<bool> actualizarPerfil({
-    String? nombre,
+    String? nombreTienda,
     String? descripcion,
     String? comunidad,
     String? fotoPerfil,
@@ -136,7 +107,7 @@ class VendorService {
       if (userId == null) return false;
 
       final Map<String, dynamic> updates = {};
-      if (nombre != null) updates['nombre'] = nombre;
+      if (nombreTienda != null) updates['nombreTienda'] = nombreTienda;
       if (descripcion != null) updates['descripcion'] = descripcion;
       if (comunidad != null) updates['comunidad'] = comunidad;
       if (fotoPerfil != null) updates['fotoPerfil'] = fotoPerfil;

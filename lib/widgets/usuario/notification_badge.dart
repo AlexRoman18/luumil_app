@@ -12,15 +12,6 @@ class NotificationBadge extends StatelessWidget {
     return StreamBuilder<QuerySnapshot>(
       stream: vendorService.getNotificaciones(),
       builder: (context, snapshot) {
-        print('🔔 NotificationBadge - Estado: ${snapshot.connectionState}');
-        print('   - hasData: ${snapshot.hasData}');
-        print('   - hasError: ${snapshot.hasError}');
-        if (snapshot.hasData) {
-          print(
-            '   - Cantidad de notificaciones: ${snapshot.data!.docs.length}',
-          );
-        }
-
         // Siempre mostrar campanita, incluso mientras carga
         if (snapshot.connectionState == ConnectionState.waiting ||
             !snapshot.hasData) {

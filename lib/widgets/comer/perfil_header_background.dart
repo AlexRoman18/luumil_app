@@ -23,7 +23,7 @@ class PerfilHeaderBackground extends StatelessWidget {
           height: 180,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.black.withOpacity(0.25), Colors.transparent],
+              colors: [Colors.black.withOpacity(0.4), Colors.transparent],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -33,10 +33,7 @@ class PerfilHeaderBackground extends StatelessWidget {
         // 🔙 Botón de retroceso
         SafeArea(
           child: IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: Color.fromARGB(255, 0, 0, 0),
-            ),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pop(context),
           ),
         ),
