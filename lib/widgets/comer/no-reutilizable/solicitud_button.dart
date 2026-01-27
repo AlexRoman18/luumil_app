@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class SolicitudButton extends StatelessWidget {
   final String nombre;
   final String descripcion;
   final List<String> imagenes;
   final bool Function()? onValidate;
+  final LatLng? ubicacion;
 
   const SolicitudButton({
     super.key,
@@ -14,6 +16,7 @@ class SolicitudButton extends StatelessWidget {
     required this.descripcion,
     required this.imagenes,
     this.onValidate,
+    this.ubicacion,
   });
 
   @override
@@ -85,23 +88,41 @@ class SolicitudButton extends StatelessWidget {
                 .get();
             final comunidad = userDoc.data()?['comunidad'] ?? '';
 
-            // Guardar solicitud con userId (sin imágenes)
+            // Preparar datos de ubicación si existe
+            Map<String, dynamic>? ubicacionData;
+            if (ubicacion != null) {
+              ubicacionData = {
+                'latitude': ubicacion!.latitude,
+                'longitude': ubicacion!.longitude,
+              };
+            }
+
+            // Guardar solicitud con userId y ubicación
             await firestore.collection("solicitudes").add({
               "userId": user.uid,
               "email": user.email ?? '',
               "nombreTienda": nombre,
               "descripcion": descripcion,
               "comunidad": comunidad,
+              if (ubicacionData != null) "ubicacion": ubicacionData,
               "estado": "pendiente",
               "fecha": FieldValue.serverTimestamp(),
             });
 
-            // Actualizar estado del usuario a 'solicitante'
-            await firestore.collection('usuarios').doc(user.uid).set({
+            // Actualizar estado del usuario a 'solicitante' con ubicación
+            final updateData = {
               'rol': 'solicitante',
               'email': user.email ?? '',
               'fechaSolicitud': FieldValue.serverTimestamp(),
-            }, SetOptions(merge: true));
+            };
+            if (ubicacionData != null) {
+              updateData['ubicacion'] = ubicacionData;
+            }
+
+            await firestore
+                .collection('usuarios')
+                .doc(user.uid)
+                .set(updateData, SetOptions(merge: true));
 
             if (!context.mounted) return;
 

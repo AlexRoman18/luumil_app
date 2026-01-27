@@ -41,7 +41,7 @@ class ProductCard extends StatelessWidget {
                   width: 120,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: AppColors.grayBackground,
+                    color: AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(10),
                     image: imageUrl != null
                         ? DecorationImage(
@@ -118,7 +118,7 @@ class ProductCard extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: onViewMore,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.blue,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -132,7 +132,7 @@ class ProductCard extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: onGoToShop,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.green,
+                            backgroundColor: AppColors.success,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),

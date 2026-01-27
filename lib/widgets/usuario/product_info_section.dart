@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 
-
 class ProductInfoSection extends StatelessWidget {
   final double price;
   final int rating;
@@ -26,16 +25,14 @@ class ProductInfoSection extends StatelessWidget {
           children: [
             Text(
               "\$$price",
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(width: 8),
             Row(
               children: List.generate(
                 rating,
-                (index) => const Icon(Icons.star, color: Colors.amber, size: 20),
+                (index) =>
+                    const Icon(Icons.star, color: Colors.amber, size: 20),
               ),
             ),
           ],
@@ -45,7 +42,7 @@ class ProductInfoSection extends StatelessWidget {
         IconButton(
           icon: Icon(
             Icons.thumb_up,
-            color: isFavorite ? AppColors.blue : Colors.black54,
+            color: isFavorite ? AppColors.primary : Colors.black54,
           ),
           onPressed: onFavoriteToggle,
         ),

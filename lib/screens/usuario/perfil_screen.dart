@@ -308,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Overlay
                 Container(
-                  height: 240,
+                  height: 180,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -323,114 +323,112 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Contenido
                 SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 0),
-                    child: Column(
-                      children: [
-                        // Botones superiores
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_back_ios_new_rounded,
-                                  color: Colors.white,
-                                ),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.logout_rounded,
-                                  color: Colors.white,
-                                ),
-                                onPressed: _cerrarSesion,
-                              ),
-                            ],
-                          ),
+                  child: Column(
+                    children: [
+                      // Botones superiores
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 0,
                         ),
-
-                        // Avatar con foto editable
-                        Stack(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundColor: Colors.white,
-                              backgroundImage: _fotoPerfil != null
-                                  ? NetworkImage(_fotoPerfil!)
-                                  : null,
-                              child: _fotoPerfil == null
-                                  ? Icon(
-                                      Icons.person_rounded,
-                                      size: 50,
-                                      color: Colors.grey[600],
-                                    )
-                                  : null,
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: GestureDetector(
-                                onTap: _cambiarFotoPerfil,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.camera_alt,
-                                    size: 18,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        // Nombre
-                        Text(
-                          _nombre,
-                          style: GoogleFonts.poppins(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        // Comunidad
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.location_on_outlined,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _comunidad,
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
+                            IconButton(
+                              icon: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
                                 color: Colors.white,
                               ),
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.logout_rounded,
+                                color: Colors.white,
+                              ),
+                              onPressed: _cerrarSesion,
                             ),
                           ],
                         ),
+                      ),
 
-                        const SizedBox(height: 10),
-                      ],
-                    ),
+                      // Avatar con foto editable
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 45,
+                            backgroundColor: Colors.white,
+                            backgroundImage: _fotoPerfil != null
+                                ? NetworkImage(_fotoPerfil!)
+                                : null,
+                            child: _fotoPerfil == null
+                                ? Icon(
+                                    Icons.person_rounded,
+                                    size: 40,
+                                    color: Colors.grey[600],
+                                  )
+                                : null,
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: _cambiarFotoPerfil,
+                              child: Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  size: 18,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      // Nombre
+                      Text(
+                        _nombre,
+                        style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 2),
+
+                      // Comunidad
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _comunidad,
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 6),
+                    ],
                   ),
                 ),
               ],

@@ -11,29 +11,30 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: const SideMenu(),
-      appBar: AppBar(
-        elevation: 0,
+    return BottomNavBar(
+      dashboardContent: Scaffold(
         backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black),
-        actions: const [NotificationBadge(), SizedBox(width: 8)],
-      ),
-      body: const SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DashboardHeader(),
-            SizedBox(height: 20),
-            StatsSection(),
-            SizedBox(height: 20),
-            ActivityList(),
-          ],
+        drawer: const SideMenu(),
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.black),
+          actions: const [NotificationBadge(), SizedBox(width: 8)],
+        ),
+        body: const SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DashboardHeader(),
+              SizedBox(height: 20),
+              StatsSection(),
+              SizedBox(height: 20),
+              ActivityList(),
+            ],
+          ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(),
     );
   }
 }

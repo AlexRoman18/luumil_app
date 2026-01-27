@@ -11,6 +11,7 @@ import 'package:luumil_app/widgets/usuario/notification_badge.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
+import 'package:luumil_app/config/theme/app_colors.dart';
 
 class PantallaInicio extends StatelessWidget {
   const PantallaInicio({super.key});
@@ -22,17 +23,17 @@ class PantallaInicio extends StatelessWidget {
 
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
 
       // 🔹 Drawer (menú lateral)
       drawer: const SideMenu(),
 
       // 🔹 AppBar superior
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: Colors.black),
+          icon: Icon(Icons.menu, color: AppColors.textPrimary),
           onPressed: () {
             // 🔹 Abre el Drawer
             scaffoldKey.currentState!.openDrawer();
@@ -40,9 +41,8 @@ class PantallaInicio extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person_outline, color: Colors.black),
+            icon: Icon(Icons.person_outline, color: AppColors.textPrimary),
             onPressed: () {
-              print('Navegando al perfil de usuario...');
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const ProfileScreen()),
@@ -50,13 +50,13 @@ class PantallaInicio extends StatelessWidget {
             },
           ),
           const NotificationBadge(),
-          const SizedBox(width: 8),
+          SizedBox(width: AppSpacing.sm),
         ],
       ),
 
       // 🔹 Contenido principal
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,25 +77,28 @@ class PantallaInicio extends StatelessWidget {
                   return Text(
                     '¡Bienvenido, $nombre!',
                     style: GoogleFonts.poppins(
-                      fontSize: 24,
+                      fontSize: AppTypography.text3xl,
                       fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
                     ),
                   );
                 },
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: AppSpacing.lg),
 
               // Barra de búsqueda
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black54),
-                  borderRadius: BorderRadius.circular(30),
+                  color: AppColors.surface,
+                  border: Border.all(color: AppColors.border),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  boxShadow: AppColors.cardShadow,
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.search, color: Colors.black54),
-                    SizedBox(width: 10),
+                    Icon(Icons.search, color: AppColors.textSecondary),
+                    SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: TextField(
                         decoration: InputDecoration(

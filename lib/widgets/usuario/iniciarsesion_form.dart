@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/screens/usuario/registro_screen.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
+import 'package:luumil_app/widgets/usuario/buttons.dart';
+import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -104,19 +106,22 @@ class _LoginFormState extends State<LoginForm> {
       child: Container(
         height: MediaQuery.of(context).size.height * 0.55,
         width: double.infinity,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(36),
-            topRight: Radius.circular(36),
+            topLeft: Radius.circular(AppRadius.xl),
+            topRight: Radius.circular(AppRadius.xl),
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 12),
+                SizedBox(height: AppSpacing.md),
 
                 CustomTextField(
                   hint: 'Correo electrónico',
@@ -144,69 +149,45 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
 
-                const SizedBox(height: 30),
+                SizedBox(height: AppSpacing.xl),
 
                 // Botón principal
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF007BFF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            'Iniciar Sesión',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                  ),
+                ModernButton(
+                  text: 'Iniciar Sesión',
+                  onPressed: _isLoading ? null : _handleLogin,
+                  loading: _isLoading,
+                  icon: Icons.login,
                 ),
 
-                const SizedBox(height: 18),
+                SizedBox(height: AppSpacing.md),
 
                 // Botón Google
                 SizedBox(
                   width: double.infinity,
-                  height: 46,
+                  height: 52,
                   child: OutlinedButton.icon(
                     onPressed: () {},
                     icon: Image.asset(
                       'assets/icons/buscar.png',
-                      width: 22,
-                      height: 22,
+                      width: 20,
+                      height: 20,
                     ),
                     label: const Text(
                       'Continuar con Google',
                       style: TextStyle(fontSize: 15),
                     ),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.black26),
+                      side: BorderSide(color: AppColors.border, width: 1.5),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
-                      foregroundColor: Colors.black87,
+                      foregroundColor: AppColors.textPrimary,
                       backgroundColor: Colors.white,
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                SizedBox(height: AppSpacing.md),
 
                 // Texto de inicio de sesión
                 Row(
@@ -223,10 +204,10 @@ class _LoginFormState extends State<LoginForm> {
                           builder: (_) => const RegisterScreen(),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Registrese',
                         style: TextStyle(
-                          color: Color(0xFF007BFF),
+                          color: AppColors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

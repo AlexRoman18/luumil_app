@@ -118,10 +118,12 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Nuevo producto',
           style: TextStyle(color: Colors.black),
         ),
+        centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
       ),
