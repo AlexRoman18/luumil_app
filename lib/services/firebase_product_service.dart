@@ -19,6 +19,10 @@ class FirebaseProductoService {
       'fecha': FieldValue.serverTimestamp(),
     };
 
-    await FirebaseFirestore.instance.collection('productos').add(producto);
+    // Agregar el producto y luego actualizar con su propio ID
+    final docRef = await FirebaseFirestore.instance
+        .collection('productos')
+        .add(producto);
+    await docRef.update({'id': docRef.id});
   }
 }

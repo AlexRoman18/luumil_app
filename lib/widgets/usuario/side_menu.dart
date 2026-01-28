@@ -6,6 +6,7 @@ import 'package:luumil_app/screens/comer/registro_screen.dart';
 import 'package:luumil_app/services/vendor_service.dart';
 import 'package:luumil_app/screens/comer/dashboard_screen.dart';
 import 'package:luumil_app/screens/usuario/pantallainicio_screen.dart';
+import 'package:luumil_app/screens/usuario/perfil_screen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -47,19 +48,34 @@ class _SideMenuState extends State<SideMenu> {
         return NavigationDrawer(
           selectedIndex: navDrawerIndex,
           onDestinationSelected: (int index) async {
-            if (index != 2) {
+            // Ajustar índice si el perfil no está visible (vendedor)
+            final perfilVisible = rolActual == 'usuario';
+            final indexAjustado = perfilVisible
+                ? index
+                : (index >= 1 ? index + 1 : index);
+
+            if (indexAjustado != 2) {
               setState(() {
                 navDrawerIndex = index;
               });
             }
 
-            switch (index) {
+            switch (indexAjustado) {
               case 0:
                 context.push('');
                 break;
 
               case 1:
-                context.push('');
+                // Navegar a perfil (solo si es usuario)
+                if (perfilVisible) {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileScreen(),
+                    ),
+                  );
+                }
                 break;
 
               case 2:
@@ -147,13 +163,15 @@ class _SideMenuState extends State<SideMenu> {
               ),
             ),
             const NavigationDrawerDestination(
-              icon: Icon(Icons.announcement_outlined),
+              icon: Icon(Icons.home_outlined),
               label: Text('Principal'),
             ),
-            const NavigationDrawerDestination(
-              icon: Icon(Icons.search_outlined),
-              label: Text('Selección de busqueda'),
-            ),
+            // Mostrar Perfil solo cuando el rol es usuario
+            if (rolActual == 'usuario')
+              const NavigationDrawerDestination(
+                icon: Icon(Icons.person_outline),
+                label: Text('Perfil'),
+              ),
             NavigationDrawerDestination(
               icon: cargando
                   ? const SizedBox(

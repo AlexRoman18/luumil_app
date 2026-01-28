@@ -137,18 +137,23 @@ class _PasosProductoScreenState extends State<PasosProductoScreen> {
 
       // Guardar en Firebase
       final userId = FirebaseAuth.instance.currentUser?.uid;
-      await FirebaseFirestore.instance.collection('productos').add({
-        'nombre': widget.nombre,
-        'descripcion': widget.descripcion,
-        'precio': widget.precio,
-        'stock': widget.stock,
-        'categoria': widget.categoria,
-        'subcategoria': widget.subcategoria,
-        'imagenes': widget.fotosProducto,
-        'pasos': pasosList,
-        'vendedorId': userId,
-        'fecha': FieldValue.serverTimestamp(),
-      });
+      final docRef = await FirebaseFirestore.instance
+          .collection('productos')
+          .add({
+            'nombre': widget.nombre,
+            'descripcion': widget.descripcion,
+            'precio': widget.precio,
+            'stock': widget.stock,
+            'categoria': widget.categoria,
+            'subcategoria': widget.subcategoria,
+            'imagenes': widget.fotosProducto,
+            'pasos': pasosList,
+            'vendedorId': userId,
+            'fecha': FieldValue.serverTimestamp(),
+          });
+
+      // Actualizar el documento con su propio ID
+      await docRef.update({'id': docRef.id});
 
       if (!mounted) return;
 

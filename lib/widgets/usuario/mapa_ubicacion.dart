@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:luumil_app/screens/usuario/tienda_perfil_screen.dart';
+import 'package:luumil_app/screens/usuario/productos_comunidad_screen.dart';
 
 class MapaUbicacion extends StatefulWidget {
-  const MapaUbicacion({super.key});
+  final Function(String)? onSearch;
+
+  const MapaUbicacion({super.key, this.onSearch});
 
   @override
   State<MapaUbicacion> createState() => _MapaUbicacionState();
@@ -15,7 +17,8 @@ class MapaUbicacion extends StatefulWidget {
 class _MapaUbicacionState extends State<MapaUbicacion> {
   late GoogleMapController mapController;
   final Set<Marker> _markers = {};
-  bool _isLoading = true;
+  bool _isLoading = false;
+  String? _comunidadBuscada;
 
   // Coordenadas iniciales (ejemplo: Felipe Carrillo Puerto, QR)
   LatLng _center = const LatLng(19.5772, -88.0450);
@@ -58,7 +61,6 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
   void initState() {
     super.initState();
     _cargarUbicacionUsuario();
-    _cargarVendedores();
   }
 
   /// Cargar ubicación del usuario actual para centrar el mapa
@@ -128,81 +130,121 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
   }
 
   Future<void> _cargarVendedores() async {
+    if (_comunidadBuscada == null || _comunidadBuscada!.isEmpty) {
+      setState(() {
+        _markers.clear();
+        _isLoading = false;
+      });
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('usuarios')
-          .where('puedeSerVendedor', isEqualTo: true)
-          .get();
+      // Normalizar búsqueda
+      final comunidadNormalizada = _comunidadBuscada!.toLowerCase().trim();
 
-      final markers = <Marker>{};
-      int contador = 0;
+      // Buscar en las comunidades predefinidas
+      String? comunidadEncontrada;
+      LatLng? coordenadas;
 
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-
-        // Primero intentar obtener ubicación exacta
-        final ubicacion = data['ubicacion'] as Map<String, dynamic>?;
-        LatLng? coordenadas;
-
-        if (ubicacion != null &&
-            ubicacion['latitude'] != null &&
-            ubicacion['longitude'] != null) {
-          // Usar ubicación exacta si existe
-          coordenadas = LatLng(ubicacion['latitude'], ubicacion['longitude']);
-        } else {
-          // Fallback a comunidad si no hay ubicación exacta
-          final comunidad = data['comunidad'] as String?;
-          coordenadas = _obtenerCoordenadasPorComunidad(comunidad);
-
-          if (coordenadas != null) {
-            // Agregar pequeña variación si hay múltiples vendedores en la misma comunidad
-            final offset = contador * 0.002;
-            coordenadas = LatLng(
-              coordenadas.latitude + offset,
-              coordenadas.longitude + offset,
-            );
-          }
-        }
-
-        if (coordenadas != null) {
-          final marker = Marker(
-            markerId: MarkerId(doc.id),
-            position: coordenadas,
-            infoWindow: InfoWindow(
-              title:
-                  data['nombreTienda'] ?? data['nombrePersonal'] ?? 'Vendedor',
-              snippet: '📍 Toca para ver perfil',
-            ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueBlue,
-            ),
-            onTap: () {
-              // Navegar al perfil de la tienda
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TiendaPerfilScreen(vendedorId: doc.id),
-                ),
-              );
-            },
-          );
-          markers.add(marker);
-          contador++;
+      for (var entry in _coordenadasComunidades.entries) {
+        if (entry.key.contains(comunidadNormalizada) ||
+            comunidadNormalizada.contains(entry.key)) {
+          comunidadEncontrada = entry.key;
+          coordenadas = entry.value;
+          break;
         }
       }
 
-      if (mounted) {
-        setState(() {
-          _markers.addAll(markers);
-          _isLoading = false;
-        });
+      if (coordenadas == null) {
+        // Comunidad no encontrada
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Comunidad no encontrada'),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
 
-        // Si hay marcadores, ajustar la cámara para mostrarlos
-        if (markers.isNotEmpty) {
-          Future.delayed(const Duration(milliseconds: 500), () {
+      // Verificar si hay vendedores en esta comunidad
+      final snapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .get();
+
+      // Buscar vendedores que coincidan con la comunidad (normalizada)
+      final tieneVendedores = snapshot.docs.any((doc) {
+        final data = doc.data();
+        final comunidadUsuario = data['comunidad'] as String?;
+        if (comunidadUsuario == null) return false;
+
+        final comunidadUsuarioNormalizada = comunidadUsuario
+            .toLowerCase()
+            .trim();
+        return (comunidadUsuarioNormalizada == comunidadEncontrada ||
+                comunidadUsuarioNormalizada.contains(comunidadEncontrada!) ||
+                comunidadEncontrada.contains(comunidadUsuarioNormalizada)) &&
+            (data['puedeSerVendedor'] == true);
+      });
+
+      // Nombre capitalizado
+      final nombreComunidad = comunidadEncontrada!
+          .split(' ')
+          .map(
+            (word) =>
+                word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1),
+          )
+          .join(' ');
+
+      // Crear marcador solo si tiene vendedores
+      if (tieneVendedores) {
+        final marker = Marker(
+          markerId: MarkerId(comunidadEncontrada),
+          position: coordenadas,
+          infoWindow: InfoWindow(
+            title: nombreComunidad,
+            snippet: '🛒 Toca para ver productos',
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          onTap: () {
+            _mostrarBottomSheetCategorias(context, _comunidadBuscada!);
+          },
+        );
+
+        if (mounted) {
+          setState(() {
+            _markers.clear();
+            _markers.add(marker);
+            _isLoading = false;
+          });
+
+          // Centrar cámara en el marcador
+          Future.delayed(const Duration(milliseconds: 300), () {
             if (mounted) {
-              _ajustarCamara(markers);
+              mapController.animateCamera(
+                CameraUpdate.newLatLngZoom(coordenadas!, 14.0),
+              );
             }
+          });
+        }
+      } else {
+        // No hay vendedores en esta comunidad
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Aún no hay vendedores en $nombreComunidad'),
+              backgroundColor: Colors.grey[700],
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          setState(() {
+            _markers.clear();
+            _isLoading = false;
           });
         }
       }
@@ -213,29 +255,200 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
     }
   }
 
-  void _ajustarCamara(Set<Marker> markers) {
-    if (markers.isEmpty) return;
-
-    double minLat = markers.first.position.latitude;
-    double maxLat = markers.first.position.latitude;
-    double minLng = markers.first.position.longitude;
-    double maxLng = markers.first.position.longitude;
-
-    for (var marker in markers) {
-      if (marker.position.latitude < minLat) minLat = marker.position.latitude;
-      if (marker.position.latitude > maxLat) maxLat = marker.position.latitude;
-      if (marker.position.longitude < minLng)
-        minLng = marker.position.longitude;
-      if (marker.position.longitude > maxLng)
-        maxLng = marker.position.longitude;
+  void buscarComunidad(String busqueda) async {
+    if (busqueda.isEmpty) {
+      setState(() {
+        _comunidadBuscada = null;
+        _markers.clear();
+      });
+      return;
     }
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(minLat, minLng),
-      northeast: LatLng(maxLat, maxLng),
+    final busquedaNormalizada = busqueda.toLowerCase().trim();
+
+    // Primero intentar buscar como comunidad
+    final esComunidad = _coordenadasComunidades.keys.any(
+      (comunidad) =>
+          comunidad.contains(busquedaNormalizada) ||
+          busquedaNormalizada.contains(comunidad),
     );
 
-    mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    if (esComunidad) {
+      // Es una comunidad, mostrar marcador
+      setState(() {
+        _comunidadBuscada = busqueda;
+      });
+      _cargarVendedores();
+      return;
+    }
+
+    // Si no es comunidad, buscar en productos
+    await _buscarEnProductos(busquedaNormalizada);
+  }
+
+  Future<void> _buscarEnProductos(String busqueda) async {
+    try {
+      // Buscar productos que contengan el término en su nombre o categoría
+      final productosSnapshot = await FirebaseFirestore.instance
+          .collection('productos')
+          .get();
+
+      final productosEncontrados = productosSnapshot.docs.where((doc) {
+        final data = doc.data();
+        final nombre = (data['nombre'] as String?)?.toLowerCase() ?? '';
+        final categoria = (data['categoria'] as String?)?.toLowerCase() ?? '';
+
+        return nombre.contains(busqueda) || categoria.contains(busqueda);
+      }).toList();
+
+      if (productosEncontrados.isNotEmpty) {
+        // Navegar a pantalla de resultados
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductosComunidadScreen(
+              comunidad: 'Resultados de búsqueda',
+              terminoBusqueda: busqueda,
+            ),
+          ),
+        );
+      } else {
+        // No se encontró nada
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No se encontraron productos para "$busqueda"'),
+              backgroundColor: Colors.grey[700],
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Error en búsqueda
+    }
+  }
+
+  void _mostrarBottomSheetCategorias(BuildContext context, String comunidad) {
+    final categorias = [
+      {'nombre': 'Ver todo', 'icono': Icons.apps_outlined},
+      {'nombre': 'Dulces', 'icono': Icons.cake_outlined},
+      {'nombre': 'Verduras', 'icono': Icons.eco_outlined},
+      {'nombre': 'Frutas', 'icono': Icons.apple},
+      {'nombre': 'Limpieza', 'icono': Icons.cleaning_services_outlined},
+      {'nombre': 'Zapatos', 'icono': Icons.checkroom_outlined},
+      {'nombre': 'Otros', 'icono': Icons.more_horiz},
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+
+            // Título
+            Text(
+              comunidad,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Selecciona una categoría',
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 20),
+
+            // Grid de categorías
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 2.8,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemCount: categorias.length,
+              itemBuilder: (context, index) {
+                final cat = categorias[index];
+                final esVerTodo = cat['nombre'] == 'Ver todo';
+
+                return InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductosComunidadScreen(
+                          comunidad: comunidad,
+                          categoria: esVerTodo ? null : cat['nombre'] as String,
+                        ),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: esVerTodo ? Colors.blue : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: esVerTodo ? Colors.blue : Colors.grey[300]!,
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          cat['icono'] as IconData,
+                          size: 18,
+                          color: esVerTodo ? Colors.white : Colors.black87,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          cat['nombre'] as String,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: esVerTodo
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: esVerTodo ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -245,34 +458,144 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 250,
+      height: 250, // Aumentado para dar espacio al icono
       margin: const EdgeInsets.symmetric(vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.black12),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Stack(
-          children: [
-            GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _center,
-                zoom: 14.0,
-              ),
-              markers: _markers,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
+      child: Stack(
+        clipBehavior: Clip.none, // Permite que el icono sobresalga
+        children: [
+          // Mapa
+          Container(
+            height: 250,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.black12),
             ),
-            if (_isLoading)
-              Container(
-                color: Colors.white.withOpacity(0.8),
-                child: const Center(child: CircularProgressIndicator()),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: _center,
+                      zoom: 14.0,
+                    ),
+                    markers: _markers,
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                  ),
+                  if (_isLoading)
+                    Container(
+                      color: Colors.white.withOpacity(0.8),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  // Botón de ayuda en la esquina superior izquierda
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    child: GestureDetector(
+                      onTap: () => _mostrarAyuda(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey[300]!),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.help_outline,
+                          size: 20,
+                          color: Colors.blue[700],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _mostrarAyuda(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.help_outline, color: Colors.blue[700]),
+            const SizedBox(width: 8),
+            const Text('Cómo usar el mapa'),
           ],
         ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildAyudaItem(
+              Icons.location_on,
+              'Buscar por comunidad',
+              'Escribe el nombre de una comunidad (ej: "Tulum"). Aparecerá un marcador azul en el mapa. Al tocarlo, se abrirá un menú con categorías donde podrás elegir "Ver todo" o filtrar por tipo de producto.',
+            ),
+            const SizedBox(height: 12),
+            _buildAyudaItem(
+              Icons.shopping_basket,
+              'Buscar por producto',
+              'Escribe el nombre de un producto (ej: "Plátano") para verlo en todas las comunidades.',
+            ),
+            const SizedBox(height: 12),
+            _buildAyudaItem(
+              Icons.category,
+              'Buscar por categoría',
+              'Escribe una categoría (ej: "Frutas") para ver todos los productos de ese tipo.',
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Entendido'),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildAyudaItem(IconData icon, String titulo, String descripcion) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 20, color: Colors.blue[700]),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                titulo,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                descripcion,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

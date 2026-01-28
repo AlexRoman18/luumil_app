@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:luumil_app/services/carrito_service.dart';
 
 class DetalleProductoScreen extends StatefulWidget {
   final Map<String, dynamic> producto;
@@ -33,6 +34,9 @@ class _DetalleProductoScreenState extends State<DetalleProductoScreen> {
     final precio = widget.producto['precio'] ?? '0';
     final descripcion = widget.producto['descripcion'] ?? 'Sin descripción';
     final categoria = widget.producto['categoria'] ?? 'Sin categoría';
+    final nombreTienda = widget.producto['nombreTienda'] ?? 'Tienda';
+    final comunidad =
+        widget.producto['comunidadVendedor'] ?? 'Ubicación no disponible';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -43,22 +47,9 @@ class _DetalleProductoScreenState extends State<DetalleProductoScreen> {
             expandedHeight: 400,
             pinned: true,
             backgroundColor: Colors.white,
-            leading: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 8,
-                  ),
-                ],
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.black),
-                onPressed: () => Navigator.pop(context),
-              ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black, size: 24),
+              onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
               background: imagenes.isNotEmpty
@@ -220,6 +211,46 @@ class _DetalleProductoScreenState extends State<DetalleProductoScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: 16),
+
+                  // Tienda y ubicación
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.store_outlined,
+                        size: 18,
+                        color: Colors.grey[700],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        nombreTienda,
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        size: 18,
+                        color: Colors.grey[700],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        comunidad,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+
                   const SizedBox(height: 24),
 
                   // Descripción
@@ -300,11 +331,22 @@ class _DetalleProductoScreenState extends State<DetalleProductoScreen> {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    Navigator.pop(context);
+                    CarritoService().agregarProducto(widget.producto);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Producto agregado al carrito',
+                          style: GoogleFonts.poppins(),
+                        ),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
                   },
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const Icon(Icons.add_shopping_cart),
                   label: Text(
-                    'Volver',
+                    'Agregar al carrito',
                     style: GoogleFonts.poppins(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
