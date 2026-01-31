@@ -8,7 +8,15 @@ class GeminiImp {
 
   GeminiImp({Dio? http})
     : _http =
-          http ?? Dio(BaseOptions(baseUrl: dotenv.env['ENDPOINT_API'] ?? ''));
+          http ??
+          Dio(
+            BaseOptions(
+              baseUrl: dotenv.env['ENDPOINT_API'] ?? '',
+              connectTimeout: const Duration(seconds: 30),
+              receiveTimeout: const Duration(seconds: 60),
+              sendTimeout: const Duration(seconds: 30),
+            ),
+          );
 
   Future<String> getResponse(String prompt) async {
     try {
@@ -21,10 +29,8 @@ class GeminiImp {
 
       return response.data?.toString() ?? '';
     } on DioException catch (e) {
-      print(e);
       throw Exception('Error al obtener la respuesta de Gemini: ${e.message}');
     } catch (e) {
-      print(e);
       throw Exception('Error al obtener la respuesta de Gemini');
     }
   }

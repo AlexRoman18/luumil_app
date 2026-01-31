@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:luumil_app/widgets/comer/perfil_header.dart';
-import 'package:luumil_app/widgets/comer/perfil_section.dart';
-import 'package:luumil_app/widgets/comer/perfil_header_background.dart';
 import 'package:luumil_app/services/vendor_service.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
@@ -750,7 +747,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         },
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 80),
                     ],
                   ),
                 ),

@@ -235,8 +235,6 @@ class SolicitudButton extends StatelessWidget {
               }
             });
           } catch (e) {
-            print('❌ Error al enviar solicitud: $e');
-
             if (!context.mounted) return;
 
             ScaffoldMessenger.of(context).showSnackBar(

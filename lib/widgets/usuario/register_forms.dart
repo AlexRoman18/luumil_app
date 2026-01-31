@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:luumil_app/auth/auth_service.dart';
+import 'package:luumil_app/config/theme/app_colors.dart';
+import 'package:luumil_app/services/google_auth_service.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
 import 'package:luumil_app/widgets/usuario/seleccionar_ubicacion_mapa.dart';
 import '../../screens/usuario/iniciarsesion_screen.dart';
@@ -19,6 +21,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController comunidadController = TextEditingController();
   final AuthService authService = AuthService();
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
 
   LatLng? _ubicacionSeleccionada;
   String _comunidadSeleccionada = '';
@@ -290,6 +293,37 @@ class _RegisterFormState extends State<RegisterForm> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    try {
+      final userCredential = await _googleAuthService.signInWithGoogle();
+
+      if (userCredential == null) {
+        // Usuario canceló el inicio de sesión
+        return;
+      }
+
+      // El registro fue exitoso, Firebase Auth se encargará de la navegación
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Registro exitoso con Google!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al registrarse con Google: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -409,6 +443,34 @@ class _RegisterFormState extends State<RegisterForm> {
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Botón Google
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: OutlinedButton.icon(
+                    onPressed: _handleGoogleSignIn,
+                    icon: Image.asset(
+                      'assets/icons/buscar.png',
+                      width: 20,
+                      height: 20,
+                    ),
+                    label: const Text(
+                      'Registrarme con Google',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: AppColors.border, width: 1.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      foregroundColor: AppColors.textPrimary,
+                      backgroundColor: Colors.white,
                     ),
                   ),
                 ),

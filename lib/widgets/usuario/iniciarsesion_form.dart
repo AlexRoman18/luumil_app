@@ -4,6 +4,7 @@ import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
 import 'package:luumil_app/widgets/usuario/buttons.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/auth/auth_service.dart';
+import 'package:luumil_app/services/google_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginForm extends StatefulWidget {
@@ -17,6 +18,7 @@ class _LoginFormState extends State<LoginForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authService = AuthService();
+  final _googleAuthService = GoogleAuthService();
   bool _isLoading = false;
 
   @override
@@ -99,6 +101,46 @@ class _LoginFormState extends State<LoginForm> {
     }
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final userCredential = await _googleAuthService.signInWithGoogle();
+
+      if (userCredential == null) {
+        // Usuario canceló el inicio de sesión
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
+
+      // El inicio de sesión fue exitoso, Firebase Auth se encargará de la navegación
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Inicio de sesión exitoso!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al iniciar sesión con Google: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -166,7 +208,7 @@ class _LoginFormState extends State<LoginForm> {
                   width: double.infinity,
                   height: 52,
                   child: OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: _isLoading ? null : _handleGoogleSignIn,
                     icon: Image.asset(
                       'assets/icons/buscar.png',
                       width: 20,

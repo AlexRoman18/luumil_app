@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:luumil_app/services/vendedor_service.dart';
 import '../comer/detalle_producto_screen.dart';
 
 class TiendaPerfilScreen extends StatefulWidget {
@@ -14,13 +15,17 @@ class TiendaPerfilScreen extends StatefulWidget {
 
 class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final VendedorService _vendedorService = VendedorService();
 
   bool _cargando = true;
+  bool _estaSiguiendo = false;
+  bool _cargandoSeguir = true;
   String _nombreTienda = '';
   String _descripcion = '';
   String _comunidad = '';
   String _historia = '';
   String? _fotoPerfil;
+  int _seguidores = 0;
   List<Map<String, dynamic>> _productos = [];
 
   @override
@@ -28,6 +33,24 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
     super.initState();
     _cargarDatosTienda();
     _cargarProductos();
+    _verificarSeguimiento();
+  }
+
+  Future<void> _verificarSeguimiento() async {
+    final siguiendo = await _vendedorService.estaSiguiendo(widget.vendedorId);
+    if (mounted) {
+      setState(() {
+        _estaSiguiendo = siguiendo;
+        _cargandoSeguir = false;
+      });
+    }
+  }
+
+  Future<void> _toggleSeguir() async {
+    setState(() => _cargandoSeguir = true);
+    await _vendedorService.toggleSeguir(widget.vendedorId);
+    await _verificarSeguimiento();
+    await _cargarDatosTienda(); // Recargar para actualizar contador
   }
 
   Future<void> _cargarDatosTienda() async {
@@ -45,6 +68,7 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
           _comunidad = data['comunidad'] ?? 'Sin ubicación';
           _historia = data['historia'] ?? '';
           _fotoPerfil = data['fotoPerfil'];
+          _seguidores = data['seguidores'] ?? 0;
           _cargando = false;
         });
       }
@@ -170,29 +194,97 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _nombreTienda,
-                        style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Icon(
-                            Icons.location_on,
-                            size: 16,
-                            color: Colors.grey[600],
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _comunidad,
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: Colors.grey[600],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  _nombreTienda,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
+                                      size: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _comunidad,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.people,
+                                      size: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '$_seguidores seguidores',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 13,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
+                          // Botón de seguir
+                          if (!_cargandoSeguir)
+                            ElevatedButton.icon(
+                              onPressed: _toggleSeguir,
+                              icon: Icon(
+                                _estaSiguiendo ? Icons.check : Icons.add,
+                                size: 18,
+                              ),
+                              label: Text(
+                                _estaSiguiendo ? 'Siguiendo' : 'Seguir',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _estaSiguiendo
+                                    ? Colors.grey[300]
+                                    : const Color(0xFF007BFF),
+                                foregroundColor: _estaSiguiendo
+                                    ? Colors.black87
+                                    : Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            )
+                          else
+                            const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
                         ],
                       ),
                     ],

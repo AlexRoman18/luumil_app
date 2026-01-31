@@ -25,8 +25,6 @@ class BasicPromptScreen extends ConsumerWidget {
           //On Send Message
           final basicChatNotifier = ref.read(basicChatProvider.notifier);
           basicChatNotifier.addMessage(partialText: partialText, user: user);
-
-          print('mensaje: ${partialText.text}');
         },
         user: user,
         theme: DarkChatTheme(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:luumil_app/services/vendedor_service.dart';
 import 'stat_card.dart';
 
 class StatsSection extends StatelessWidget {
@@ -6,37 +7,67 @@ class StatsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const StatCard(
-          label: 'Valoraciones de la tienda',
-          value: '4.8',
-          icon: Icons.star,
-          color: Color(0xFFDFF3FF),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: const [
-            Expanded(
-              child: StatCard(
-                label: 'Likes de la tienda',
-                value: '100',
-                icon: Icons.favorite,
-                color: Color(0xFFDFF3FF),
-              ),
+    final vendedorService = VendedorService();
+
+    return FutureBuilder<Map<String, dynamic>>(
+      future: vendedorService.obtenerEstadisticasVendedor(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(),
             ),
-            SizedBox(width: 10),
-            Expanded(
-              child: StatCard(
-                label: 'Likes totales de tus publicaciones',
-                value: '780',
-                icon: Icons.favorite,
-                color: Color(0xFFDFF3FF),
-              ),
+          );
+        }
+
+        final stats =
+            snapshot.data ??
+            {
+              'totalLikes': 0,
+              'promedioEstrellas': 0.0,
+              'seguidores': 0,
+              'totalResenas': 0,
+            };
+
+        final promedioEstrellas = (stats['promedioEstrellas'] as double)
+            .toStringAsFixed(1);
+        final seguidores = stats['seguidores'].toString();
+        final totalLikes = stats['totalLikes'].toString();
+
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: StatCard(
+                    label: 'Seguidores',
+                    value: seguidores,
+                    icon: Icons.people,
+                    color: const Color(0xFFDFF3FF),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: StatCard(
+                    label: 'Likes totales',
+                    value: totalLikes,
+                    icon: Icons.favorite,
+                    color: const Color(0xFFDFF3FF),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            StatCard(
+              label: 'Valoración promedio',
+              value: promedioEstrellas,
+              icon: Icons.star,
+              color: const Color(0xFFDFF3FF),
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }

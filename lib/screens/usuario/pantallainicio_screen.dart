@@ -168,7 +168,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                         onSubmitted: (value) {
                           if (value.trim().isNotEmpty) {
                             final state = _mapaKey.currentState;
-                            if (state != null && state is State) {
+                            if (state != null) {
                               (state as dynamic).buscarComunidad(value.trim());
                             }
                           }
@@ -181,7 +181,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                         onPressed: () {
                           _searchController.clear();
                           final state = _mapaKey.currentState;
-                          if (state != null && state is State) {
+                          if (state != null) {
                             (state as dynamic).buscarComunidad('');
                           }
                           setState(() {});
@@ -197,22 +197,35 @@ class _PantallaInicioState extends State<PantallaInicio> {
               const SizedBox(height: 20),
 
               // Sección de novedades
-              Text(
-                'Novedades',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Productos Destacados',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Mejor calificados',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 15),
 
-              // Lista de productos de los vendedores
+              // Lista de productos mejor calificados
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('productos')
-                    .orderBy('fecha', descending: true)
-                    .limit(10)
+                    .where('promedioEstrellas', isGreaterThan: 0)
+                    .orderBy('promedioEstrellas', descending: true)
+                    .limit(8)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -254,6 +267,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
                           data['fotosProducto'] as List<dynamic>?;
                       final imagenes = data['imagenes'] as List<dynamic>?;
                       final vendedorId = data['vendedorId'] as String?;
+                      final promedioEstrellas =
+                          (data['promedioEstrellas'] ?? 0.0).toDouble();
+                      final totalLikes = data['totalLikes'] ?? 0;
 
                       // Buscar la primera imagen disponible en cualquier campo
                       String? imagenUrl;
@@ -308,15 +324,24 @@ class _PantallaInicioState extends State<PantallaInicio> {
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 15),
-                              height: 80,
+                              height: 100,
                               decoration: BoxDecoration(
+                                color: Colors.white,
                                 border: Border.all(color: Colors.black12),
                                 borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Row(
                                 children: [
+                                  // Imagen del producto
                                   Container(
-                                    width: 70,
+                                    width: 90,
                                     decoration: BoxDecoration(
                                       color: Colors.grey[100],
                                       borderRadius: const BorderRadius.only(
@@ -361,8 +386,8 @@ class _PantallaInicioState extends State<PantallaInicio> {
                                         Text(
                                           nombre,
                                           style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15,
                                           ),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
@@ -371,10 +396,48 @@ class _PantallaInicioState extends State<PantallaInicio> {
                                         Text(
                                           '\$${precio.toStringAsFixed(2)}',
                                           style: GoogleFonts.poppins(
-                                            color: Colors.green[700],
+                                            color: const Color(0xFF007BFF),
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 13,
+                                            fontSize: 16,
                                           ),
+                                        ),
+                                        const SizedBox(height: 6),
+                                        // Estadísticas: Estrellas y Likes
+                                        Row(
+                                          children: [
+                                            // Estrellas
+                                            const Icon(
+                                              Icons.star,
+                                              size: 16,
+                                              color: Colors.amber,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              promedioEstrellas.toStringAsFixed(
+                                                1,
+                                              ),
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.amber[800],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            // Likes
+                                            const Icon(
+                                              Icons.favorite,
+                                              size: 14,
+                                              color: Colors.red,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '$totalLikes',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),

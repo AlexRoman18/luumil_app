@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:luumil_app/widgets/comer/cameraButton.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
 import 'package:luumil_app/screens/comer/pasos_producto_screen.dart';
@@ -72,39 +73,110 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
   InputDecoration fieldDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      filled: true,
-      fillColor: Colors.grey[200],
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
+      hintStyle: GoogleFonts.poppins(
+        color: Colors.grey[400],
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Colors.red, width: 1.5),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Colors.red, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
     );
   }
 
   Widget photoCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFFE3F2FD),
-        borderRadius: BorderRadius.circular(10),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF2196F3).withOpacity(0.1),
+            const Color(0xFF2196F3).withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF2196F3).withOpacity(0.2),
+          width: 1.5,
+        ),
       ),
-      child: Column(
+      child: Row(
         children: [
-          const Icon(Icons.camera_alt, size: 50),
-          const SizedBox(height: 10),
-          const Text(
-            'Añadir fotos',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF2196F3).withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.camera_alt_rounded,
+              size: 28,
+              color: Color(0xFF2196F3),
+            ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Añadir fotos del producto',
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _imagenesSeleccionadas.isEmpty
+                      ? 'Toma fotos de tu producto'
+                      : '${_imagenesSeleccionadas.length} foto${_imagenesSeleccionadas.length > 1 ? "s" : ""} seleccionada${_imagenesSeleccionadas.length > 1 ? "s" : ""}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
           CameraButton(
             key: _cameraKey,
-            backgroundColor: const Color(0xFFE3F2FD),
-            iconColor: const Color.fromRGBO(33, 150, 243, 1),
-            showBorder: true,
-            borderColor: Colors.grey,
+            backgroundColor: Colors.transparent,
+            iconColor: const Color(0xFF2196F3),
+            showBorder: false,
+            borderColor: Colors.transparent,
             onImageCaptured: (File imagen) {
               setState(() => _imagenesSeleccionadas.add(imagen));
             },
@@ -119,31 +191,54 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text(
+        title: Text(
           'Nuevo producto',
-          style: TextStyle(color: Colors.black),
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
+      backgroundColor: const Color(0xFFFAFAFA),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(24),
         child: Form(
           key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Nombre del producto'),
+              Text(
+                'Nombre del producto',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: nombreController,
                 decoration: fieldDecoration('Ej: Tomates Cherry'),
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Ingrese el nombre' : null,
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
-              const Text('Descripción del producto'),
+              Text(
+                'Descripción del producto',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: descripcionController,
                 maxLines: 3,
@@ -151,9 +246,17 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Ingrese la descripción' : null,
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
-              const Text('Precio'),
+              Text(
+                'Precio',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: precioController,
                 keyboardType: TextInputType.number,
@@ -166,10 +269,17 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
-              // 👇 Aquí agregas el campo de stock
-              const Text('Stock disponible'),
+              Text(
+                'Stock disponible',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: stockController,
                 keyboardType: TextInputType.number,
@@ -183,9 +293,17 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                 },
               ),
 
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
-              const Text('Categoría'),
+              Text(
+                'Categoría',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 initialValue: categoriaSeleccionada,
                 decoration: fieldDecoration('Selecciona categoría'),
@@ -202,7 +320,15 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
 
               // Subcategoría (solo si hay categoría seleccionada)
               if (categoriaSeleccionada != null) ...[
-                const Text('Subcategoría'),
+                Text(
+                  'Subcategoría',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: subcategoriaSeleccionada,
                   decoration: fieldDecoration('Selecciona subcategoría'),
@@ -293,11 +419,28 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(33, 150, 243, 1),
+                    backgroundColor: const Color(0xFF2196F3),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    shadowColor: const Color(0xFF2196F3).withOpacity(0.3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text(
-                    'Agregar pasos de elaboración →',
-                    style: TextStyle(color: Colors.white),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Agregar pasos de elaboración',
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward_rounded, size: 20),
+                    ],
                   ),
                 ),
               ),
@@ -397,15 +540,17 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                     }
                   },
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(
-                      color: Color.fromRGBO(33, 150, 243, 1),
+                    side: const BorderSide(color: Color(0xFF2196F3), width: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Guardar sin pasos',
-                    style: TextStyle(
-                      color: Color.fromRGBO(33, 150, 243, 1),
-                      fontWeight: FontWeight.bold,
+                    style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF2196F3),
                     ),
                   ),
                 ),

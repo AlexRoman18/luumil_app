@@ -7,6 +7,7 @@ import 'package:luumil_app/services/vendor_service.dart';
 import 'package:luumil_app/screens/comer/dashboard_screen.dart';
 import 'package:luumil_app/screens/usuario/pantallainicio_screen.dart';
 import 'package:luumil_app/screens/usuario/perfil_screen.dart';
+import 'package:luumil_app/screens/usuario/mi_actividad_screen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -45,113 +46,137 @@ class _SideMenuState extends State<SideMenu> {
           puedeSerVendedor = data['puedeSerVendedor'] ?? false;
         }
 
+        // Construir destinos dinámicamente para mantener índices coherentes
+        final List<NavigationDrawerDestination> destinations = [];
+        final List<Function()> actions = [];
+
+        destinations.add(
+          const NavigationDrawerDestination(
+            icon: Icon(Icons.home_outlined),
+            label: Text('Principal'),
+          ),
+        );
+        actions.add(() {
+          Navigator.pop(context);
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const PantallaInicio()));
+        });
+
+        if (rolActual == 'usuario') {
+          destinations.add(
+            const NavigationDrawerDestination(
+              icon: Icon(Icons.person_outline),
+              label: Text('Perfil'),
+            ),
+          );
+          actions.add(() {
+            Navigator.pop(context);
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
+          });
+
+          destinations.add(
+            const NavigationDrawerDestination(
+              icon: Icon(Icons.favorite_outline),
+              label: Text('Mi Actividad'),
+            ),
+          );
+          actions.add(() {
+            Navigator.pop(context);
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const MiActividadScreen()),
+            );
+          });
+        }
+
+        // Acción para cambiar/solicitar rol
+        destinations.add(
+          NavigationDrawerDestination(
+            icon: cargando
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Icon(
+                    rolActual == 'vendedor'
+                        ? Icons.person_outline
+                        : puedeSerVendedor
+                        ? Icons.store_outlined
+                        : Icons.edit_document,
+                  ),
+            label: Text(
+              rolActual == 'vendedor'
+                  ? 'Cambiar a Usuario'
+                  : puedeSerVendedor
+                  ? 'Cambiar a Vendedor'
+                  : 'Solicitar ser Vendedor',
+            ),
+          ),
+        );
+
+        actions.add(() async {
+          // Manejo asíncrono dentro de la acción
+          if (rolActual == 'vendedor') {
+            await _vendorService.cambiarRol('usuario');
+            if (context.mounted) {
+              Navigator.pop(context);
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const PantallaInicio()));
+            }
+          } else if (puedeSerVendedor && rolActual != 'vendedor') {
+            await _vendorService.cambiarRol('vendedor');
+            if (context.mounted) {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const DashboardScreen()),
+              );
+            }
+          } else {
+            // Mostrar diálogo para solicitar ser vendedor
+            showDialog(
+              context: context,
+              builder: (dialogContext) {
+                return AlertDialog(
+                  title: const Text('¿Quieres convertirte en comerciante?'),
+                  content: const Text('Podrás registrar tus productos'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext),
+                      child: const Text('No'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text('Sí'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+        });
+
         return NavigationDrawer(
           selectedIndex: navDrawerIndex,
-          onDestinationSelected: (int index) async {
-            // Ajustar índice si el perfil no está visible (vendedor)
-            final perfilVisible = rolActual == 'usuario';
-            final indexAjustado = perfilVisible
-                ? index
-                : (index >= 1 ? index + 1 : index);
+          onDestinationSelected: (int index) {
+            setState(() {
+              navDrawerIndex = index;
+            });
 
-            if (indexAjustado != 2) {
-              setState(() {
-                navDrawerIndex = index;
-              });
-            }
-
-            switch (indexAjustado) {
-              case 0:
-                context.push('');
-                break;
-
-              case 1:
-                // Navegar a perfil (solo si es usuario)
-                if (perfilVisible) {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfileScreen(),
-                    ),
-                  );
-                }
-                break;
-
-              case 2:
-                // Si ya es vendedor, cambiar a usuario
-                if (rolActual == 'vendedor') {
-                  await _vendorService.cambiarRol('usuario');
-
-                  if (context.mounted) {
-                    Navigator.pop(context); // Cerrar drawer
-
-                    // Navegar a PantallaInicio
-                    Future.microtask(() {
-                      if (context.mounted) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const PantallaInicio(),
-                          ),
-                        );
-                      }
-                    });
-                  }
-                }
-                // Si puede ser vendedor y es usuario, cambiar a vendedor
-                else if (puedeSerVendedor && rolActual != 'vendedor') {
-                  await _vendorService.cambiarRol('vendedor');
-
-                  if (context.mounted) {
-                    Navigator.pop(context);
-
-                    // Navegar al Dashboard
-                    Future.microtask(() {
-                      if (context.mounted) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const DashboardScreen(),
-                          ),
-                        );
-                      }
-                    });
-                  }
-                }
-                // Si no puede ser vendedor, mostrar diálogo de solicitud
-                else {
-                  showDialog(
-                    context: context,
-                    builder: (dialogContext) {
-                      return AlertDialog(
-                        title: const Text(
-                          '¿Quieres convertirte en comerciante?',
-                        ),
-                        content: const Text('Podrás registrar tus productos'),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(dialogContext);
-                            },
-                            child: const Text('No'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(dialogContext);
-
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => const RegisterScreen(),
-                                ),
-                              );
-                            },
-                            child: const Text('Sí'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-                break;
+            // Ejecutar acción asociada
+            if (index >= 0 && index < actions.length) {
+              final action = actions[index];
+              action();
             }
           },
           children: [
@@ -162,38 +187,7 @@ class _SideMenuState extends State<SideMenu> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            const NavigationDrawerDestination(
-              icon: Icon(Icons.home_outlined),
-              label: Text('Principal'),
-            ),
-            // Mostrar Perfil solo cuando el rol es usuario
-            if (rolActual == 'usuario')
-              const NavigationDrawerDestination(
-                icon: Icon(Icons.person_outline),
-                label: Text('Perfil'),
-              ),
-            NavigationDrawerDestination(
-              icon: cargando
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Icon(
-                      rolActual == 'vendedor'
-                          ? Icons.person_outline
-                          : puedeSerVendedor
-                          ? Icons.store_outlined
-                          : Icons.edit_document,
-                    ),
-              label: Text(
-                rolActual == 'vendedor'
-                    ? 'Cambiar a Usuario'
-                    : puedeSerVendedor
-                    ? 'Cambiar a Vendedor'
-                    : 'Solicitar ser Vendedor',
-              ),
-            ),
+            ...destinations,
           ],
         );
       },

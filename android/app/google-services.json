@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "951591986722",
+    "firebase_url": "https://luumilapp-607aa-default-rtdb.firebaseio.com",
     "project_id": "luumilapp-607aa",
     "storage_bucket": "luumilapp-607aa.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "com.yourapp.luumil_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "951591986722-tihrv92q45kp98ldeimttlhq69bk962c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yourapp.luumil_app",
+            "certificate_hash": "4a3f28f6b35925b8c31d4c83b02a9b87641050c0"
+          }
+        },
+        {
+          "client_id": "951591986722-v5nbidgmh8uddirrb9fqutfjmslja1k3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBlToHwoaa35OHAi5MUuOAmzfMEMOqx-ow"
@@ -20,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "951591986722-v5nbidgmh8uddirrb9fqutfjmslja1k3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "951591986722-15ur9t2v58ep38rha7pgqh70m3bggt9g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.yourapp.luumilApp"
+              }
+            }
+          ]
         }
       }
     }
