@@ -149,6 +149,7 @@ class _PasosProductoScreenState extends State<PasosProductoScreen> {
             'imagenes': widget.fotosProducto,
             'pasos': pasosList,
             'vendedorId': userId,
+            'disponible': true,
             'fecha': FieldValue.serverTimestamp(),
           });
 

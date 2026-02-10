@@ -148,7 +148,10 @@ class VendedorService {
                   actividades.add({
                     'tipo': 'like',
                     'userId': userId,
-                    'userName': userData['nombre'] ?? 'Usuario',
+                    'userName':
+                        userData['nombrePersonal'] ??
+                        userData['nombre'] ??
+                        'Usuario',
                     'userFoto': userData['fotoPerfil'] ?? '',
                     'productoId': productoId,
                     'productoNombre': productosNombres[productoId],
@@ -189,7 +192,10 @@ class VendedorService {
               actividades.add({
                 'tipo': 'resena',
                 'userId': userId,
-                'userName': userData['nombre'] ?? 'Usuario',
+                'userName':
+                    userData['nombrePersonal'] ??
+                    userData['nombre'] ??
+                    'Usuario',
                 'userFoto': userData['fotoPerfil'] ?? '',
                 'productoId': productoId,
                 'productoNombre': productoNombre,
@@ -212,7 +218,8 @@ class VendedorService {
             actividades.add({
               'tipo': 'seguidor',
               'userId': userDoc.id,
-              'userName': userData['nombre'] ?? 'Usuario',
+              'userName':
+                  userData['nombrePersonal'] ?? userData['nombre'] ?? 'Usuario',
               'userFoto': userData['fotoPerfil'] ?? '',
               'fecha': userData['fechaRegistro'] as Timestamp?,
             });

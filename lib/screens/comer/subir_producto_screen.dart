@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:luumil_app/widgets/comer/cameraButton.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:luumil_app/screens/comer/pasos_producto_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,8 +16,6 @@ class NuevoProductoPage extends StatefulWidget {
 }
 
 class _NuevoProductoPageState extends State<NuevoProductoPage> {
-  Key _cameraKey = UniqueKey();
-
   final nombreController = TextEditingController();
   final descripcionController = TextEditingController();
   final precioController = TextEditingController();
@@ -107,7 +106,7 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
   Widget photoCard() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -123,67 +122,114 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
           width: 1.5,
         ),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF2196F3).withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.camera_alt_rounded,
-              size: 28,
-              color: Color(0xFF2196F3),
+          Text(
+            'Añadir fotos del producto',
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Añadir fotos del producto',
-                  style: GoogleFonts.poppins(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  _imagenesSeleccionadas.isEmpty
-                      ? 'Toma fotos de tu producto'
-                      : '${_imagenesSeleccionadas.length} foto${_imagenesSeleccionadas.length > 1 ? "s" : ""} seleccionada${_imagenesSeleccionadas.length > 1 ? "s" : ""}',
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
+          const SizedBox(height: 4),
+          Text(
+            _imagenesSeleccionadas.isEmpty
+                ? 'Toma fotos de tu producto'
+                : '${_imagenesSeleccionadas.length} foto${_imagenesSeleccionadas.length > 1 ? "s" : ""} seleccionada${_imagenesSeleccionadas.length > 1 ? "s" : ""}',
+            style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey[600]),
           ),
-          CameraButton(
-            key: _cameraKey,
-            backgroundColor: Colors.transparent,
-            iconColor: const Color(0xFF2196F3),
-            showBorder: false,
-            borderColor: Colors.transparent,
-            onImageCaptured: (File imagen) {
-              setState(() => _imagenesSeleccionadas.add(imagen));
-            },
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            alignment: WrapAlignment.center,
+            children: [
+              // Mostrar fotos seleccionadas
+              ..._imagenesSeleccionadas.map((imagen) {
+                return Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.file(
+                        imagen,
+                        width: 90,
+                        height: 90,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() => _imagenesSeleccionadas.remove(imagen));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
+              // Botón para tomar foto (al final)
+              GestureDetector(
+                onTap: _tomarFoto,
+                child: Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF2196F3).withOpacity(0.3),
+                      width: 2,
+                      strokeAlign: BorderSide.strokeAlignInside,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.add_a_photo_rounded,
+                    size: 32,
+                    color: Color(0xFF2196F3),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _tomarFoto() async {
+    final status = await Permission.camera.request();
+
+    if (status.isGranted) {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.camera);
+
+      if (image != null && mounted) {
+        final file = File(image.path);
+        setState(() => _imagenesSeleccionadas.add(file));
+      }
+    } else if (status.isDenied && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Se necesita permiso para usar la cámara'),
+        ),
+      );
+    }
   }
 
   @override
@@ -498,6 +544,7 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                               'imagenes': urls,
                               'pasos': [], // Sin pasos
                               'vendedorId': userId,
+                              'disponible': true,
                               'fecha': FieldValue.serverTimestamp(),
                             });
 
@@ -521,7 +568,6 @@ class _NuevoProductoPageState extends State<NuevoProductoPage> {
                             categoriaSeleccionada = null;
                             subcategoriaSeleccionada = null;
                             _imagenesSeleccionadas.clear();
-                            _cameraKey = UniqueKey();
                           });
                         }
                       } catch (e) {

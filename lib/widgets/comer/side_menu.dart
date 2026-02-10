@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:luumil_app/screens/comer/mensajes_vendedor_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -24,41 +25,53 @@ class _SideMenuState extends State<SideMenu> {
 
         switch (index) {
           case 0:
-            context.push('');
+            // Mensajes
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MensajesVendedorScreen()),
+            );
             break;
           case 1:
-            context.push('');
+            // Subir producto (ya existe)
             break;
           case 2:
-            context.push('');
+            // Mis productos
             break;
-
           case 3:
-            context.push('');
+            // Estadísticas
             break;
         }
       },
-
       children: [
         Padding(
           padding: EdgeInsets.fromLTRB(28, hasNotch ? 0 : 20, 16, 10),
-          child: Text('Menú', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: Text(
+            'Menú Vendedor',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
         ),
         NavigationDrawerDestination(
-          icon: Icon(Icons.announcement_outlined),
-          label: Text('Tutorial'),
+          icon: const Icon(Icons.chat_bubble_outline),
+          selectedIcon: const Icon(Icons.chat_bubble),
+          label: Text('Mensajes', style: GoogleFonts.poppins()),
         ),
         NavigationDrawerDestination(
-          icon: Icon(Icons.search_outlined),
-          label: Text('Selección de busqueda'),
+          icon: const Icon(Icons.add_a_photo_outlined),
+          selectedIcon: const Icon(Icons.add_a_photo),
+          label: Text('Subir Producto', style: GoogleFonts.poppins()),
         ),
         NavigationDrawerDestination(
-          icon: Icon(Icons.shopping_cart_outlined),
-          label: Text('Carrito de compra'),
+          icon: const Icon(Icons.inventory_outlined),
+          selectedIcon: const Icon(Icons.inventory),
+          label: Text('Mis Productos', style: GoogleFonts.poppins()),
         ),
         NavigationDrawerDestination(
-          icon: Icon(Icons.add_a_photo_rounded),
-          label: Text('Subir producto'),
+          icon: const Icon(Icons.bar_chart_outlined),
+          selectedIcon: const Icon(Icons.bar_chart),
+          label: Text('Estadísticas', style: GoogleFonts.poppins()),
         ),
       ],
     );

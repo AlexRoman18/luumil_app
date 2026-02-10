@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:luumil_app/services/carrito_service.dart';
 import 'package:luumil_app/services/resena_service.dart';
 import 'package:luumil_app/screens/comer/resenas_screen.dart';
 import 'package:luumil_app/screens/usuario/tienda_perfil_screen.dart';
@@ -1103,43 +1102,6 @@ Escribe de manera clara, educativa y atractiva en español. El texto debe ser de
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Botón Agregar al carrito
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    CarritoService().agregarProducto(widget.producto);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Producto agregado al carrito',
-                          style: GoogleFonts.poppins(),
-                        ),
-                        backgroundColor: Colors.green,
-                        duration: const Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add_shopping_cart),
-                  label: Text(
-                    'Agregar al carrito',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF64B5F6),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
               // Botón Conocer la tradición
               SizedBox(
                 width: double.infinity,

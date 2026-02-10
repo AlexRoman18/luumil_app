@@ -7,8 +7,110 @@ class GoogleAuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<UserCredential?> signInWithGoogle() async {
+  // Método para forzar selección de cuenta (útil para registro)
+  Future<Map<String, String>?> getGoogleUserData() async {
     try {
+      // Cerrar sesión primero para forzar selección de cuenta
+      await _googleSignIn.signOut();
+
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // El usuario canceló el inicio de sesión
+        return null;
+      }
+
+      // Retornar datos del usuario sin hacer login en Firebase aún
+      return {
+        'nombre': googleUser.displayName ?? '',
+        'email': googleUser.email,
+        'foto': googleUser.photoUrl ?? '',
+      };
+    } catch (e) {
+      throw Exception('Error al obtener datos de Google: $e');
+    }
+  }
+
+  // Login: Solo permite usuarios ya registrados
+  Future<UserCredential?> signInWithGoogle({
+    bool forceAccountSelection = false,
+  }) async {
+    try {
+      // Si se requiere forzar selección de cuenta, cerrar sesión primero
+      if (forceAccountSelection) {
+        await _googleSignIn.signOut();
+      }
+
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // El usuario canceló el inicio de sesión
+        return null;
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
+      // VERIFICAR si el usuario existe en Firestore
+      final userDoc = await _firestore
+          .collection('usuarios')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        // Usuario no registrado - cerrar sesión y lanzar error
+        await signOut();
+        throw Exception(
+          'Esta cuenta no está registrada. Por favor regístrate primero.',
+        );
+      }
+
+      // Usuario existe - actualizar datos
+      await _firestore
+          .collection('usuarios')
+          .doc(userCredential.user!.uid)
+          .update({
+            'email': userCredential.user!.email ?? '',
+            'nombre':
+                userCredential.user!.displayName ??
+                userDoc.data()?['nombre'] ??
+                'Usuario',
+            'fotoPerfil':
+                userCredential.user!.photoURL ??
+                userDoc.data()?['fotoPerfil'] ??
+                '',
+          });
+
+      return userCredential;
+    } catch (e) {
+      throw Exception('Error al iniciar sesión con Google: $e');
+    }
+  }
+
+  // Registro: Crea nuevos usuarios o permite login si ya existe
+  Future<UserCredential?> registerWithGoogle({
+    bool forceAccountSelection = false,
+  }) async {
+    try {
+      // Si se requiere forzar selección de cuenta, cerrar sesión primero
+      if (forceAccountSelection) {
+        await _googleSignIn.signOut();
+      }
+
       // Trigger the authentication flow
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -37,7 +139,7 @@ class GoogleAuthService {
 
       return userCredential;
     } catch (e) {
-      throw Exception('Error al iniciar sesión con Google: $e');
+      throw Exception('Error al registrar con Google: $e');
     }
   }
 

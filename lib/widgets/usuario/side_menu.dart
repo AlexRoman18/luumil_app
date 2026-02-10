@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:luumil_app/screens/comer/registro_screen.dart';
@@ -8,6 +7,7 @@ import 'package:luumil_app/screens/comer/dashboard_screen.dart';
 import 'package:luumil_app/screens/usuario/pantallainicio_screen.dart';
 import 'package:luumil_app/screens/usuario/perfil_screen.dart';
 import 'package:luumil_app/screens/usuario/mi_actividad_screen.dart';
+import 'package:luumil_app/screens/comer/mensajes_vendedor_screen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -87,6 +87,23 @@ class _SideMenuState extends State<SideMenu> {
             Navigator.pop(context);
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const MiActividadScreen()),
+            );
+          });
+        }
+
+        // Si es vendedor, agregar opción de Mensajes
+        if (rolActual == 'vendedor') {
+          destinations.add(
+            const NavigationDrawerDestination(
+              icon: Icon(Icons.chat_bubble_outline),
+              selectedIcon: Icon(Icons.chat_bubble),
+              label: Text('Mensajes'),
+            ),
+          );
+          actions.add(() {
+            Navigator.pop(context);
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const MensajesVendedorScreen()),
             );
           });
         }

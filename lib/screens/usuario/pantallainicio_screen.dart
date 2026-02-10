@@ -7,9 +7,8 @@ import 'package:luumil_app/widgets/usuario/notification_badge.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
+import 'package:luumil_app/screens/usuario/referencias_pago_screen.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
-import 'package:luumil_app/services/carrito_service.dart';
-import 'package:luumil_app/screens/usuario/carrito_screen.dart';
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key});
@@ -19,35 +18,43 @@ class PantallaInicio extends StatefulWidget {
 }
 
 class _PantallaInicioState extends State<PantallaInicio> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<State<MapaUbicacion>> _mapaKey =
       GlobalKey<State<MapaUbicacion>>();
   final TextEditingController _searchController = TextEditingController();
-  final CarritoService _carritoService = CarritoService();
+  String _nombreUsuario = 'Usuario';
 
   @override
   void initState() {
     super.initState();
-    _carritoService.addListener(_actualizarCarrito);
+    _cargarNombreUsuario();
   }
 
-  void _actualizarCarrito() {
-    if (mounted) setState(() {});
+  Future<void> _cargarNombreUsuario() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId != null) {
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(userId)
+          .get();
+      if (doc.exists && mounted) {
+        setState(() {
+          _nombreUsuario = doc.data()?['nombrePersonal'] ?? 'Usuario';
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
-    _carritoService.removeListener(_actualizarCarrito);
     _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Clave para controlar el Scaffold y abrir el Drawer
-    final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       backgroundColor: AppColors.background,
 
       // 🔹 Drawer (menú lateral)
@@ -61,52 +68,20 @@ class _PantallaInicioState extends State<PantallaInicio> {
           icon: Icon(Icons.menu, color: AppColors.textPrimary),
           onPressed: () {
             // 🔹 Abre el Drawer
-            scaffoldKey.currentState!.openDrawer();
+            _scaffoldKey.currentState!.openDrawer();
           },
         ),
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.shopping_cart_outlined,
-                  color: AppColors.textPrimary,
+          IconButton(
+            icon: Icon(Icons.label_outline, color: AppColors.textPrimary),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ReferenciasPagoScreen(),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CarritoScreen(),
-                    ),
-                  );
-                },
-              ),
-              if (_carritoService.cantidadTotal > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Text(
-                      '${_carritoService.cantidadTotal}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
+              );
+            },
           ),
           const NotificationBadge(),
           SizedBox(width: AppSpacing.sm),
@@ -121,27 +96,13 @@ class _PantallaInicioState extends State<PantallaInicio> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Título de bienvenida
-              StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('usuarios')
-                    .doc(FirebaseAuth.instance.currentUser?.uid)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  String nombre = 'Usuario';
-                  if (snapshot.hasData && snapshot.data!.exists) {
-                    final data = snapshot.data!.data() as Map<String, dynamic>;
-                    nombre = data['nombrePersonal'] ?? 'Usuario';
-                  }
-
-                  return Text(
-                    '¡Bienvenido, $nombre!',
-                    style: GoogleFonts.poppins(
-                      fontSize: AppTypography.text3xl,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
-                  );
-                },
+              Text(
+                '¡Bienvenido, $_nombreUsuario!',
+                style: GoogleFonts.poppins(
+                  fontSize: AppTypography.text3xl,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
               SizedBox(height: AppSpacing.lg),
 
@@ -184,7 +145,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
                           if (state != null) {
                             (state as dynamic).buscarComunidad('');
                           }
-                          setState(() {});
                         },
                       ),
                   ],
@@ -219,7 +179,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
 
               const SizedBox(height: 15),
 
-              // Lista de productos mejor calificados
+              // Lista de productos mejor calificados (con caché)
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('productos')

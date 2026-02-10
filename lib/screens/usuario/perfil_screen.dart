@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luumil_app/auth/auth_service.dart';
 import 'package:luumil_app/services/resena_service.dart';
-import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
 import 'dart:io';

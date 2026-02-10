@@ -105,7 +105,9 @@ class _LoginFormState extends State<LoginForm> {
     setState(() => _isLoading = true);
 
     try {
-      final userCredential = await _googleAuthService.signInWithGoogle();
+      final userCredential = await _googleAuthService.signInWithGoogle(
+        forceAccountSelection: true, // Forzar selección de cuenta
+      );
 
       if (userCredential == null) {
         // Usuario canceló el inicio de sesión

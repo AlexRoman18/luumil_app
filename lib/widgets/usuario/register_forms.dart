@@ -295,7 +295,10 @@ class _RegisterFormState extends State<RegisterForm> {
 
   Future<void> _handleGoogleSignIn() async {
     try {
-      final userCredential = await _googleAuthService.signInWithGoogle();
+      // Registrar con Google (forzando selección de cuenta)
+      final userCredential = await _googleAuthService.registerWithGoogle(
+        forceAccountSelection: true,
+      );
 
       if (userCredential == null) {
         // Usuario canceló el inicio de sesión

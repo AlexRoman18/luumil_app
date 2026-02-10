@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luumil_app/services/vendedor_service.dart';
+import 'package:luumil_app/screens/usuario/chat_screen.dart';
 import '../comer/detalle_producto_screen.dart';
 
 class TiendaPerfilScreen extends StatefulWidget {
@@ -217,11 +218,14 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                                       color: Colors.grey[600],
                                     ),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      _comunidad,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
+                                    Flexible(
+                                      child: Text(
+                                        _comunidad,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[600],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -235,11 +239,14 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                                       color: Colors.grey[600],
                                     ),
                                     const SizedBox(width: 4),
-                                    Text(
-                                      '$_seguidores seguidores',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
+                                    Flexible(
+                                      child: Text(
+                                        '$_seguidores seguidores',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 13,
+                                          color: Colors.grey[600],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],
@@ -247,44 +254,89 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                               ],
                             ),
                           ),
-                          // Botón de seguir
-                          if (!_cargandoSeguir)
-                            ElevatedButton.icon(
-                              onPressed: _toggleSeguir,
-                              icon: Icon(
-                                _estaSiguiendo ? Icons.check : Icons.add,
-                                size: 18,
-                              ),
-                              label: Text(
-                                _estaSiguiendo ? 'Siguiendo' : 'Seguir',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                          // Botones de acción
+                          Row(
+                            children: [
+                              // Botón de contactar
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ChatScreen(
+                                        vendedorId: widget.vendedorId,
+                                        vendedorNombre: _nombreTienda,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.chat_bubble_outline,
+                                  size: 18,
+                                ),
+                                label: Text(
+                                  'Contactar',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF28A745),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: _estaSiguiendo
-                                    ? Colors.grey[300]
-                                    : const Color(0xFF007BFF),
-                                foregroundColor: _estaSiguiendo
-                                    ? Colors.black87
-                                    : Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
+                              const SizedBox(width: 8),
+                              // Botón de seguir
+                              if (!_cargandoSeguir)
+                                ElevatedButton.icon(
+                                  onPressed: _toggleSeguir,
+                                  icon: Icon(
+                                    _estaSiguiendo ? Icons.check : Icons.add,
+                                    size: 18,
+                                  ),
+                                  label: Text(
+                                    _estaSiguiendo ? 'Siguiendo' : 'Seguir',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: _estaSiguiendo
+                                        ? Colors.grey[300]
+                                        : const Color(0xFF007BFF),
+                                    foregroundColor: _estaSiguiendo
+                                        ? Colors.black87
+                                        : Colors.white,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                )
+                              else
+                                const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                            )
-                          else
-                            const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
+                            ],
+                          ),
                         ],
                       ),
                     ],
