@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:luumil_app/services/cloudinary_service.dart';
 import 'package:luumil_app/screens/comer/seleccionar_productos_screen.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -467,61 +470,127 @@ class _ChatScreenState extends State<ChatScreen> {
                             ? MainAxisAlignment.end
                             : MainAxisAlignment.start,
                         children: [
-                          Container(
-                            constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width * 0.7,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: tipo == 'referencia_pago'
-                                  ? (esMio
-                                        ? const Color(0xFF28A745)
-                                        : const Color(0xFFE8F5E9))
-                                  : (esMio
-                                        ? const Color(0xFF007BFF)
-                                        : Colors.white),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: tipo == 'referencia_pago'
-                                ? _buildReferenciaPagoWidget(mensaje, esMio)
-                                : Column(
-                                    crossAxisAlignment: esMio
-                                        ? CrossAxisAlignment.end
-                                        : CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        mensaje['texto'] ?? '',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: esMio
-                                              ? Colors.white
-                                              : Colors.black87,
+                          Column(
+                            crossAxisAlignment: esMio
+                                ? CrossAxisAlignment.end
+                                : CrossAxisAlignment.start,
+                            children: [
+                              if (tipo == 'comprobante_pago')
+                                _buildComprobantePagoWidget(mensaje, esMio)
+                              else
+                                Container(
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width * 0.7,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: tipo == 'referencia_pago'
+                                        ? (esMio
+                                              ? const Color(0xFF28A745)
+                                              : const Color(0xFFE8F5E9))
+                                        : (esMio
+                                              ? const Color(0xFF007BFF)
+                                              : Colors.white),
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.05,
                                         ),
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 2),
                                       ),
-                                      if (timestamp != null) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          _formatearHora(timestamp.toDate()),
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 10,
-                                            color: esMio
-                                                ? Colors.white70
-                                                : Colors.grey[600],
-                                          ),
-                                        ),
-                                      ],
                                     ],
                                   ),
+                                  child: tipo == 'referencia_pago'
+                                      ? _buildReferenciaPagoWidget(
+                                          mensaje,
+                                          esMio,
+                                        )
+                                      : Column(
+                                          crossAxisAlignment: esMio
+                                              ? CrossAxisAlignment.end
+                                              : CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              mensaje['texto'] ?? '',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 14,
+                                                color: esMio
+                                                    ? Colors.white
+                                                    : Colors.black87,
+                                              ),
+                                            ),
+                                            if (timestamp != null) ...[
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                _formatearHora(
+                                                  timestamp.toDate(),
+                                                ),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 10,
+                                                  color: esMio
+                                                      ? Colors.white70
+                                                      : Colors.grey[600],
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                ),
+                              if (tipo == 'referencia_pago' &&
+                                  !esMio &&
+                                  !widget.esVendedor)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 6),
+                                  child: InkWell(
+                                    onTap: () => _enviarFotoComprobante(
+                                      mensaje['referenciaId'] as String? ?? '',
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF007BFF,
+                                        ).withValues(alpha: 0.08),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: const Color(
+                                            0xFF007BFF,
+                                          ).withValues(alpha: 0.3),
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.attach_file,
+                                            size: 14,
+                                            color: Color(0xFF007BFF),
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'Adjuntar comprobante',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFF007BFF),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
@@ -598,6 +667,71 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _enviarFotoComprobante(String referenciaId) async {
+    if (referenciaId.isEmpty) return;
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
+    if (picked == null) return;
+
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: CircularProgressIndicator(color: Color(0xFF007BFF)),
+      ),
+    );
+
+    try {
+      final url = await CloudinaryService.subirImagen(File(picked.path));
+      final chatId = _getChatId();
+
+      await _firestore.collection('referencias_pago').doc(referenciaId).update({
+        'comprobanteUrl': url,
+      });
+
+      await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('mensajes')
+          .add({
+            'tipo': 'comprobante_pago',
+            'imageUrl': url,
+            'referenciaId': referenciaId,
+            'senderId': _userId,
+            'senderRole': 'usuario',
+            'timestamp': FieldValue.serverTimestamp(),
+            'leido': false,
+          });
+
+      await _firestore.collection('chats').doc(chatId).set({
+        'ultimoMensaje': '📷 Comprobante de pago',
+        'ultimoTimestamp': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Comprobante enviado ✓'),
+          backgroundColor: Color(0xFF28A745),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al enviar el comprobante'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Widget _buildReferenciaPagoWidget(Map<String, dynamic> mensaje, bool esMio) {
@@ -877,6 +1011,49 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildComprobantePagoWidget(Map<String, dynamic> mensaje, bool esMio) {
+    final imageUrl = mensaje['imageUrl'] as String? ?? '';
+    final timestamp = mensaje['timestamp'] as Timestamp?;
+    return Column(
+      crossAxisAlignment: esMio
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            imageUrl,
+            width: 220,
+            fit: BoxFit.cover,
+            loadingBuilder: (ctx, child, progress) => progress == null
+                ? child
+                : Container(
+                    width: 220,
+                    height: 150,
+                    color: Colors.grey[200],
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+            errorBuilder: (_, __, ___) => Container(
+              width: 220,
+              height: 80,
+              color: Colors.grey[200],
+              child: const Icon(Icons.broken_image, color: Colors.grey),
+            ),
+          ),
+        ),
+        if (timestamp != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            _formatearHora(timestamp.toDate()),
+            style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey[500]),
+          ),
+        ],
+      ],
     );
   }
 
