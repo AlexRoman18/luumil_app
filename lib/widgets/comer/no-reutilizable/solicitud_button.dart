@@ -105,6 +105,8 @@ class SolicitudButton extends StatelessWidget {
               "descripcion": descripcion,
               "comunidad": comunidad,
               if (ubicacionData != null) "ubicacion": ubicacionData,
+              // Agregar URLs de las imágenes subidas por el usuario
+              "imagenes": imagenes,
               "estado": "pendiente",
               "fecha": FieldValue.serverTimestamp(),
             });

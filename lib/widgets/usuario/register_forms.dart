@@ -7,6 +7,7 @@ import 'package:luumil_app/services/google_auth_service.dart';
 import 'package:luumil_app/widgets/usuario/custom_text_field.dart';
 import 'package:luumil_app/widgets/usuario/seleccionar_ubicacion_mapa.dart';
 import '../../screens/usuario/iniciarsesion_screen.dart';
+import '../../screens/usuario/pantallainicio_screen.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -170,12 +171,12 @@ class _RegisterFormState extends State<RegisterForm> {
         ubicacion: _ubicacionSeleccionada,
       );
 
-      // Cerrar todas las pantallas y volver a AuthGate
+      // Navegar explícitamente a PantallaInicio y limpiar historial
       if (mounted) {
-        // Cerrar pantallas hasta llegar a la raíz (AuthGate)
-        while (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        }
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const PantallaInicio()),
+          (route) => false,
+        );
       }
     } on FirebaseAuthException catch (e) {
       _handleFirebaseError(e);
@@ -317,9 +318,12 @@ class _RegisterFormState extends State<RegisterForm> {
           ),
         );
 
-        // Cerrar todas las pantallas y volver a AuthGate
-        while (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
+        // Navegar explícitamente a PantallaInicio y limpiar historial
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const PantallaInicio()),
+            (route) => false,
+          );
         }
       }
     } catch (e) {

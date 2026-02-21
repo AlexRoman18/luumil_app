@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luumil_app/auth/auth_service.dart';
+import 'package:luumil_app/screens/usuario/home_screen.dart';
 import 'package:luumil_app/services/resena_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
@@ -184,9 +185,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirmar == true) {
       await _authService.signOut();
       if (mounted) {
-        while (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        }
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
       }
     }
   }

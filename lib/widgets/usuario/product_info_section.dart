@@ -28,11 +28,11 @@ class ProductInfoSection extends StatelessWidget {
               text: TextSpan(
                 children: [
                   TextSpan(
-                    text: "\$$price",
+                    text: "\$${price.toStringAsFixed(2)}",
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Color(0xFF007BFF),
                     ),
                   ),
                   TextSpan(
@@ -40,7 +40,7 @@ class ProductInfoSection extends StatelessWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF007BFF).withValues(alpha: 0.6),
+                      color: Color(0xFF007BFF).withOpacity(0.6),
                     ),
                   ),
                 ],

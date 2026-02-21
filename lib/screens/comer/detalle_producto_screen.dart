@@ -332,20 +332,32 @@ class _DetalleProductoScreenState extends State<DetalleProductoScreen> {
 
     final prompt =
         '''
-Eres un experto en tradiciones y cultura mexicana. 
+Eres un experto en tradiciones y cultura mexicana.  
 
-Producto: $nombre
-Categoría: $categoria
-Descripción: $descripcion
-Comunidad: $comunidad
+Producto: $nombre  
+Categoría: $categoria  
+Descripción: $descripcion  
+Comunidad: $comunidad  
 
-Genera un texto informativo y cultural sobre este producto que incluya:
-1. Su origen e historia cultural
-2. La tradición detrás de su elaboración
-3. Su importancia en la comunidad o región
-4. Datos interesantes sobre el producto
+Genera un texto informativo y cultural sobre este producto que incluya:  
+1. Su origen e historia cultural  
+2. La tradición detrás de su elaboración  
+3. Su importancia en la comunidad o región  
+4. Datos interesantes sobre el producto  
 
-Escribe de manera clara, educativa y atractiva en español. El texto debe ser de aproximadamente 200-300 palabras.
+Escribe de manera clara, educativa y atractiva en español. El texto debe ser de aproximadamente 200-300 palabras.  
+
+Reglas:  
+- La respuesta debe ser directa, sin frases de cortesía ni dirigirse al lector.  
+- No uses expresiones como "Claro que sí", "Con gusto", "Te guiaré", etc.  
+- El texto debe ser únicamente la información del producto, en un tono claro, educativo y atractivo.  
+- No incluyas introducciones ni despedidas, solo el contenido solicitado.  
+- El texto debe usar exactamente el valor de la variable $nombre como nombre del producto.
+- No sustituir ni corregir $nombre por variantes, sinónimos o traducciones.
+- Si $nombre parece extraño, poco común o incorrecto, igualmente debe aparecer en el texto tal como fue proporcionado.
+- Toda la información cultural e histórica debe relacionarse directamente con el producto indicado en $nombre.
+- La respuesta debe ser directa, sin frases de cortesía ni dirigirse al lector.
+- No incluyas introducciones ni despedidas, solo el contenido solicitado.
 ''';
 
     String contenidoCompleto = '';

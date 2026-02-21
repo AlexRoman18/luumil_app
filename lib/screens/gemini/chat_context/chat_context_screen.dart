@@ -5,6 +5,7 @@ import 'package:luumil_app/config/theme/gemini/app_theme.dart';
 import 'package:luumil_app/providers/chat/chat_with_context.dart';
 import 'package:luumil_app/providers/users/user_provider.dart';
 import 'package:luumil_app/widgets/gemini/custom_bottom_input.dart';
+import 'package:luumil_app/screens/comer/dashboard_screen.dart';
 
 class ChatContextScreen extends ConsumerWidget {
   const ChatContextScreen({super.key});
@@ -23,9 +24,16 @@ class ChatContextScreen extends ConsumerWidget {
           'Chat conversacional',
           style: TextStyle(color: Colors.white), // 👈 texto blanco
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ), // 👈 flecha en blanco
+        iconTheme: const IconThemeData(color: Colors.white),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            );
+          },
+        ),
         actions: [
           IconButton(
             onPressed: () {

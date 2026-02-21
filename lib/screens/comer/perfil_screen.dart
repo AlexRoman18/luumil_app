@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:luumil_app/widgets/usuario/seleccionar_ubicacion_mapa.dart';
+import 'package:luumil_app/screens/usuario/home_screen.dart';
 import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
@@ -946,10 +947,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (confirmar == true) {
       await _authService.signOut();
       if (mounted) {
-        // Eliminar todas las rutas y volver al home
-        while (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        }
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
       }
     }
   }

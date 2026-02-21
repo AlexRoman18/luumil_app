@@ -563,7 +563,7 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
                                               style: GoogleFonts.poppins(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
-                                                color: Colors.black,
+                                                color: const Color(0xFF007BFF),
                                               ),
                                             ),
                                             TextSpan(
@@ -573,7 +573,7 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
                                                 fontWeight: FontWeight.w500,
                                                 color: const Color(
                                                   0xFF007BFF,
-                                                ).withValues(alpha: 0.6),
+                                                ).withOpacity(0.6),
                                               ),
                                             ),
                                           ],

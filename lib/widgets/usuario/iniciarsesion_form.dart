@@ -6,6 +6,7 @@ import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/auth/auth_service.dart';
 import 'package:luumil_app/services/google_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:luumil_app/screens/usuario/pantallainicio_screen.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -50,12 +51,12 @@ class _LoginFormState extends State<LoginForm> {
         _passwordController.text,
       );
 
-      // Cerrar todas las pantallas y volver a AuthGate
+      // Navegar explícitamente a PantallaInicio y limpiar historial
       if (mounted) {
-        // Cerrar pantallas hasta llegar a la raíz (AuthGate)
-        while (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        }
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const PantallaInicio()),
+          (route) => false,
+        );
       }
     } on FirebaseAuthException catch (e) {
       String message = 'Error al iniciar sesión';
@@ -127,9 +128,12 @@ class _LoginFormState extends State<LoginForm> {
           ),
         );
 
-        // Cerrar todas las pantallas y volver a AuthGate
-        while (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
+        // Navegar explícitamente a PantallaInicio y limpiar historial
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => const PantallaInicio()),
+            (route) => false,
+          );
         }
       }
     } catch (e) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luumil_app/services/vendor_service.dart';
+import 'package:luumil_app/screens/comer/dashboard_screen.dart';
 
 class NotificationBadge extends StatelessWidget {
   const NotificationBadge({super.key});
@@ -182,6 +183,16 @@ class _NotificacionesModal extends StatelessWidget {
                                   backgroundColor: Colors.green,
                                 ),
                               );
+
+                              // Navegar al Dashboard de vendedor
+                              if (context.mounted) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const DashboardScreen(),
+                                  ),
+                                );
+                              }
                             }
                           }
                         }
