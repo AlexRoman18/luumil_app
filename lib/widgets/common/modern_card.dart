@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Tarjeta moderna y minimalista reutilizable
 class ModernCard extends StatelessWidget {
@@ -149,12 +150,26 @@ class ProductCard extends StatelessWidget {
                   ),
                 ],
                 SizedBox(height: AppSpacing.sm),
-                Text(
-                  '\$${price.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: AppTypography.textLg,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.success,
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '\$${price.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          fontSize: AppTypography.textLg,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.success,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' /Kg',
+                        style: GoogleFonts.poppins(
+                          fontSize: AppTypography.textSm,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF007BFF).withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../comer/detalle_producto_screen.dart';
+import 'package:luumil_app/widgets/usuario/pasos_modal.dart';
 
 class ProductosComunidadScreen extends StatefulWidget {
   final String comunidad;
@@ -25,6 +26,88 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
   List<Map<String, dynamic>> _productos = [];
   Map<String, Map<String, dynamic>> _vendedores = {};
   bool _cargando = true;
+
+  // ─── Utilidades de búsqueda robusta ───────────────────────────────────────
+
+  String _norm(String s) {
+    const acentos = {
+      'á': 'a',
+      'à': 'a',
+      'ä': 'a',
+      'â': 'a',
+      'ã': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ë': 'e',
+      'ê': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'ï': 'i',
+      'î': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'ö': 'o',
+      'ô': 'o',
+      'õ': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'ü': 'u',
+      'û': 'u',
+      'ñ': 'n',
+      'ç': 'c',
+    };
+    var r = s.toLowerCase().trim();
+    acentos.forEach((k, v) => r = r.replaceAll(k, v));
+    r = r.replaceAll(RegExp(r'[-_]+'), ' ');
+    r = r.replaceAll(RegExp(r'\s+'), ' ');
+    return r;
+  }
+
+  int _levenshtein(String a, String b) {
+    if (a == b) return 0;
+    if (a.isEmpty) return b.length;
+    if (b.isEmpty) return a.length;
+    final dp = List.generate(
+      a.length + 1,
+      (i) => List.generate(b.length + 1, (j) => 0),
+    );
+    for (var i = 0; i <= a.length; i++) dp[i][0] = i;
+    for (var j = 0; j <= b.length; j++) dp[0][j] = j;
+    for (var i = 1; i <= a.length; i++) {
+      for (var j = 1; j <= b.length; j++) {
+        dp[i][j] = a[i - 1] == b[j - 1]
+            ? dp[i - 1][j - 1]
+            : 1 +
+                  [
+                    dp[i - 1][j],
+                    dp[i][j - 1],
+                    dp[i - 1][j - 1],
+                  ].reduce((x, y) => x < y ? x : y);
+      }
+    }
+    return dp[a.length][b.length];
+  }
+
+  bool _coincide(String busqueda, String texto) {
+    final b = _norm(busqueda);
+    final t = _norm(texto);
+    if (t.isEmpty || b.isEmpty) return false;
+    if (t.contains(b) || b.contains(t)) return true;
+    final palabrasB = b.split(' ').where((p) => p.length > 2).toList();
+    final palabrasT = t.split(' ').where((p) => p.length > 2).toList();
+    if (palabrasB.isNotEmpty && palabrasB.every((p) => t.contains(p)))
+      return true;
+    for (final pb in palabrasB) {
+      final match = palabrasT.any((pt) {
+        final maxDist = pb.length <= 4 ? 1 : 2;
+        return _levenshtein(pb, pt) <= maxDist;
+      });
+      if (match) return true;
+    }
+    return false;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
 
   @override
   void initState() {
@@ -58,18 +141,9 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
             // Si es búsqueda global, incluir todos los vendedores
             if (esGlobal) return true;
 
-            // Si es búsqueda por comunidad, filtrar normalizando
-            final comunidadUsuario = data['comunidad'] as String?;
-            if (comunidadUsuario == null) return false;
-
-            final comunidadNormalizada = widget.comunidad.toLowerCase().trim();
-            final comunidadUsuarioNormalizada = comunidadUsuario
-                .toLowerCase()
-                .trim();
-
-            return comunidadUsuarioNormalizada == comunidadNormalizada ||
-                comunidadUsuarioNormalizada.contains(comunidadNormalizada) ||
-                comunidadNormalizada.contains(comunidadUsuarioNormalizada);
+            // Si es búsqueda por comunidad, filtrar con matching robusto
+            final comunidadUsuario = data['comunidad'] as String? ?? '';
+            return _coincide(widget.comunidad, comunidadUsuario);
           })
           .map((doc) {
             vendedoresData[doc.id] = doc.data();
@@ -128,19 +202,22 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
 
   Future<void> _cargarProductosPorBusqueda() async {
     try {
-      final busquedaNormalizada = widget.terminoBusqueda!.toLowerCase().trim();
+      final busqueda = widget.terminoBusqueda!;
 
       // Obtener todos los productos
       final productosSnapshot = await _firestore.collection('productos').get();
 
-      // Filtrar por nombre o categoría
+      // Filtrar con matching robusto: nombre, categoría, descripción, tags
       final productosFiltrados = productosSnapshot.docs.where((doc) {
         final data = doc.data();
-        final nombre = (data['nombre'] as String?)?.toLowerCase() ?? '';
-        final categoria = (data['categoria'] as String?)?.toLowerCase() ?? '';
-
-        return nombre.contains(busquedaNormalizada) ||
-            categoria.contains(busquedaNormalizada);
+        final nombre = (data['nombre'] as String?) ?? '';
+        final categoria = (data['categoria'] as String?) ?? '';
+        final descripcion = (data['descripcion'] as String?) ?? '';
+        final tags = ((data['tags'] as List?)?.cast<String>() ?? []).join(' ');
+        return _coincide(busqueda, nombre) ||
+            _coincide(busqueda, categoria) ||
+            _coincide(busqueda, descripcion) ||
+            _coincide(busqueda, tags);
       }).toList();
 
       // Obtener información de vendedores
@@ -298,38 +375,82 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
                         child: Row(
                           children: [
                             // Imagen del producto
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: primeraImagen != null
-                                  ? Image.network(
-                                      primeraImagen,
-                                      width: 70,
-                                      height: 70,
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                            return Container(
-                                              width: 70,
-                                              height: 70,
-                                              color: Colors.grey[100],
-                                              child: Icon(
-                                                Icons.image_outlined,
-                                                color: Colors.grey[400],
-                                                size: 30,
+                            Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: primeraImagen != null
+                                      ? Image.network(
+                                          primeraImagen,
+                                          width: 70,
+                                          height: 70,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Container(
+                                                  width: 70,
+                                                  height: 70,
+                                                  color: Colors.grey[100],
+                                                  child: Icon(
+                                                    Icons.image_outlined,
+                                                    color: Colors.grey[400],
+                                                    size: 30,
+                                                  ),
+                                                );
+                                              },
+                                        )
+                                      : Container(
+                                          width: 70,
+                                          height: 70,
+                                          color: Colors.grey[100],
+                                          child: Icon(
+                                            Icons.image_outlined,
+                                            color: Colors.grey[400],
+                                            size: 30,
+                                          ),
+                                        ),
+                                ),
+                                // Ícono de pasos (solo si tiene pasos)
+                                if (producto['pasos'] != null &&
+                                    (producto['pasos'] as List).isNotEmpty)
+                                  Positioned(
+                                    top: 2,
+                                    left: 2,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => PasosModal(
+                                            pasos:
+                                                producto['pasos']
+                                                    as List<dynamic>,
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF007BFF),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(
+                                                0.3,
                                               ),
-                                            );
-                                          },
-                                    )
-                                  : Container(
-                                      width: 70,
-                                      height: 70,
-                                      color: Colors.grey[100],
-                                      child: Icon(
-                                        Icons.image_outlined,
-                                        color: Colors.grey[400],
-                                        size: 30,
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: const Icon(
+                                          Icons.info,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
                                       ),
                                     ),
+                                  ),
+                              ],
                             ),
                             const SizedBox(width: 12),
 
@@ -433,12 +554,29 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       // Precio
-                                      Text(
-                                        '\$${producto['precio'] ?? '0'}',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.black,
+                                      RichText(
+                                        text: TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  '\$${producto['precio'] ?? '0'}',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text: ' /Kg',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: const Color(
+                                                  0xFF007BFF,
+                                                ).withValues(alpha: 0.6),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],

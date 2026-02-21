@@ -8,6 +8,7 @@ import 'package:luumil_app/screens/usuario/pantallainicio_screen.dart';
 import 'package:luumil_app/screens/usuario/perfil_screen.dart';
 import 'package:luumil_app/screens/usuario/mi_actividad_screen.dart';
 import 'package:luumil_app/screens/comer/mensajes_vendedor_screen.dart';
+import 'package:luumil_app/screens/usuario/mensajes_usuario_screen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -87,6 +88,20 @@ class _SideMenuState extends State<SideMenu> {
             Navigator.pop(context);
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const MiActividadScreen()),
+            );
+          });
+
+          destinations.add(
+            const NavigationDrawerDestination(
+              icon: Icon(Icons.chat_bubble_outline),
+              selectedIcon: Icon(Icons.chat_bubble),
+              label: Text('Mensajes'),
+            ),
+          );
+          actions.add(() {
+            Navigator.pop(context);
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const MensajesUsuarioScreen()),
             );
           });
         }

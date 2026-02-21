@@ -134,40 +134,42 @@ class GoogleAuthService {
         credential,
       );
 
-      // Crear o actualizar documento del usuario en Firestore
-      await _crearOActualizarUsuario(userCredential.user);
+      // VERIFICAR si el usuario YA está registrado en Firestore
+      final userDoc = await _firestore
+          .collection('usuarios')
+          .doc(userCredential.user!.uid)
+          .get();
+
+      if (userDoc.exists) {
+        // Usuario ya registrado - cerrar sesión y lanzar error
+        await signOut();
+        throw 'Esta cuenta ya está registrada. Por favor inicia sesión en lugar de registrarte.';
+      }
+
+      // Usuario nuevo - crear documento en Firestore
+      await _firestore
+          .collection('usuarios')
+          .doc(userCredential.user!.uid)
+          .set({
+            'email': userCredential.user!.email ?? '',
+            'nombre': userCredential.user!.displayName ?? 'Usuario',
+            'nombrePersonal': userCredential.user!.displayName ?? 'Usuario',
+            'fotoPerfil': userCredential.user!.photoURL ?? '',
+            'rol': 'usuario',
+            'productosLikeados': [],
+            'siguiendo': [],
+            'seguidores': 0,
+            'comunidad': '',
+            'fechaRegistro': FieldValue.serverTimestamp(),
+          });
 
       return userCredential;
     } catch (e) {
-      throw Exception('Error al registrar con Google: $e');
-    }
-  }
-
-  Future<void> _crearOActualizarUsuario(User? user) async {
-    if (user == null) return;
-
-    final userDoc = await _firestore.collection('usuarios').doc(user.uid).get();
-
-    if (!userDoc.exists) {
-      // Crear nuevo usuario
-      await _firestore.collection('usuarios').doc(user.uid).set({
-        'email': user.email ?? '',
-        'nombre': user.displayName ?? 'Usuario',
-        'fotoPerfil': user.photoURL ?? '',
-        'rol': 'usuario', // Por defecto es usuario normal
-        'productosLikeados': [],
-        'siguiendo': [],
-        'seguidores': 0,
-        'comunidad': '',
-        'fechaRegistro': FieldValue.serverTimestamp(),
-      });
-    } else {
-      // Actualizar datos existentes
-      await _firestore.collection('usuarios').doc(user.uid).update({
-        'email': user.email ?? '',
-        'nombre': user.displayName ?? userDoc.data()?['nombre'] ?? 'Usuario',
-        'fotoPerfil': user.photoURL ?? userDoc.data()?['fotoPerfil'] ?? '',
-      });
+      if (e is String) {
+        // Es nuestro mensaje personalizado
+        rethrow;
+      }
+      throw 'Error al registrar con Google: $e';
     }
   }
 

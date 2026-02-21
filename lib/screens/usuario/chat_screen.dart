@@ -26,6 +26,38 @@ class _ChatScreenState extends State<ChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
 
+  @override
+  void initState() {
+    super.initState();
+    // Si es vendedor, marcar mensajes como leídos al abrir el chat
+    if (widget.esVendedor) {
+      _marcarMensajesComoLeidos();
+    }
+  }
+
+  Future<void> _marcarMensajesComoLeidos() async {
+    final chatId = _getChatId();
+
+    // Obtener todos los mensajes no leídos que no fueron enviados por el vendedor
+    final mensajesNoLeidos = await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('mensajes')
+        .where('leido', isEqualTo: false)
+        .where('senderId', isNotEqualTo: _userId)
+        .get();
+
+    // Marcar cada mensaje como leído
+    final batch = _firestore.batch();
+    for (var doc in mensajesNoLeidos.docs) {
+      batch.update(doc.reference, {'leido': true});
+    }
+
+    if (mensajesNoLeidos.docs.isNotEmpty) {
+      await batch.commit();
+    }
+  }
+
   double _parsePrecio(dynamic precio) {
     if (precio == null) return 0.0;
     if (precio is double) return precio;
@@ -55,6 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
         .add({
           'texto': mensaje,
           'senderId': _userId,
+          'senderRole': widget.esVendedor ? 'vendedor' : 'usuario',
           'timestamp': FieldValue.serverTimestamp(),
           'leido': false,
           'tipo': 'texto',
@@ -93,6 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final productos =
         seleccionProductos['productos'] as List<Map<String, dynamic>>;
     final total = seleccionProductos['total'] as double;
+    final costoEnvio = seleccionProductos['costoEnvio'] as double? ?? 0.0;
 
     // Luego pedir concepto adicional (opcional)
     final TextEditingController conceptoController = TextEditingController();
@@ -134,23 +168,69 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: const Color(0xFF28A745).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  Text(
-                    'Total:',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Productos:',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '\$${(total - costoEnvio).toStringAsFixed(2)}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    '\$${total.toStringAsFixed(2)}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xFF28A745),
+                  if (costoEnvio > 0) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Envío:',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          '\$${costoEnvio.toStringAsFixed(2)}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
+                    const Divider(height: 16),
+                  ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Total:',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '\$${total.toStringAsFixed(2)}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF28A745),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -240,6 +320,7 @@ class _ChatScreenState extends State<ChatScreen> {
             'usuarioId': widget.vendedorId,
             'chatId': chatId,
             'monto': total,
+            'costoEnvio': costoEnvio,
             'concepto': concepto.isEmpty ? 'Pedido' : concepto,
             'productos': productos,
             'estado': 'pendiente',
@@ -255,10 +336,12 @@ class _ChatScreenState extends State<ChatScreen> {
             'tipo': 'referencia_pago',
             'referenciaId': referenciaDoc.id,
             'monto': total,
+            'costoEnvio': costoEnvio,
             'concepto': concepto.isEmpty ? 'Pedido' : concepto,
             'productos': productos,
             'cantidadProductos': productos.length,
             'senderId': _userId,
+            'senderRole': widget.esVendedor ? 'vendedor' : 'usuario',
             'timestamp': FieldValue.serverTimestamp(),
             'leido': false,
           });
@@ -351,6 +434,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 final mensajes = snapshot.data!.docs;
 
+                // Si es vendedor, marcar mensajes como leídos en tiempo real
+                if (widget.esVendedor) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _marcarMensajesComoLeidos();
+                  });
+                }
+
                 return ListView.builder(
                   controller: _scrollController,
                   reverse: true,
@@ -359,7 +449,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final mensaje =
                         mensajes[index].data() as Map<String, dynamic>;
-                    final esMio = mensaje['senderId'] == _userId;
+                    // Verificar que el senderId coincida Y que el rol del sender coincida con el rol actual
+                    final senderRole = mensaje['senderRole'] ?? 'usuario';
+                    final rolActual = widget.esVendedor
+                        ? 'vendedor'
+                        : 'usuario';
+                    final esMio =
+                        mensaje['senderId'] == _userId &&
+                        senderRole == rolActual;
                     final timestamp = mensaje['timestamp'] as Timestamp?;
                     final tipo = mensaje['tipo'] ?? 'texto';
 
@@ -505,6 +602,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildReferenciaPagoWidget(Map<String, dynamic> mensaje, bool esMio) {
     final monto = mensaje['monto'];
+    final costoEnvio = mensaje['costoEnvio'] ?? 0.0;
     final concepto = mensaje['concepto'] ?? 'Pedido';
     final timestamp = mensaje['timestamp'] as Timestamp?;
     final productos = mensaje['productos'] as List<dynamic>? ?? [];
@@ -549,6 +647,69 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(height: 12),
 
           // Total
+          if (costoEnvio > 0) ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Productos:',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: esMio ? Colors.white70 : Colors.grey[700],
+                  ),
+                ),
+                Text(
+                  '\$${(monto - costoEnvio).toStringAsFixed(2)}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: esMio ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.local_shipping_outlined,
+                      size: 13,
+                      color: esMio ? Colors.white70 : Colors.grey[600],
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Envío:',
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: esMio ? Colors.white70 : Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  '\$${costoEnvio.toStringAsFixed(2)}',
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: esMio ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Divider(
+              color: esMio
+                  ? Colors.white.withValues(alpha: 0.3)
+                  : Colors.grey.withValues(alpha: 0.3),
+              height: 1,
+            ),
+            const SizedBox(height: 8),
+          ],
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -556,7 +717,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 'Total:',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: esMio ? Colors.white70 : Colors.grey[700],
                 ),
               ),

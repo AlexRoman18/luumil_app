@@ -7,9 +7,9 @@ class ProfilePostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> productos = [
-      {'nombre': 'Venta de tomate', 'precio': 12, 'unidad': 'por kilo'},
-      {'nombre': 'Venta de limones', 'precio': 18, 'unidad': 'por kilo'},
-      {'nombre': 'Venta de naranja', 'precio': 10, 'unidad': 'por kilo'},
+      {'nombre': 'Venta de tomate', 'precio': 12},
+      {'nombre': 'Venta de limones', 'precio': 18},
+      {'nombre': 'Venta de naranja', 'precio': 10},
     ];
 
     return Column(
@@ -32,9 +32,27 @@ class ProfilePostCard extends StatelessWidget {
                 fontSize: 15,
               ),
             ),
-            subtitle: Text(
-              '\$${producto['precio']} ${producto['unidad']}',
-              style: GoogleFonts.poppins(color: Colors.grey[700], fontSize: 13),
+            subtitle: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: '\$${producto['precio']}',
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey[700],
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' /Kg',
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF007BFF).withValues(alpha: 0.6),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
             trailing: const Icon(Icons.more_vert),
           ),

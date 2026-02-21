@@ -4,16 +4,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:luumil_app/screens/usuario/chat_screen.dart';
 
-class MensajesVendedorScreen extends StatefulWidget {
-  const MensajesVendedorScreen({super.key});
+class MensajesUsuarioScreen extends StatefulWidget {
+  const MensajesUsuarioScreen({super.key});
 
   @override
-  State<MensajesVendedorScreen> createState() => _MensajesVendedorScreenState();
+  State<MensajesUsuarioScreen> createState() => _MensajesUsuarioScreenState();
 }
 
-class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
+class _MensajesUsuarioScreenState extends State<MensajesUsuarioScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final String _vendedorId = FirebaseAuth.instance.currentUser!.uid;
+  final String _usuarioId = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('chats')
-            .where('vendedorId', isEqualTo: _vendedorId)
+            .where('usuarioId', isEqualTo: _usuarioId)
             .orderBy('ultimoTimestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
@@ -77,7 +77,7 @@ class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
             itemBuilder: (context, index) {
               final chat = chats[index].data() as Map<String, dynamic>;
               final chatId = chats[index].id;
-              final usuarioId = chat['usuarioId'];
+              final vendedorId = chat['vendedorId'];
               final ultimoMensaje = chat['ultimoMensaje'] ?? '';
               final timestamp = chat['ultimoTimestamp'] as Timestamp?;
 
@@ -87,7 +87,7 @@ class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
                     .doc(chatId)
                     .collection('mensajes')
                     .where('leido', isEqualTo: false)
-                    .where('senderId', isNotEqualTo: _vendedorId)
+                    .where('senderId', isNotEqualTo: _usuarioId)
                     .snapshots(),
                 builder: (context, mensajesSnapshot) {
                   final mensajesNoLeidos = mensajesSnapshot.hasData
@@ -98,17 +98,20 @@ class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
                   return FutureBuilder<DocumentSnapshot>(
                     future: _firestore
                         .collection('usuarios')
-                        .doc(usuarioId)
+                        .doc(vendedorId)
                         .get(),
                     builder: (context, userSnapshot) {
-                      String nombreUsuario = 'Usuario';
-                      String? fotoUsuario;
+                      String nombreVendedor = 'Vendedor';
+                      String? fotoVendedor;
 
                       if (userSnapshot.hasData && userSnapshot.data!.exists) {
                         final userData =
                             userSnapshot.data!.data() as Map<String, dynamic>;
-                        nombreUsuario = userData['nombrePersonal'] ?? 'Usuario';
-                        fotoUsuario = userData['fotoPerfil'];
+                        nombreVendedor =
+                            userData['nombreTienda'] ??
+                            userData['nombrePersonal'] ??
+                            'Vendedor';
+                        fotoVendedor = userData['fotoPerfil'];
                       }
 
                       return Card(
@@ -131,12 +134,12 @@ class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
                               CircleAvatar(
                                 radius: 28,
                                 backgroundColor: const Color(0xFF007BFF),
-                                backgroundImage: fotoUsuario != null
-                                    ? NetworkImage(fotoUsuario)
+                                backgroundImage: fotoVendedor != null
+                                    ? NetworkImage(fotoVendedor)
                                     : null,
-                                child: fotoUsuario == null
+                                child: fotoVendedor == null
                                     ? Text(
-                                        nombreUsuario[0].toUpperCase(),
+                                        nombreVendedor[0].toUpperCase(),
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 20,
@@ -164,7 +167,7 @@ class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
                             ],
                           ),
                           title: Text(
-                            nombreUsuario,
+                            nombreVendedor,
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: hayNoLeidos
@@ -236,9 +239,9 @@ class _MensajesVendedorScreenState extends State<MensajesVendedorScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ChatScreen(
-                                  vendedorId: usuarioId,
-                                  vendedorNombre: nombreUsuario,
-                                  esVendedor: true,
+                                  vendedorId: vendedorId,
+                                  vendedorNombre: nombreVendedor,
+                                  esVendedor: false,
                                 ),
                               ),
                             );

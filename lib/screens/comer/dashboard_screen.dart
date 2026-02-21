@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:luumil_app/navigation/bottom_nav_bar.dart';
 import 'package:luumil_app/widgets/comer/activity_list.dart';
 import 'package:luumil_app/widgets/comer/dashboard_header.dart';
@@ -22,6 +23,20 @@ class DashboardScreen extends StatelessWidget {
           actions: const [NotificationBadge(), SizedBox(width: 16)],
         ),
         extendBodyBehindAppBar: false,
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.white,
+          elevation: 4,
+          tooltip: 'Asistente IA',
+          onPressed: () => context.push('/history-chat'),
+          child: const Text(
+            'IA',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+              fontSize: 16,
+            ),
+          ),
+        ),
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(

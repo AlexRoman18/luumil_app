@@ -117,15 +117,20 @@ class _LoginFormState extends State<LoginForm> {
         return;
       }
 
-      // El inicio de sesión fue exitoso, Firebase Auth se encargará de la navegación
+      // El inicio de sesión fue exitoso, navegar a home
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('¡Inicio de sesión exitoso!'),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 1),
           ),
         );
+
+        // Cerrar todas las pantallas y volver a AuthGate
+        while (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     } catch (e) {
       if (mounted) {

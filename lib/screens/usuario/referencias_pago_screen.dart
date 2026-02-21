@@ -1,7 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'package:luumil_app/screens/usuario/pago_tarjeta_screen.dart';
+import 'package:luumil_app/screens/usuario/pago_paypal_screen.dart';
+import 'package:luumil_app/screens/usuario/pago_mercadopago_screen.dart';
 
 class ReferenciasPagoScreen extends StatefulWidget {
   const ReferenciasPagoScreen({super.key});
@@ -278,7 +283,7 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
               'PayPal',
               Icons.payments,
               const Color(0xFF0070BA),
-              () => _procesarPago(context, referenciaId, 'paypal'),
+              () => _abrirPagoPayPal(context, referenciaId, monto),
             ),
             const SizedBox(height: 12),
             _buildMetodoPagoOption(
@@ -286,7 +291,7 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
               'Mercado Pago',
               Icons.account_balance_wallet,
               const Color(0xFF009EE3),
-              () => _procesarPago(context, referenciaId, 'mercadopago'),
+              () => _abrirPagoMercadoPago(context, referenciaId, monto),
             ),
             const SizedBox(height: 12),
             _buildMetodoPagoOption(
@@ -294,7 +299,7 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
               'Tarjeta de Crédito/Débito',
               Icons.credit_card,
               const Color(0xFF6C757D),
-              () => _procesarPago(context, referenciaId, 'tarjeta'),
+              () => _abrirPagoTarjeta(context, referenciaId, monto),
             ),
             const SizedBox(height: 24),
             TextButton(
@@ -356,15 +361,72 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
     );
   }
 
-  Future<void> _procesarPago(
+  Future<void> _abrirPagoTarjeta(
     BuildContext context,
     String referenciaId,
-    String metodo,
+    double monto,
+  ) async {
+    Navigator.pop(context); // Cerrar bottom sheet
+
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            PagoTarjetaScreen(monto: monto, referenciaId: referenciaId),
+      ),
+    );
+
+    if (resultado != null && resultado['exito'] == true) {
+      await _confirmarPago(resultado, referenciaId);
+    }
+  }
+
+  Future<void> _abrirPagoPayPal(
+    BuildContext context,
+    String referenciaId,
+    double monto,
   ) async {
     Navigator.pop(context);
 
-    // TODO: Integrar con API real de pago (PayPal/Mercado Pago)
-    // Por ahora, simularemos el pago
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            PagoPaypalScreen(monto: monto, referenciaId: referenciaId),
+      ),
+    );
+
+    if (resultado != null && resultado['exito'] == true) {
+      await _confirmarPago(resultado, referenciaId);
+    }
+  }
+
+  Future<void> _abrirPagoMercadoPago(
+    BuildContext context,
+    String referenciaId,
+    double monto,
+  ) async {
+    Navigator.pop(context);
+
+    final resultado = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            PagoMercadoPagoScreen(monto: monto, referenciaId: referenciaId),
+      ),
+    );
+
+    if (resultado != null && resultado['exito'] == true) {
+      await _confirmarPago(resultado, referenciaId);
+    }
+  }
+
+  Future<void> _confirmarPago(
+    Map<String, dynamic> resultado,
+    String referenciaId,
+  ) async {
+    // Mostrar diálogo de procesamiento
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -373,9 +435,9 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
           'Procesando pago...',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
-        content: Column(
+        content: const Column(
           mainAxisSize: MainAxisSize.min,
-          children: const [
+          children: [
             CircularProgressIndicator(),
             SizedBox(height: 16),
             Text('Por favor espera...'),
@@ -384,18 +446,50 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
       ),
     );
 
-    // Simular proceso de pago
-    await Future.delayed(const Duration(seconds: 2));
+    // Simular verificación
+    await Future.delayed(const Duration(seconds: 1));
 
     // Actualizar estado en Firestore
     await _firestore.collection('referencias_pago').doc(referenciaId).update({
       'estado': 'pagado',
-      'metodoPago': metodo,
+      'metodoPago': resultado['metodoPago'],
       'fechaPago': FieldValue.serverTimestamp(),
+      'detallesPago': resultado,
     });
 
+    // Obtener datos del documento para el email
+    final doc = await _firestore
+        .collection('referencias_pago')
+        .doc(referenciaId)
+        .get();
+    final data = doc.data()!;
+
+    // Obtener nombre del vendedor desde colección usuarios
+    String nombreVendedor = 'Vendedor';
+    final vendedorId = data['vendedorId'];
+    if (vendedorId != null) {
+      final vendorDoc = await _firestore
+          .collection('usuarios')
+          .doc(vendedorId)
+          .get();
+      if (vendorDoc.exists) {
+        final vendorData = vendorDoc.data() as Map<String, dynamic>;
+        nombreVendedor = vendorData['nombreTienda'] ?? 'Vendedor';
+      }
+    }
+
+    await _enviarEmailComprobante(
+      referenciaId: referenciaId,
+      nombreVendedor: nombreVendedor,
+      concepto: data['concepto'] ?? '',
+      monto: (data['monto'] ?? 0).toString(),
+      metodoPago: resultado['metodoPago'] ?? '',
+    );
+
+    if (!mounted) return;
     Navigator.pop(context); // Cerrar diálogo de carga
 
+    // Mostrar confirmación
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -403,15 +497,43 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
           children: [
             const Icon(Icons.check_circle, color: Color(0xFF28A745), size: 28),
             const SizedBox(width: 12),
-            Text(
-              '¡Pago exitoso!',
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+            Expanded(
+              child: Text(
+                '¡Pago exitoso!',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         ),
-        content: Text(
-          'Tu pago se ha procesado correctamente.',
-          style: GoogleFonts.poppins(fontSize: 14),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tu pago se ha procesado correctamente.',
+              style: GoogleFonts.poppins(fontSize: 14),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(
+                  Icons.email_outlined,
+                  size: 16,
+                  color: Color(0xFF007BFF),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Se envió el comprobante a tu correo.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Color(0xFF007BFF),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         actions: [
           ElevatedButton(
@@ -419,11 +541,66 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF007BFF),
             ),
-            child: const Text('Aceptar'),
+            child: Text(
+              'Aceptar',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _enviarEmailComprobante({
+    required String referenciaId,
+    required String nombreVendedor,
+    required String concepto,
+    required String monto,
+    required String metodoPago,
+  }) async {
+    const serviceId = 'service_luumilapp';
+    const templateId = 'template_luumilApp';
+    const publicKey = 'VXoxooW7X9KT__9oP';
+
+    final user = FirebaseAuth.instance.currentUser;
+    final emailUsuario = user?.email ?? '';
+
+    final now = DateTime.now();
+    final fecha =
+        '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} '
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://api.emailjs.com/api/v1.0/email/send'),
+        headers: {
+          'Content-Type': 'application/json',
+          'origin': 'http://localhost',
+        },
+        body: jsonEncode({
+          'service_id': serviceId,
+          'template_id': templateId,
+          'user_id': publicKey,
+          'template_params': {
+            'email_usuario': emailUsuario,
+            'referenciaId': referenciaId,
+            'nombreVendedor': nombreVendedor,
+            'concepto': concepto,
+            'monto': monto,
+            'metodoPago': metodoPago,
+            'fecha': fecha,
+          },
+        }),
+      );
+      debugPrint('EmailJS status: ${response.statusCode}');
+      debugPrint('EmailJS body: ${response.body}');
+      debugPrint('Email destino: $emailUsuario');
+    } catch (e) {
+      debugPrint('EmailJS error: $e');
+    }
   }
 
   String _formatearFecha(DateTime fecha) {

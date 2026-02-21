@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ProductInfoSection extends StatelessWidget {
   final double price;
@@ -23,9 +24,27 @@ class ProductInfoSection extends StatelessWidget {
         // Precio + estrellas
         Row(
           children: [
-            Text(
-              "\$$price",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: "\$$price",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  TextSpan(
+                    text: " /Kg",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF007BFF).withValues(alpha: 0.6),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(width: 8),
             Row(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/widgets/usuario/pasos_modal.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Tarjeta de producto reutilizable
 class ProductCard extends StatelessWidget {
@@ -107,7 +108,28 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(description),
                   const SizedBox(height: 4),
-                  Text("Costo: \$${price.toStringAsFixed(2)} c/u"),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(color: Colors.black),
+                      children: [
+                        const TextSpan(text: 'Costo: '),
+                        TextSpan(
+                          text: '\$${price.toStringAsFixed(2)}',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: ' /Kg',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: const Color(
+                              0xFF007BFF,
+                            ).withValues(alpha: 0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   Text("Disponible: $stock piezas"),
                   const SizedBox(height: 6),
 

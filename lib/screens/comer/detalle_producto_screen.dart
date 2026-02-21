@@ -29,6 +29,49 @@ class _DetalleProductoScreenState extends State<DetalleProductoScreen> {
     _verificarLike();
   }
 
+  // Función para normalizar nombres de productos
+  String _normalizarNombre(String nombre) {
+    // Convertir a minúsculas y quitar espacios extras
+    String normalizado = nombre.toLowerCase().trim();
+
+    // Quitar múltiples espacios
+    normalizado = normalizado.replaceAll(RegExp(r'\s+'), ' ');
+
+    // Quitar caracteres repetidos (ej: "aaa" -> "a")
+    normalizado = normalizado.replaceAllMapped(
+      RegExp(r'(.)\1+'),
+      (match) => match.group(1)!,
+    );
+
+    return normalizado;
+  }
+
+  // Función para verificar si dos nombres son similares
+  bool _nombresSimilares(String nombre1, String nombre2) {
+    final normalizado1 = _normalizarNombre(nombre1);
+    final normalizado2 = _normalizarNombre(nombre2);
+
+    // Coincidencia exacta después de normalizar
+    if (normalizado1 == normalizado2) return true;
+
+    // Verificar si uno contiene al otro
+    if (normalizado1.contains(normalizado2) ||
+        normalizado2.contains(normalizado1)) {
+      return true;
+    }
+
+    // Verificar palabras principales
+    final palabras1 = normalizado1.split(' ');
+    final palabras2 = normalizado2.split(' ');
+
+    if (palabras1.isNotEmpty && palabras2.isNotEmpty) {
+      // Si la primera palabra es igual, son productos similares
+      if (palabras1[0] == palabras2[0]) return true;
+    }
+
+    return false;
+  }
+
   Future<void> _verificarLike() async {
     final liked = await _resenaService.hasLiked(widget.producto['id'] ?? '');
     if (mounted) {
@@ -347,7 +390,6 @@ Escribe de manera clara, educativa y atractiva en español. El texto debe ser de
     final totalLikes = widget.producto['totalLikes'] ?? 0;
     final promedioEstrellas = (widget.producto['promedioEstrellas'] ?? 0.0)
         .toDouble();
-    final subcategoria = widget.producto['subcategoria'] ?? '';
     final totalResenas = widget.producto['totalResenas'] ?? 0;
     final productoId = widget.producto['id'] ?? '';
     final vendedorId = widget.producto['vendedorId'] ?? '';
@@ -493,12 +535,28 @@ Escribe de manera clara, educativa y atractiva en español. El texto debe ser de
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Text(
-                        '\$$precio',
-                        style: GoogleFonts.poppins(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF007BFF),
+                      RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: '\$$precio',
+                              style: GoogleFonts.poppins(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF007BFF),
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' /Kg',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: const Color(
+                                  0xFF007BFF,
+                                ).withValues(alpha: 0.6),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -792,17 +850,10 @@ Escribe de manera clara, educativa y atractiva en español. El texto debe ser de
                   const SizedBox(height: 16),
 
                   StreamBuilder<QuerySnapshot>(
-                    stream: subcategoria.isNotEmpty
-                        ? FirebaseFirestore.instance
-                              .collection('productos')
-                              .where('subcategoria', isEqualTo: subcategoria)
-                              .where('vendedorId', isNotEqualTo: vendedorId)
-                              .limit(10)
-                              .snapshots()
-                        : FirebaseFirestore.instance
-                              .collection('productos')
-                              .where('categoria', isEqualTo: categoria)
-                              .snapshots(),
+                    stream: FirebaseFirestore.instance
+                        .collection('productos')
+                        .where('vendedorId', isNotEqualTo: vendedorId)
+                        .snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
@@ -834,33 +885,18 @@ Escribe de manera clara, educativa y atractiva en español. El texto debe ser de
                         return const SizedBox.shrink();
                       }
 
-                      // Filtrar productos del mismo vendedor y obtener productos similares
-                      final nombreNormalizado = nombre.toLowerCase().trim();
+                      // Filtrar productos con nombres similares de otros vendedores
                       final otrosProductos = snapshot.data!.docs
                           .where((doc) {
                             final data = doc.data() as Map<String, dynamic>;
+                            final otroNombre = data['nombre'] ?? '';
                             final otroVendedorId = data['vendedorId'] ?? '';
-                            final otroNombre = (data['nombre'] ?? '')
-                                .toString()
-                                .toLowerCase()
-                                .trim();
 
                             // Excluir mismo vendedor
                             if (otroVendedorId == vendedorId) return false;
 
-                            // Si tiene subcategoría, ya filtró Firestore
-                            if (subcategoria.isNotEmpty) return true;
-
-                            // Si no tiene subcategoría, verificar similitud de nombre
-                            // (misma palabra inicial o contenido similar)
-                            final palabrasProducto = nombreNormalizado.split(
-                              ' ',
-                            );
-                            final palabrasOtro = otroNombre.split(' ');
-
-                            return palabrasProducto.isNotEmpty &&
-                                palabrasOtro.isNotEmpty &&
-                                palabrasProducto[0] == palabrasOtro[0];
+                            // Verificar si los nombres son similares
+                            return _nombresSimilares(nombre, otroNombre);
                           })
                           .take(5)
                           .toList();
@@ -1052,12 +1088,30 @@ Escribe de manera clara, educativa y atractiva en español. El texto debe ser de
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
-                                          Text(
-                                            '\$$otroPrecio',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: const Color(0xFF007BFF),
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: '\$$otroPrecio',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: const Color(
+                                                      0xFF007BFF,
+                                                    ),
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: ' /Kg',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: const Color(
+                                                      0xFF007BFF,
+                                                    ).withValues(alpha: 0.6),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                           const SizedBox(height: 4),

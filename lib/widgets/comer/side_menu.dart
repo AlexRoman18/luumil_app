@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:luumil_app/services/vendor_service.dart';
+import 'package:luumil_app/screens/comer/dashboard_screen.dart';
+import 'package:luumil_app/screens/usuario/pantallainicio_screen.dart';
 import 'package:luumil_app/screens/comer/mensajes_vendedor_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -11,6 +14,7 @@ class SideMenu extends StatefulWidget {
 
 class _SideMenuState extends State<SideMenu> {
   int navDrawerIndex = 0;
+  final VendorService _vendorService = VendorService();
 
   @override
   Widget build(BuildContext context) {
@@ -25,20 +29,22 @@ class _SideMenuState extends State<SideMenu> {
 
         switch (index) {
           case 0:
-            // Mensajes
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const MensajesVendedorScreen()),
+            // Principal (Dashboard)
+            Navigator.pop(context);
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const DashboardScreen()),
             );
             break;
           case 1:
-            // Subir producto (ya existe)
+            // Mensajes
+            Navigator.pop(context);
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const MensajesVendedorScreen()),
+            );
             break;
           case 2:
-            // Mis productos
-            break;
-          case 3:
-            // Estadísticas
+            // Cambiar a Usuario
+            _cambiarAUsuario();
             break;
         }
       },
@@ -54,26 +60,31 @@ class _SideMenuState extends State<SideMenu> {
           ),
         ),
         NavigationDrawerDestination(
+          icon: const Icon(Icons.home_outlined),
+          selectedIcon: const Icon(Icons.home),
+          label: Text('Principal', style: GoogleFonts.poppins()),
+        ),
+        NavigationDrawerDestination(
           icon: const Icon(Icons.chat_bubble_outline),
           selectedIcon: const Icon(Icons.chat_bubble),
           label: Text('Mensajes', style: GoogleFonts.poppins()),
         ),
         NavigationDrawerDestination(
-          icon: const Icon(Icons.add_a_photo_outlined),
-          selectedIcon: const Icon(Icons.add_a_photo),
-          label: Text('Subir Producto', style: GoogleFonts.poppins()),
-        ),
-        NavigationDrawerDestination(
-          icon: const Icon(Icons.inventory_outlined),
-          selectedIcon: const Icon(Icons.inventory),
-          label: Text('Mis Productos', style: GoogleFonts.poppins()),
-        ),
-        NavigationDrawerDestination(
-          icon: const Icon(Icons.bar_chart_outlined),
-          selectedIcon: const Icon(Icons.bar_chart),
-          label: Text('Estadísticas', style: GoogleFonts.poppins()),
+          icon: const Icon(Icons.person_outline),
+          selectedIcon: const Icon(Icons.person),
+          label: Text('Cambiar a Usuario', style: GoogleFonts.poppins()),
         ),
       ],
     );
+  }
+
+  Future<void> _cambiarAUsuario() async {
+    await _vendorService.cambiarRol('usuario');
+    if (mounted) {
+      Navigator.pop(context);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const PantallaInicio()),
+      );
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:luumil_app/services/vendedor_service.dart';
 import 'package:luumil_app/screens/usuario/chat_screen.dart';
 import '../comer/detalle_producto_screen.dart';
@@ -197,6 +198,7 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Column(
@@ -254,88 +256,132 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                               ],
                             ),
                           ),
-                          // Botones de acción
-                          Row(
-                            children: [
-                              // Botón de contactar
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => ChatScreen(
-                                        vendedorId: widget.vendedorId,
-                                        vendedorNombre: _nombreTienda,
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Botones de acción
+                      Row(
+                        children: [
+                          // Botón de contactar
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                final currentUserId =
+                                    FirebaseAuth.instance.currentUser!.uid;
+                                if (widget.vendedorId == currentUserId) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'No puedes enviarte mensajes a ti mismo',
+                                        style: GoogleFonts.poppins(),
                                       ),
+                                      backgroundColor: Colors.orange,
+                                      duration: const Duration(seconds: 3),
                                     ),
                                   );
-                                },
-                                icon: const Icon(
-                                  Icons.chat_bubble_outline,
-                                  size: 18,
+                                  return;
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ChatScreen(
+                                      vendedorId: widget.vendedorId,
+                                      vendedorNombre: _nombreTienda,
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF28A745),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
                                 ),
-                                label: Text(
-                                  'Contactar',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF28A745),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              const SizedBox(width: 8),
-                              // Botón de seguir
-                              if (!_cargandoSeguir)
-                                ElevatedButton.icon(
-                                  onPressed: _toggleSeguir,
-                                  icon: Icon(
-                                    _estaSiguiendo ? Icons.check : Icons.add,
-                                    size: 18,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.chat_bubble_outline,
+                                    size: 16,
                                   ),
-                                  label: Text(
-                                    _estaSiguiendo ? 'Siguiendo' : 'Seguir',
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'Contactar',
                                     style: GoogleFonts.poppins(
-                                      fontSize: 14,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _estaSiguiendo
-                                        ? Colors.grey[300]
-                                        : const Color(0xFF007BFF),
-                                    foregroundColor: _estaSiguiendo
-                                        ? Colors.black87
-                                        : Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 8,
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          // Botón de seguir
+                          Expanded(
+                            child: _cargandoSeguir
+                                ? Container(
+                                    height: 40,
+                                    alignment: Alignment.center,
+                                    child: const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
+                                  )
+                                : OutlinedButton(
+                                    onPressed: _toggleSeguir,
+                                    style: OutlinedButton.styleFrom(
+                                      backgroundColor: _estaSiguiendo
+                                          ? Colors.grey[100]
+                                          : Colors.white,
+                                      foregroundColor: _estaSiguiendo
+                                          ? Colors.black87
+                                          : const Color(0xFF007BFF),
+                                      side: BorderSide(
+                                        color: _estaSiguiendo
+                                            ? Colors.grey[400]!
+                                            : const Color(0xFF007BFF),
+                                        width: 1.5,
+                                      ),
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          _estaSiguiendo
+                                              ? Icons.check
+                                              : Icons.person_add_outlined,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          _estaSiguiendo
+                                              ? 'Siguiendo'
+                                              : 'Seguir',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                )
-                              else
-                                const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                            ],
                           ),
                         ],
                       ),
@@ -461,7 +507,7 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 8),
 
                       if (_productos.isEmpty)
                         Container(
@@ -494,91 +540,135 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                                 ? imagenes[0] as String
                                 : null;
 
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.all(12),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetalleProductoScreen(
-                                            producto: producto,
-                                          ),
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetalleProductoScreen(
+                                      producto: producto,
                                     ),
-                                  );
-                                },
-                                leading: ClipRRect(
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(12),
-                                  child: primeraImagen != null
-                                      ? Image.network(
-                                          primeraImagen,
-                                          width: 60,
-                                          height: 60,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                return Container(
-                                                  width: 60,
-                                                  height: 60,
-                                                  color: Colors.grey[200],
-                                                  child: const Icon(
-                                                    Icons.image,
-                                                    color: Colors.grey,
-                                                  ),
-                                                );
-                                              },
-                                        )
-                                      : Container(
-                                          width: 60,
-                                          height: 60,
-                                          color: Colors.grey[200],
-                                          child: const Icon(
-                                            Icons.image,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                ),
-                                title: Text(
-                                  producto['nombre'] ?? 'Sin nombre',
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
+                                  border: Border.all(
+                                    color: Colors.grey[200]!,
+                                    width: 1,
                                   ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                child: Row(
                                   children: [
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      producto['categoria'] ?? 'Sin categoría',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
+                                    // Imagen
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: primeraImagen != null
+                                          ? Image.network(
+                                              primeraImagen,
+                                              width: 72,
+                                              height: 72,
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (_, __, ___) =>
+                                                  Container(
+                                                    width: 72,
+                                                    height: 72,
+                                                    color: Colors.grey[100],
+                                                    child: Icon(
+                                                      Icons.image_outlined,
+                                                      color: Colors.grey[400],
+                                                      size: 28,
+                                                    ),
+                                                  ),
+                                            )
+                                          : Container(
+                                              width: 72,
+                                              height: 72,
+                                              color: Colors.grey[100],
+                                              child: Icon(
+                                                Icons.image_outlined,
+                                                color: Colors.grey[400],
+                                                size: 28,
+                                              ),
+                                            ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    // Info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            producto['nombre'] ?? 'Sin nombre',
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14,
+                                              color: Colors.black87,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[100],
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Text(
+                                              producto['categoria'] ??
+                                                  'Sin categoría',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 11,
+                                                color: Colors.grey[600],
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text:
+                                                      '\$${producto['precio'] ?? '0'}',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: const Color(
+                                                      0xFF007BFF,
+                                                    ),
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text: ' /Kg',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: const Color(
+                                                      0xFF007BFF,
+                                                    ).withValues(alpha: 0.6),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '\$${producto['precio'] ?? '0'}',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: const Color(0xFF007BFF),
-                                      ),
+                                    const SizedBox(width: 8),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 14,
+                                      color: Colors.grey[400],
                                     ),
                                   ],
                                 ),

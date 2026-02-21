@@ -172,12 +172,28 @@ class _MisLikesTab extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            '\$${producto['precio'] ?? '0'}',
-                            style: GoogleFonts.poppins(
-                              color: const Color(0xFF2196F3),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                          RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '\$${producto['precio'] ?? '0'}',
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(0xFF2196F3),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: ' /Kg',
+                                  style: GoogleFonts.poppins(
+                                    color: const Color(
+                                      0xFF007BFF,
+                                    ).withValues(alpha: 0.6),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 4),

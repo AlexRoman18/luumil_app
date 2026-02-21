@@ -36,6 +36,7 @@ class _RegisterFormState extends State<RegisterForm> {
     'Chan Santa Cruz',
     'Xhazil Sur',
     'Xhazil',
+    'Uh May',
     'Chancah Veracruz',
     'Tepich',
     'Polyuc',
@@ -61,14 +62,15 @@ class _RegisterFormState extends State<RegisterForm> {
 
   // Mapa de comunidades con sus coordenadas
   final Map<String, LatLng> _coordenadasComunidades = {
-    'Chunhuhub': const LatLng(19.4167, -88.6167),
+    'Chunhuhub': const LatLng(19.5859, -88.5926),
     'Felipe Carrillo Puerto': const LatLng(19.5808, -88.0450),
     'Tihosuco': const LatLng(19.8167, -88.2667),
     'Señor': const LatLng(19.6333, -88.1167),
     'Tixcacal Guardia': const LatLng(20.0667, -88.1167),
     'Chan Santa Cruz': const LatLng(19.5808, -88.0450),
-    'Xhazil Sur': const LatLng(19.4500, -88.2500),
+    'Xhazil Sur': const LatLng(19.3918, -88.0762),
     'Xhazil': const LatLng(19.4500, -88.2500),
+    'Uh May': const LatLng(19.4171, -88.0489),
     'Chancah Veracruz': const LatLng(19.6833, -88.0833),
     'Tepich': const LatLng(19.8833, -88.3167),
     'Polyuc': const LatLng(19.7000, -88.2000),
@@ -305,22 +307,40 @@ class _RegisterFormState extends State<RegisterForm> {
         return;
       }
 
-      // El registro fue exitoso, Firebase Auth se encargará de la navegación
+      // El registro fue exitoso, navegar a home
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('¡Registro exitoso con Google!'),
             backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 1),
           ),
         );
+
+        // Cerrar todas las pantallas y volver a AuthGate
+        while (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     } catch (e) {
       if (mounted) {
+        // Limpiar el mensaje de error para mostrar solo la parte relevante
+        String errorMessage;
+        final errorString = e.toString();
+
+        // Si el mensaje contiene nuestro texto personalizado, mostrarlo directamente
+        if (errorString.contains('Esta cuenta ya está registrada')) {
+          errorMessage =
+              'Esta cuenta ya está registrada. Por favor inicia sesión en lugar de registrarte.';
+        } else {
+          errorMessage = errorString;
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al registrarse con Google: $e'),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
           ),
         );
       }

@@ -26,14 +26,15 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
   // Mapa de comunidades con sus coordenadas precisas
   final Map<String, LatLng> _coordenadasComunidades = {
     // Comunidades principales de Quintana Roo
-    'chunhuhub': const LatLng(19.4167, -88.6167),
+    'chunhuhub': const LatLng(19.5859, -88.5926),
     'felipe carrillo puerto': const LatLng(19.5808, -88.0450),
     'tihosuco': const LatLng(19.8167, -88.2667),
     'señor': const LatLng(19.6333, -88.1167),
     'tixcacal guardia': const LatLng(20.0667, -88.1167),
     'chan santa cruz': const LatLng(19.5808, -88.0450),
-    'xhazil sur': const LatLng(19.4500, -88.2500),
-    'xhazil': const LatLng(19.4500, -88.2500),
+    'x hazil sur': const LatLng(19.3918, -88.0762),
+    'x hazil': const LatLng(19.4500, -88.2500),
+    'uh may': const LatLng(19.4171, -88.0489),
     'chancah veracruz': const LatLng(19.6833, -88.0833),
     'tepich': const LatLng(19.8833, -88.3167),
     'polyuc': const LatLng(19.7000, -88.2000),
@@ -46,7 +47,7 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
     'dzulá': const LatLng(19.7667, -88.4167),
     'san silverio': const LatLng(19.4833, -88.8167),
     'presidente juárez': const LatLng(19.5000, -88.5000),
-    'x-pichil': const LatLng(19.6500, -88.2333),
+    'x pichil': const LatLng(19.6500, -88.2333),
     'san antonio tuk': const LatLng(19.7167, -88.1667),
     'betania': const LatLng(19.6000, -88.2667),
     'tulum': const LatLng(20.2114, -87.4289),
@@ -76,20 +77,54 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
         if (doc.exists && mounted) {
           final data = doc.data();
 
-          // Prioridad 1: Ubicación GPS precisa
+          // Prioridad 1: Ubicación GPS propia del usuario
           final ubicacion = data?['ubicacion'] as Map<String, dynamic>?;
           if (ubicacion != null &&
               ubicacion['latitude'] != null &&
               ubicacion['longitude'] != null) {
-            setState(() {
-              _center = LatLng(ubicacion['latitude'], ubicacion['longitude']);
-            });
+            if (mounted) {
+              setState(() {
+                _center = LatLng(
+                  (ubicacion['latitude'] as num).toDouble(),
+                  (ubicacion['longitude'] as num).toDouble(),
+                );
+              });
+            }
             return;
           }
 
-          // Prioridad 2: Comunidad
+          // Prioridad 2: Coordenadas de otro vendedor en la misma comunidad (Firestore)
           final comunidad = data?['comunidad'] as String?;
-          if (comunidad != null) {
+          if (comunidad != null && comunidad.isNotEmpty) {
+            final comunidadNorm = comunidad.toLowerCase().trim();
+            final vendedoresSnapshot = await FirebaseFirestore.instance
+                .collection('usuarios')
+                .where('puedeSerVendedor', isEqualTo: true)
+                .get();
+
+            for (final vDoc in vendedoresSnapshot.docs) {
+              if (vDoc.id == user.uid) continue;
+              final vData = vDoc.data();
+              final vComunidad = (vData['comunidad'] as String?) ?? '';
+              if (_coincide(comunidadNorm, vComunidad)) {
+                final vUbicacion = vData['ubicacion'] as Map<String, dynamic>?;
+                if (vUbicacion != null &&
+                    vUbicacion['latitude'] != null &&
+                    vUbicacion['longitude'] != null) {
+                  if (mounted) {
+                    setState(() {
+                      _center = LatLng(
+                        (vUbicacion['latitude'] as num).toDouble(),
+                        (vUbicacion['longitude'] as num).toDouble(),
+                      );
+                    });
+                  }
+                  return;
+                }
+              }
+            }
+
+            // Prioridad 3: Mapa hardcodeado como último recurso
             final coordenadas = _obtenerCoordenadasPorComunidad(comunidad);
             if (coordenadas != null && mounted) {
               setState(() {
@@ -104,29 +139,108 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
     }
   }
 
+  // ─── Utilidades de búsqueda robusta ───────────────────────────────────────
+
+  /// Normaliza texto: minúsculas, sin acentos, guiones/underscores → espacio,
+  /// múltiples espacios colapsados.
+  String _norm(String s) {
+    const acentos = {
+      'á': 'a',
+      'à': 'a',
+      'ä': 'a',
+      'â': 'a',
+      'ã': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ë': 'e',
+      'ê': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'ï': 'i',
+      'î': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'ö': 'o',
+      'ô': 'o',
+      'õ': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'ü': 'u',
+      'û': 'u',
+      'ñ': 'n',
+      'ç': 'c',
+    };
+    var r = s.toLowerCase().trim();
+    acentos.forEach((k, v) => r = r.replaceAll(k, v));
+    r = r.replaceAll(RegExp(r'[-_]+'), ' ');
+    r = r.replaceAll(RegExp(r'\s+'), ' ');
+    return r;
+  }
+
+  /// Distancia de Levenshtein (fuzzy matching para errores de tipeo)
+  int _levenshtein(String a, String b) {
+    if (a == b) return 0;
+    if (a.isEmpty) return b.length;
+    if (b.isEmpty) return a.length;
+    final dp = List.generate(
+      a.length + 1,
+      (i) => List.generate(b.length + 1, (j) => 0),
+    );
+    for (var i = 0; i <= a.length; i++) dp[i][0] = i;
+    for (var j = 0; j <= b.length; j++) dp[0][j] = j;
+    for (var i = 1; i <= a.length; i++) {
+      for (var j = 1; j <= b.length; j++) {
+        dp[i][j] = a[i - 1] == b[j - 1]
+            ? dp[i - 1][j - 1]
+            : 1 +
+                  [
+                    dp[i - 1][j],
+                    dp[i][j - 1],
+                    dp[i - 1][j - 1],
+                  ].reduce((x, y) => x < y ? x : y);
+      }
+    }
+    return dp[a.length][b.length];
+  }
+
+  /// Coincidencia robusta entre búsqueda y texto.
+  /// Acepta: contenido parcial, orden inverso, errores de 1-2 letras.
+  bool _coincide(String busqueda, String texto) {
+    final b = _norm(busqueda);
+    final t = _norm(texto);
+    if (t.isEmpty) return false;
+    // Exacta o contención
+    if (t.contains(b) || b.contains(t)) return true;
+    // Palabras individuales de la búsqueda presentes en el texto
+    final palabrasB = b.split(' ').where((p) => p.length > 2);
+    if (palabrasB.isNotEmpty && palabrasB.every((p) => t.contains(p))) {
+      return true;
+    }
+    // Fuzzy: cada palabra de búsqueda con distancia ≤ 2 a alguna palabra del texto
+    final palabrasT = t.split(' ').where((p) => p.length > 2).toList();
+    for (final pb in palabrasB) {
+      final match = palabrasT.any((pt) {
+        final maxDist = pb.length <= 4 ? 1 : 2;
+        return _levenshtein(pb, pt) <= maxDist;
+      });
+      if (match) return true;
+    }
+    return false;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+
   LatLng? _obtenerCoordenadasPorComunidad(String? comunidad) {
     if (comunidad == null || comunidad.isEmpty) return null;
 
     final comunidadNormalizada = comunidad.toLowerCase().trim();
 
-    // Buscar coincidencia exacta
-    if (_coordenadasComunidades.containsKey(comunidadNormalizada)) {
-      return _coordenadasComunidades[comunidadNormalizada];
-    }
-
-    // Buscar coincidencia parcial
+    // Buscar con normalización robusta
+    final bNorm = _norm(comunidadNormalizada);
     for (var entry in _coordenadasComunidades.entries) {
-      if (comunidadNormalizada.contains(entry.key) ||
-          entry.key.contains(comunidadNormalizada)) {
-        return entry.value;
-      }
+      if (_coincide(bNorm, entry.key)) return entry.value;
     }
-
-    // Si no se encuentra, usar coordenadas por defecto con pequeña variación
-    return LatLng(
-      _center.latitude + (comunidadNormalizada.hashCode % 100) / 1000,
-      _center.longitude + (comunidadNormalizada.hashCode % 100) / 1000,
-    );
+    return null;
   }
 
   Future<void> _cargarVendedores() async {
@@ -141,103 +255,31 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
     setState(() => _isLoading = true);
 
     try {
-      // Normalizar búsqueda
-      final comunidadNormalizada = _comunidadBuscada!.toLowerCase().trim();
+      final busquedaNormalizada = _comunidadBuscada!.toLowerCase().trim();
 
-      // Buscar en las comunidades predefinidas
-      String? comunidadEncontrada;
-      LatLng? coordenadas;
-
-      for (var entry in _coordenadasComunidades.entries) {
-        if (entry.key.contains(comunidadNormalizada) ||
-            comunidadNormalizada.contains(entry.key)) {
-          comunidadEncontrada = entry.key;
-          coordenadas = entry.value;
-          break;
-        }
-      }
-
-      if (coordenadas == null) {
-        // Comunidad no encontrada
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Comunidad no encontrada'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 2),
-            ),
-          );
-          setState(() => _isLoading = false);
-        }
-        return;
-      }
-
-      // Verificar si hay vendedores en esta comunidad
+      // Traer todos los vendedores
       final snapshot = await FirebaseFirestore.instance
           .collection('usuarios')
+          .where('puedeSerVendedor', isEqualTo: true)
           .get();
 
-      // Buscar vendedores que coincidan con la comunidad (normalizada)
-      final tieneVendedores = snapshot.docs.any((doc) {
-        final data = doc.data();
-        final comunidadUsuario = data['comunidad'] as String?;
-        if (comunidadUsuario == null) return false;
+      // Filtrar con matching robusto (acentos, guiones, fuzzy)
+      final vendedoresEnComunidad = snapshot.docs.where((doc) {
+        final comunidadUsuario = (doc.data()['comunidad'] as String?) ?? '';
+        return _coincide(busquedaNormalizada, comunidadUsuario);
+      }).toList();
 
-        final comunidadUsuarioNormalizada = comunidadUsuario
-            .toLowerCase()
-            .trim();
-        return (comunidadUsuarioNormalizada == comunidadEncontrada ||
-                comunidadUsuarioNormalizada.contains(comunidadEncontrada!) ||
-                comunidadEncontrada.contains(comunidadUsuarioNormalizada)) &&
-            (data['puedeSerVendedor'] == true);
-      });
+      if (vendedoresEnComunidad.isEmpty) {
+        // Nombre capitalizado para el mensaje
+        final nombreMostrar = _comunidadBuscada!
+            .split(' ')
+            .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+            .join(' ');
 
-      // Nombre capitalizado
-      final nombreComunidad = comunidadEncontrada!
-          .split(' ')
-          .map(
-            (word) =>
-                word.isEmpty ? '' : word[0].toUpperCase() + word.substring(1),
-          )
-          .join(' ');
-
-      // Crear marcador solo si tiene vendedores
-      if (tieneVendedores) {
-        final marker = Marker(
-          markerId: MarkerId(comunidadEncontrada),
-          position: coordenadas,
-          infoWindow: InfoWindow(
-            title: nombreComunidad,
-            snippet: '🛒 Toca para ver productos',
-          ),
-          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-          onTap: () {
-            _mostrarBottomSheetCategorias(context, _comunidadBuscada!);
-          },
-        );
-
-        if (mounted) {
-          setState(() {
-            _markers.clear();
-            _markers.add(marker);
-            _isLoading = false;
-          });
-
-          // Centrar cámara en el marcador
-          Future.delayed(const Duration(milliseconds: 300), () {
-            if (mounted) {
-              mapController.animateCamera(
-                CameraUpdate.newLatLngZoom(coordenadas!, 14.0),
-              );
-            }
-          });
-        }
-      } else {
-        // No hay vendedores en esta comunidad
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Aún no hay vendedores en $nombreComunidad'),
+              content: Text('Aún no hay vendedores en $nombreMostrar'),
               backgroundColor: Colors.grey[700],
               duration: const Duration(seconds: 2),
             ),
@@ -247,6 +289,86 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
             _isLoading = false;
           });
         }
+        return;
+      }
+
+      // Prioridad 1: usar coordenadas GPS reales del primer vendedor con ubicación
+      LatLng? coordenadas;
+      String comunidadNombreReal = _comunidadBuscada!;
+
+      for (final doc in vendedoresEnComunidad) {
+        final data = doc.data();
+        final ubicacion = data['ubicacion'] as Map<String, dynamic>?;
+        if (ubicacion != null &&
+            ubicacion['latitude'] != null &&
+            ubicacion['longitude'] != null) {
+          coordenadas = LatLng(
+            (ubicacion['latitude'] as num).toDouble(),
+            (ubicacion['longitude'] as num).toDouble(),
+          );
+          comunidadNombreReal =
+              data['comunidad'] as String? ?? _comunidadBuscada!;
+          break;
+        }
+      }
+
+      // Prioridad 2: fallback al mapa hardcodeado
+      if (coordenadas == null) {
+        coordenadas = _obtenerCoordenadasPorComunidad(_comunidadBuscada);
+      }
+
+      if (coordenadas == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'No se encontraron coordenadas para esta comunidad',
+              ),
+              backgroundColor: Colors.orange,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          setState(() => _isLoading = false);
+        }
+        return;
+      }
+
+      // Nombre capitalizado
+      final nombreComunidad = comunidadNombreReal
+          .split(' ')
+          .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+          .join(' ');
+
+      final coordenadasFinal = coordenadas;
+      // Usar el nombre real de la comunidad (del vendedor en Firestore)
+      final nombreParaNavegar = comunidadNombreReal;
+      final marker = Marker(
+        markerId: MarkerId(busquedaNormalizada),
+        position: coordenadasFinal,
+        infoWindow: InfoWindow(
+          title: nombreComunidad,
+          snippet: '🛍 Toca para ver productos',
+        ),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        onTap: () {
+          _mostrarBottomSheetCategorias(context, nombreParaNavegar);
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          _markers.clear();
+          _markers.add(marker);
+          _isLoading = false;
+        });
+
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted) {
+            mapController.animateCamera(
+              CameraUpdate.newLatLngZoom(coordenadasFinal, 14.0),
+            );
+          }
+        });
       }
     } catch (e) {
       if (mounted) {
@@ -264,45 +386,62 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
       return;
     }
 
-    final busquedaNormalizada = busqueda.toLowerCase().trim();
+    // Intentar siempre como comunidad primero (usa Firestore + fallback hardcodeado)
+    setState(() {
+      _comunidadBuscada = busqueda;
+    });
 
-    // Primero intentar buscar como comunidad
-    final esComunidad = _coordenadasComunidades.keys.any(
-      (comunidad) =>
-          comunidad.contains(busquedaNormalizada) ||
-          busquedaNormalizada.contains(comunidad),
-    );
+    setState(() => _isLoading = true);
 
-    if (esComunidad) {
-      // Es una comunidad, mostrar marcador
-      setState(() {
-        _comunidadBuscada = busqueda;
+    try {
+      final busquedaNormalizada = busqueda.toLowerCase().trim();
+
+      // Verificar si hay vendedores con esa comunidad en Firestore
+      final snapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .where('puedeSerVendedor', isEqualTo: true)
+          .get();
+
+      final tieneVendedores = snapshot.docs.any((doc) {
+        final comunidadUsuario = (doc.data()['comunidad'] as String?) ?? '';
+        return _coincide(busquedaNormalizada, comunidadUsuario);
       });
-      _cargarVendedores();
-      return;
-    }
 
-    // Si no es comunidad, buscar en productos
-    await _buscarEnProductos(busquedaNormalizada);
+      if (tieneVendedores) {
+        // Es una comunidad con vendedores → mostrar marcador
+        _cargarVendedores();
+      } else {
+        // Sin vendedores en esa comunidad → buscar en productos
+        setState(() {
+          _comunidadBuscada = null;
+          _isLoading = false;
+        });
+        await _buscarEnProductos(busquedaNormalizada);
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _buscarEnProductos(String busqueda) async {
     try {
-      // Buscar productos que contengan el término en su nombre o categoría
       final productosSnapshot = await FirebaseFirestore.instance
           .collection('productos')
           .get();
 
+      // Matching robusto en nombre, categoría y descripción
       final productosEncontrados = productosSnapshot.docs.where((doc) {
         final data = doc.data();
-        final nombre = (data['nombre'] as String?)?.toLowerCase() ?? '';
-        final categoria = (data['categoria'] as String?)?.toLowerCase() ?? '';
-
-        return nombre.contains(busqueda) || categoria.contains(busqueda);
+        final nombre = (data['nombre'] as String?) ?? '';
+        final categoria = (data['categoria'] as String?) ?? '';
+        final descripcion = (data['descripcion'] as String?) ?? '';
+        return _coincide(busqueda, nombre) ||
+            _coincide(busqueda, categoria) ||
+            _coincide(busqueda, descripcion);
       }).toList();
 
       if (productosEncontrados.isNotEmpty) {
-        // Navegar a pantalla de resultados
+        if (!mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -313,20 +452,17 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
           ),
         );
       } else {
-        // No se encontró nada
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('No se encontraron productos para "$busqueda"'),
+              content: Text('No se encontraron resultados para "$busqueda"'),
               backgroundColor: Colors.grey[700],
               duration: const Duration(seconds: 2),
             ),
           );
         }
       }
-    } catch (e) {
-      // Error en búsqueda
-    }
+    } catch (_) {}
   }
 
   void _mostrarBottomSheetCategorias(BuildContext context, String comunidad) {

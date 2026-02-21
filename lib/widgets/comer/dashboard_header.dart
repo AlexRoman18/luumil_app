@@ -28,7 +28,7 @@ class DashboardHeader extends StatelessWidget {
         String nombre = 'Tienda';
         if (snapshot.hasData && snapshot.data!.exists) {
           final data = snapshot.data!.data() as Map<String, dynamic>;
-          nombre = data['nombreTienda'] ?? 'Tienda';
+          nombre = data['nombrePersonal'] ?? data['nombre'] ?? 'Tienda';
         }
 
         return Column(

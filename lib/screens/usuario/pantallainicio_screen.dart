@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
 import 'package:luumil_app/screens/usuario/referencias_pago_screen.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
+import 'package:luumil_app/widgets/usuario/pasos_modal.dart';
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key});
@@ -300,40 +301,90 @@ class _PantallaInicioState extends State<PantallaInicio> {
                               child: Row(
                                 children: [
                                   // Imagen del producto
-                                  Container(
-                                    width: 90,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[100],
-                                      borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(15),
-                                        bottomLeft: Radius.circular(15),
-                                      ),
-                                    ),
-                                    child: imagenUrl != null
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                  topLeft: Radius.circular(15),
-                                                  bottomLeft: Radius.circular(
-                                                    15,
-                                                  ),
-                                                ),
-                                            child: Image.network(
-                                              imagenUrl,
-                                              fit: BoxFit.cover,
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                    return const Icon(
-                                                      Icons.image_not_supported,
-                                                      color: Colors.black45,
-                                                    );
-                                                  },
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.shopping_bag_outlined,
-                                            color: Colors.black45,
+                                  Stack(
+                                    children: [
+                                      Container(
+                                        width: 90,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[100],
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(15),
+                                            bottomLeft: Radius.circular(15),
                                           ),
+                                        ),
+                                        child: imagenUrl != null
+                                            ? ClipRRect(
+                                                borderRadius:
+                                                    const BorderRadius.only(
+                                                      topLeft: Radius.circular(
+                                                        15,
+                                                      ),
+                                                      bottomLeft:
+                                                          Radius.circular(15),
+                                                    ),
+                                                child: Image.network(
+                                                  imagenUrl,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
+                                                        return const Icon(
+                                                          Icons
+                                                              .image_not_supported,
+                                                          color: Colors.black45,
+                                                        );
+                                                      },
+                                                ),
+                                              )
+                                            : const Icon(
+                                                Icons.shopping_bag_outlined,
+                                                color: Colors.black45,
+                                              ),
+                                      ),
+                                      // Ícono de pasos (solo si tiene pasos)
+                                      if (data['pasos'] != null &&
+                                          (data['pasos'] as List).isNotEmpty)
+                                        Positioned(
+                                          top: 4,
+                                          left: 4,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    PasosModal(
+                                                      pasos:
+                                                          data['pasos']
+                                                              as List<dynamic>,
+                                                    ),
+                                              );
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: const Color(0xFF007BFF),
+                                                shape: BoxShape.circle,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.3),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: const Icon(
+                                                Icons.info,
+                                                color: Colors.white,
+                                                size: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                   const SizedBox(width: 12),
                                   Expanded(
@@ -353,12 +404,31 @@ class _PantallaInicioState extends State<PantallaInicio> {
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         const SizedBox(height: 4),
-                                        Text(
-                                          '\$${precio.toStringAsFixed(2)}',
-                                          style: GoogleFonts.poppins(
-                                            color: const Color(0xFF007BFF),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                        RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text:
+                                                    '\$${precio.toStringAsFixed(2)}',
+                                                style: GoogleFonts.poppins(
+                                                  color: const Color(
+                                                    0xFF007BFF,
+                                                  ),
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: ' /Kg',
+                                                style: GoogleFonts.poppins(
+                                                  color: const Color(
+                                                    0xFF007BFF,
+                                                  ).withValues(alpha: 0.6),
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         const SizedBox(height: 6),
@@ -421,20 +491,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 },
               ),
             ],
-          ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        onPressed: () {
-          context.push('/history-chat');
-        },
-        child: const Text(
-          'IA',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 0, 0, 0),
-            fontSize: 16,
           ),
         ),
       ),
