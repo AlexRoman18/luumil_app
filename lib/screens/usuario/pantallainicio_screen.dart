@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:luumil_app/widgets/usuario/mapa_ubicacion.dart';
 import 'package:luumil_app/widgets/usuario/side_menu.dart';

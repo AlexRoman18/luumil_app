@@ -673,7 +673,7 @@ class _ProductoItemState extends State<_ProductoItem> {
                           style: GoogleFonts.poppins(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF28A745),
+                            color: const Color(0xFF007BFF),
                           ),
                         ),
                         TextSpan(
