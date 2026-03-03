@@ -26,6 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   String? _fotoPerfil;
   String _nombre = '';
+  String _comunidad = '';
   String _descripcion = '';
   bool _cargando = true;
 
@@ -45,6 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _nombre = perfil['nombreTienda'] ?? 'Vendedor';
         _descripcion = perfil['descripcion'] ?? 'Descripción del negocio';
         _historiaController.text = perfil['historia'] ?? 'Nuestra historia...';
+        _comunidad = perfil['comunidad'] ?? '';
         _cargando = false;
       });
     } else {
@@ -519,12 +521,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       // Imagen del producto
                                       GestureDetector(
                                         onTap: () {
+                                          final productoCompleto = {
+                                            ...data,
+                                            'nombreTienda': _nombre,
+                                            'comunidadVendedor': _comunidad,
+                                          };
+
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   DetalleProductoScreen(
-                                                    producto: data,
+                                                    producto: productoCompleto,
                                                   ),
                                             ),
                                           );
@@ -624,12 +632,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       Expanded(
                                         child: GestureDetector(
                                           onTap: () {
+                                            final productoCompleto = {
+                                              ...data,
+                                              'nombreTienda': _nombre,
+                                              'comunidadVendedor': _comunidad,
+                                            };
+
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     DetalleProductoScreen(
-                                                      producto: data,
+                                                      producto:
+                                                          productoCompleto,
                                                     ),
                                               ),
                                             );
