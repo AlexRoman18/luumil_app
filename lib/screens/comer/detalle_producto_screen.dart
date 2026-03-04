@@ -559,7 +559,7 @@ Reglas:
                               ),
                             ),
                             TextSpan(
-                              text: ' /Kg',
+                              text: '',
                               style: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,

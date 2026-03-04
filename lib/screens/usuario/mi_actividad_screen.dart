@@ -184,7 +184,7 @@ class _MisLikesTab extends StatelessWidget {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: ' /Kg',
+                                  text: '',
                                   style: GoogleFonts.poppins(
                                     color: const Color(
                                       0xFF007BFF,

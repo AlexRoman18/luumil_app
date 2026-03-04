@@ -689,7 +689,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                           ),
                                                     ),
                                                     TextSpan(
-                                                      text: ' /Kg',
+                                                      text: '',
                                                       style:
                                                           GoogleFonts.poppins(
                                                             fontSize: 11,

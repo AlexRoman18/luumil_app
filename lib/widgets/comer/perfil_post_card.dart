@@ -44,7 +44,7 @@ class ProfilePostCard extends StatelessWidget {
                     ),
                   ),
                   TextSpan(
-                    text: ' /Kg',
+                    text: '',
                     style: GoogleFonts.poppins(
                       color: const Color(0xFF007BFF).withValues(alpha: 0.6),
                       fontSize: 11,

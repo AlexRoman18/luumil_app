@@ -572,7 +572,7 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
                                               ),
                                             ),
                                             TextSpan(
-                                              text: ' /Kg',
+                                              text: '',
                                               style: GoogleFonts.poppins(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w500,

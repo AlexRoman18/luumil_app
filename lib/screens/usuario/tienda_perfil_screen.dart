@@ -649,7 +649,7 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                                                   ),
                                                 ),
                                                 TextSpan(
-                                                  text: ' /Kg',
+                                                  text: '',
                                                   style: GoogleFonts.poppins(
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w500,

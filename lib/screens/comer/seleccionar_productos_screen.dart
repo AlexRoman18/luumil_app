@@ -677,7 +677,7 @@ class _ProductoItemState extends State<_ProductoItem> {
                           ),
                         ),
                         TextSpan(
-                          text: ' /Kg',
+                          text: ' ',
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,

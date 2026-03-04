@@ -121,11 +121,13 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                         TextSpan(
-                          text: ' /Kg',
+                          text: '',
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFF007BFF).withOpacity(0.6),
+                            color: const Color(
+                              0xFF007BFF,
+                            ).withValues(alpha: 0.6),
                           ),
                         ),
                       ],

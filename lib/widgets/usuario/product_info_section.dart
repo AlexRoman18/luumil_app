@@ -36,7 +36,7 @@ class ProductInfoSection extends StatelessWidget {
                     ),
                   ),
                   TextSpan(
-                    text: " /Kg",
+                    text: "",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

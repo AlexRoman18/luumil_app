@@ -162,7 +162,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                        text: ' /Kg',
+                        text: '',
                         style: GoogleFonts.poppins(
                           fontSize: AppTypography.textSm,
                           fontWeight: FontWeight.w500,

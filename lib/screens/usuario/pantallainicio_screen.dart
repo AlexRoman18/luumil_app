@@ -418,7 +418,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                                                 ),
                                               ),
                                               TextSpan(
-                                                text: ' /Kg',
+                                                text: ' ',
                                                 style: GoogleFonts.poppins(
                                                   color: const Color(
                                                     0xFF007BFF,
