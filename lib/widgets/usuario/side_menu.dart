@@ -20,6 +20,8 @@ class SideMenu extends StatefulWidget {
 class _SideMenuState extends State<SideMenu> {
   int navDrawerIndex = 0;
   final VendorService _vendorService = VendorService();
+  String _lastRole = 'usuario';
+  bool _lastPuedeSerVendedor = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,10 +43,66 @@ class _SideMenuState extends State<SideMenu> {
         bool puedeSerVendedor = false;
         bool cargando = !snapshot.hasData;
 
-        if (snapshot.hasData && snapshot.data!.exists) {
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          rolActual = data['rol'] ?? 'usuario';
-          puedeSerVendedor = data['puedeSerVendedor'] ?? false;
+        // Priorizar datos existentes incluso si hay error después
+        if (snapshot.hasData &&
+            snapshot.data != null &&
+            snapshot.data!.exists) {
+          final data = snapshot.data!.data() as Map<String, dynamic>?;
+          if (data != null) {
+            final rolValue = data['rol'];
+            rolActual = (rolValue is String && rolValue.isNotEmpty)
+                ? rolValue
+                : 'usuario';
+            puedeSerVendedor = data['puedeSerVendedor'] ?? false;
+            debugPrint(
+              '🔍 SideMenu: Datos cargados - rol=$rolActual (valor original=$rolValue), puedeSerVendedor=$puedeSerVendedor',
+            );
+          } else {
+            debugPrint('⚠️ SideMenu: Documento existe pero data es null');
+          }
+        } else if (snapshot.hasData &&
+            snapshot.data != null &&
+            !snapshot.data!.exists) {
+          debugPrint(
+            '⚠️ SideMenu: Documento del usuario no existe en Firestore para UID: ${user.uid}',
+          );
+          // Crear documento con valores por defecto
+          FirebaseFirestore.instance
+              .collection('usuarios')
+              .doc(user.uid)
+              .set({
+                'rol': 'usuario',
+                'puedeSerVendedor': false,
+                'email': user.email ?? '',
+                'fechaCreacion': FieldValue.serverTimestamp(),
+              }, SetOptions(merge: true))
+              .then((_) {
+                debugPrint(
+                  '✅ SideMenu: Documento creado automáticamente con valores por defecto',
+                );
+              })
+              .catchError((e) {
+                debugPrint('❌ SideMenu: Error al crear documento: $e');
+              });
+        } else if (snapshot.hasError) {
+          debugPrint('❌ SideMenu Error: ${snapshot.error}');
+        } else {
+          debugPrint('⏳ SideMenu: Cargando datos...');
+        }
+
+        // Detectar cambios en rol/permisos y resetear índice si es necesario
+        if (rolActual != _lastRole ||
+            puedeSerVendedor != _lastPuedeSerVendedor) {
+          _lastRole = rolActual;
+          _lastPuedeSerVendedor = puedeSerVendedor;
+          // Resetear a Principal cuando cambia el rol
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() {
+                navDrawerIndex = 0;
+              });
+            }
+          });
         }
 
         // Construir destinos dinámicamente para mantener índices coherentes
@@ -64,7 +122,17 @@ class _SideMenuState extends State<SideMenu> {
           ).push(MaterialPageRoute(builder: (_) => const PantallaInicio()));
         });
 
-        if (rolActual == 'usuario') {
+        debugPrint(
+          '🔧 SideMenu: Rol actual = "$rolActual" | puedeSerVendedor = $puedeSerVendedor',
+        );
+
+        // Tratar 'solicitante' igual que 'usuario'
+        bool esUsuario = rolActual == 'usuario' || rolActual == 'solicitante';
+
+        if (esUsuario) {
+          debugPrint(
+            '✅ SideMenu: Agregando opciones de usuario (Perfil, Mi Actividad, Mensajes)',
+          );
           destinations.add(
             const NavigationDrawerDestination(
               icon: Icon(Icons.person_outline),
@@ -104,10 +172,15 @@ class _SideMenuState extends State<SideMenu> {
               MaterialPageRoute(builder: (_) => const MensajesUsuarioScreen()),
             );
           });
+        } else {
+          debugPrint(
+            '❌ SideMenu: rol NO es usuario/solicitante, es "$rolActual"',
+          );
         }
 
         // Si es vendedor, agregar opción de Mensajes
         if (rolActual == 'vendedor') {
+          debugPrint('✅ SideMenu: Agregando Mensajes de Vendedor');
           destinations.add(
             const NavigationDrawerDestination(
               icon: Icon(Icons.chat_bubble_outline),
@@ -123,6 +196,10 @@ class _SideMenuState extends State<SideMenu> {
           });
         }
 
+        debugPrint(
+          '📊 SideMenu: Total destinos construidos = ${destinations.length}',
+        );
+
         // Acción para cambiar/solicitar rol
         destinations.add(
           NavigationDrawerDestination(
@@ -135,6 +212,8 @@ class _SideMenuState extends State<SideMenu> {
                 : Icon(
                     rolActual == 'vendedor'
                         ? Icons.person_outline
+                        : rolActual == 'solicitante'
+                        ? Icons.hourglass_bottom
                         : puedeSerVendedor
                         ? Icons.store_outlined
                         : Icons.edit_document,
@@ -142,6 +221,8 @@ class _SideMenuState extends State<SideMenu> {
             label: Text(
               rolActual == 'vendedor'
                   ? 'Cambiar a Usuario'
+                  : rolActual == 'solicitante'
+                  ? 'Solicitud pendiente'
                   : puedeSerVendedor
                   ? 'Cambiar a Vendedor'
                   : 'Solicitar ser Vendedor',
@@ -158,6 +239,18 @@ class _SideMenuState extends State<SideMenu> {
               Navigator.of(
                 context,
               ).push(MaterialPageRoute(builder: (_) => const PantallaInicio()));
+            }
+          } else if (rolActual == 'solicitante') {
+            // Si ya está solicitando, mostrar mensaje
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Tu solicitud para ser vendedor está en revisión',
+                  ),
+                  duration: Duration(seconds: 2),
+                ),
+              );
             }
           } else if (puedeSerVendedor && rolActual != 'vendedor') {
             await _vendorService.cambiarRol('vendedor');
@@ -199,16 +292,25 @@ class _SideMenuState extends State<SideMenu> {
         });
 
         return NavigationDrawer(
-          selectedIndex: navDrawerIndex,
+          selectedIndex: navDrawerIndex < destinations.length
+              ? navDrawerIndex
+              : 0,
           onDestinationSelected: (int index) {
-            setState(() {
-              navDrawerIndex = index;
-            });
-
-            // Ejecutar acción asociada
+            // Validar que el índice sea válido antes de usarlo
             if (index >= 0 && index < actions.length) {
+              debugPrint(
+                '👆 SideMenu: Tocaste índice $index de ${actions.length} opciones',
+              );
+              setState(() {
+                navDrawerIndex = index;
+              });
+              // Ejecutar acción asociada
               final action = actions[index];
               action();
+            } else {
+              debugPrint(
+                '❌ SideMenu: Índice inválido: $index (total opciones: ${actions.length})',
+              );
             }
           },
           children: [

@@ -22,7 +22,7 @@ val googleMapsApiKey = if (dotenvFile.exists()) {
 android {
     namespace = "com.yourapp.luumil_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
