@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/services/vendor_service.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
@@ -243,7 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 radius: 40,
                                 backgroundColor: Colors.white,
                                 backgroundImage: _fotoPerfil != null
-                                    ? NetworkImage(_fotoPerfil!)
+                                    ? CachedNetworkImageProvider(_fotoPerfil!, cacheManager: CacheService.cacheManager)
                                     : null,
                                 child: _fotoPerfil == null
                                     ? const Icon(
@@ -543,16 +545,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               child: primeraImagen != null
-                                                  ? Image.network(
-                                                      primeraImagen,
+                                                  ? CachedNetworkImage(
+                                                      imageUrl: primeraImagen,
                                                       width: 70,
                                                       height: 70,
                                                       fit: BoxFit.cover,
-                                                      errorBuilder:
+                                                      cacheManager: CacheService.cacheManager,
+                                                      errorWidget:
                                                           (
                                                             context,
+                                                            url,
                                                             error,
-                                                            stackTrace,
                                                           ) {
                                                             return Container(
                                                               width: 70,

@@ -70,7 +70,7 @@ class _RoleSwitcherState extends State<RoleSwitcher> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Error al cambiar de rol'),
+            content: Text('Sin conexión. Necesitas internet para cambiar de rol.'),
             backgroundColor: Colors.red,
           ),
         );

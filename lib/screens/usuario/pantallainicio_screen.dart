@@ -9,6 +9,8 @@ import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
 import 'package:luumil_app/screens/usuario/referencias_pago_screen.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/widgets/usuario/pasos_modal.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key});
@@ -321,21 +323,14 @@ class _PantallaInicioState extends State<PantallaInicio> {
                                                       bottomLeft:
                                                           Radius.circular(15),
                                                     ),
-                                                child: Image.network(
-                                                  imagenUrl,
+                                                child: CachedNetworkImage(
+                                                  imageUrl: imagenUrl,
                                                   fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) {
-                                                        return const Icon(
-                                                          Icons
-                                                              .image_not_supported,
-                                                          color: Colors.black45,
-                                                        );
-                                                      },
+                                                  cacheManager: CacheService.cacheManager,
+                                                  errorWidget: (context, url, error) => const Icon(
+                                                    Icons.image_not_supported,
+                                                    color: Colors.black45,
+                                                  ),
                                                 ),
                                               )
                                             : const Icon(

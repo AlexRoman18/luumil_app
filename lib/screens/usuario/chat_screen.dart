@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
 import 'package:luumil_app/screens/comer/seleccionar_productos_screen.dart';
 
@@ -28,20 +31,18 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _userId = FirebaseAuth.instance.currentUser!.uid;
+  StreamSubscription<QuerySnapshot>? _leidoSubscription;
 
   @override
   void initState() {
     super.initState();
-    // Si es vendedor, marcar mensajes como leídos al abrir el chat
-    if (widget.esVendedor) {
-      _marcarMensajesComoLeidos();
-    }
+    _marcarMensajesComoLeidos();
+    _escucharMensajesEntrantes();
   }
 
   Future<void> _marcarMensajesComoLeidos() async {
     final chatId = _getChatId();
 
-    // Obtener todos los mensajes no leídos que no fueron enviados por el vendedor
     final mensajesNoLeidos = await _firestore
         .collection('chats')
         .doc(chatId)
@@ -50,15 +51,33 @@ class _ChatScreenState extends State<ChatScreen> {
         .where('senderId', isNotEqualTo: _userId)
         .get();
 
-    // Marcar cada mensaje como leído
+    if (mensajesNoLeidos.docs.isEmpty) return;
+
     final batch = _firestore.batch();
     for (var doc in mensajesNoLeidos.docs) {
       batch.update(doc.reference, {'leido': true});
     }
+    await batch.commit();
+  }
 
-    if (mensajesNoLeidos.docs.isNotEmpty) {
-      await batch.commit();
-    }
+  void _escucharMensajesEntrantes() {
+    final chatId = _getChatId();
+
+    _leidoSubscription = _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('mensajes')
+        .where('leido', isEqualTo: false)
+        .where('senderId', isNotEqualTo: _userId)
+        .snapshots()
+        .listen((snapshot) {
+          if (snapshot.docs.isEmpty) return;
+          final batch = _firestore.batch();
+          for (var doc in snapshot.docs) {
+            batch.update(doc.reference, {'leido': true});
+          }
+          batch.commit();
+        });
   }
 
   double _parsePrecio(dynamic precio) {
@@ -363,6 +382,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _leidoSubscription?.cancel();
     _mensajeController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -452,6 +472,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   itemBuilder: (context, index) {
                     final mensaje =
                         mensajes[index].data() as Map<String, dynamic>;
+                    final docId = mensajes[index].id;
                     // Verificar que el senderId coincida Y que el rol del sender coincida con el rol actual
                     final senderRole = mensaje['senderRole'] ?? 'usuario';
                     final rolActual = widget.esVendedor
@@ -463,7 +484,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     final timestamp = mensaje['timestamp'] as Timestamp?;
                     final tipo = mensaje['tipo'] ?? 'texto';
 
-                    return Padding(
+                    return GestureDetector(
+                      onLongPress: esMio && tipo == 'texto'
+                          ? () => _mostrarOpcionesMensaje(
+                              docId,
+                              mensaje['texto'] ?? '',
+                            )
+                          : null,
+                      child: Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Row(
                         mainAxisAlignment: esMio
@@ -539,6 +567,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 ),
                                               ),
                                             ],
+                                            if (mensaje['editado'] == true) ...[
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                'Editado',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 10,
+                                                  fontStyle: FontStyle.italic,
+                                                  color: esMio
+                                                      ? Colors.white54
+                                                      : Colors.grey[400],
+                                                ),
+                                              ),
+                                            ],
                                           ],
                                         ),
                                 ),
@@ -594,6 +635,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ],
                       ),
+                    ),
                     );
                   },
                 );
@@ -732,6 +774,211 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       );
     }
+  }
+
+  void _mostrarOpcionesMensaje(String docId, String textoActual) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined, color: Color(0xFF007BFF)),
+              title: Text(
+                'Editar mensaje',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _editarMensaje(docId, textoActual);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: Text(
+                'Eliminar mensaje',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _eliminarMensaje(docId);
+              },
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editarMensaje(String docId, String textoActual) async {
+    final controller = TextEditingController(text: textoActual);
+
+    final nuevoTexto = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Editar mensaje',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLines: null,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF007BFF), width: 2),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.poppins(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF007BFF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text(
+              'Guardar',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (nuevoTexto == null || nuevoTexto.isEmpty || nuevoTexto == textoActual) {
+      return;
+    }
+
+    final chatId = _getChatId();
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('mensajes')
+        .doc(docId)
+        .update({'texto': nuevoTexto, 'editado': true});
+
+    await _actualizarUltimoMensaje(chatId);
+  }
+
+  Future<void> _eliminarMensaje(String docId) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          '¿Eliminar mensaje?',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16),
+        ),
+        content: Text(
+          'Esta acción no se puede deshacer.',
+          style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[600]),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancelar',
+              style: GoogleFonts.poppins(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text(
+              'Eliminar',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    final chatId = _getChatId();
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('mensajes')
+        .doc(docId)
+        .delete();
+
+    await _actualizarUltimoMensaje(chatId);
+  }
+
+  Future<void> _actualizarUltimoMensaje(String chatId) async {
+    final ultimoQuery = await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('mensajes')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get();
+
+    String ultimoTexto = '';
+    Timestamp? ultimoTimestamp;
+
+    if (ultimoQuery.docs.isNotEmpty) {
+      final datos = ultimoQuery.docs.first.data();
+      final tipo = datos['tipo'] ?? 'texto';
+      if (tipo == 'referencia_pago') {
+        ultimoTexto = '💰 Referencia de pago';
+      } else if (tipo == 'comprobante_pago') {
+        ultimoTexto = '📷 Comprobante de pago';
+      } else {
+        ultimoTexto = datos['texto'] ?? '';
+      }
+      ultimoTimestamp = datos['timestamp'] as Timestamp?;
+    }
+
+    final Map<String, dynamic> update = {'ultimoMensaje': ultimoTexto};
+    if (ultimoTimestamp != null) update['ultimoTimestamp'] = ultimoTimestamp;
+
+    await _firestore.collection('chats').doc(chatId).update(update);
   }
 
   Widget _buildReferenciaPagoWidget(Map<String, dynamic> mensaje, bool esMio) {
@@ -1024,21 +1271,20 @@ class _ChatScreenState extends State<ChatScreen> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Image.network(
-            imageUrl,
+          child: CachedNetworkImage(
+            imageUrl: imageUrl,
             width: 220,
             fit: BoxFit.cover,
-            loadingBuilder: (ctx, child, progress) => progress == null
-                ? child
-                : Container(
-                    width: 220,
-                    height: 150,
-                    color: Colors.grey[200],
-                    child: const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-            errorBuilder: (_, __, ___) => Container(
+            cacheManager: CacheService.cacheManager,
+            placeholder: (ctx, url) => Container(
+              width: 220,
+              height: 150,
+              color: Colors.grey[200],
+              child: const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+            errorWidget: (_, __, ___) => Container(
               width: 220,
               height: 80,
               color: Colors.grey[200],

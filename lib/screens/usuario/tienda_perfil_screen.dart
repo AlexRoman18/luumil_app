@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/services/vendedor_service.dart';
 import 'package:luumil_app/screens/usuario/chat_screen.dart';
 import '../comer/detalle_producto_screen.dart';
@@ -173,7 +175,10 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                           radius: 40,
                           backgroundColor: Colors.white,
                           backgroundImage: _fotoPerfil != null
-                              ? NetworkImage(_fotoPerfil!)
+                              ? CachedNetworkImageProvider(
+                                  _fotoPerfil!,
+                                  cacheManager: CacheService.cacheManager,
+                                )
                               : null,
                           child: _fotoPerfil == null
                               ? const Icon(
@@ -568,12 +573,25 @@ class _TiendaPerfilScreenState extends State<TiendaPerfilScreen> {
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
                                       child: primeraImagen != null
-                                          ? Image.network(
-                                              primeraImagen,
+                                          ? CachedNetworkImage(
+                                              imageUrl: primeraImagen,
                                               width: 72,
                                               height: 72,
                                               fit: BoxFit.cover,
-                                              errorBuilder: (_, __, ___) =>
+                                              cacheManager:
+                                                  CacheService.cacheManager,
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                    width: 72,
+                                                    height: 72,
+                                                    color: Colors.grey[100],
+                                                    child: Icon(
+                                                      Icons.image_outlined,
+                                                      color: Colors.grey[400],
+                                                      size: 28,
+                                                    ),
+                                                  ),
+                                              errorWidget: (_, __, ___) =>
                                                   Container(
                                                     width: 72,
                                                     height: 72,

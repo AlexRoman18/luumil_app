@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -90,33 +92,22 @@ class ProductCard extends StatelessWidget {
             ),
             child: AspectRatio(
               aspectRatio: 16 / 9,
-              child: Image.network(
-                imageUrl,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.surfaceVariant,
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      size: 48,
-                      color: AppColors.textHint,
-                    ),
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: AppColors.surfaceVariant,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    ),
-                  );
-                },
+                cacheManager: CacheService.cacheManager,
+                placeholder: (context, url) => Container(
+                  color: AppColors.surfaceVariant,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: AppColors.surfaceVariant,
+                  child: Icon(
+                    Icons.image_not_supported_outlined,
+                    size: 48,
+                    color: AppColors.textHint,
+                  ),
+                ),
               ),
             ),
           ),

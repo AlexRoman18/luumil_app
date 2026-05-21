@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 
 class SeleccionarProductosScreen extends StatefulWidget {
   const SeleccionarProductosScreen({super.key});
@@ -635,10 +637,11 @@ class _ProductoItemState extends State<_ProductoItem> {
               child: imagenUrl.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        imagenUrl,
+                      child: CachedNetworkImage(
+                        imageUrl: imagenUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Icon(
+                        cacheManager: CacheService.cacheManager,
+                        errorWidget: (_, __, ___) => Icon(
                           Icons.fastfood,
                           color: Colors.grey[400],
                           size: 32,

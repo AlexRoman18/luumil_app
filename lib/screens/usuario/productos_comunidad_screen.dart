@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import '../comer/detalle_producto_screen.dart';
 import 'package:luumil_app/widgets/usuario/pasos_modal.dart';
 
@@ -385,24 +387,23 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(8),
                                   child: primeraImagen != null
-                                      ? Image.network(
-                                          primeraImagen,
+                                      ? CachedNetworkImage(
+                                          imageUrl: primeraImagen,
                                           width: 70,
                                           height: 70,
                                           fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                                return Container(
-                                                  width: 70,
-                                                  height: 70,
-                                                  color: Colors.grey[100],
-                                                  child: Icon(
-                                                    Icons.image_outlined,
-                                                    color: Colors.grey[400],
-                                                    size: 30,
-                                                  ),
-                                                );
-                                              },
+                                          cacheManager: CacheService.cacheManager,
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                                width: 70,
+                                                height: 70,
+                                                color: Colors.grey[100],
+                                                child: Icon(
+                                                  Icons.image_outlined,
+                                                  color: Colors.grey[400],
+                                                  size: 30,
+                                                ),
+                                              ),
                                         )
                                       : Container(
                                           width: 70,

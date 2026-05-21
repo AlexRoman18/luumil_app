@@ -38,6 +38,12 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info_outline, color: Colors.black87),
+            onPressed: _mostrarAviso,
+          ),
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
@@ -248,6 +254,110 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
     );
   }
 
+  void _mostrarAviso() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF3CD),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.info_outline,
+                color: Color(0xFF856404),
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Aviso importante',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Luumil es una plataforma de conexión entre compradores y vendedores locales.',
+              style: GoogleFonts.poppins(fontSize: 13, color: Colors.black87),
+            ),
+            const SizedBox(height: 10),
+            _buildAvisoItem(
+              Icons.block,
+              'La aplicación no procesa ni gestiona pagos en línea directamente.',
+            ),
+            const SizedBox(height: 8),
+            _buildAvisoItem(
+              Icons.handshake_outlined,
+              'Los acuerdos de pago son responsabilidad exclusiva de las partes involucradas.',
+            ),
+            const SizedBox(height: 8),
+            _buildAvisoItem(
+              Icons.shield_outlined,
+              'Luumil no se hace responsable de pérdidas, fraudes o inconvenientes derivados de las transacciones realizadas.',
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Te recomendamos verificar siempre la identidad del vendedor antes de realizar cualquier pago.',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF007BFF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: Text(
+              'Entendido',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAvisoItem(IconData icono, String texto) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icono, size: 16, color: const Color(0xFF856404)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            texto,
+            style: GoogleFonts.poppins(fontSize: 12, color: Colors.black87),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _mostrarOpcionesPago(
     BuildContext context,
     String referenciaId,
@@ -301,7 +411,7 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
               const Color(0xFF6C757D),
               () => _abrirPagoTarjeta(context, referenciaId, monto),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text(

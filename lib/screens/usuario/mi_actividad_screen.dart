@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/services/resena_service.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
 
@@ -130,22 +132,21 @@ class _MisLikesTab extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: primeraImagen != null
-                          ? Image.network(
-                              primeraImagen,
+                          ? CachedNetworkImage(
+                              imageUrl: primeraImagen,
                               width: 80,
                               height: 80,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  width: 80,
-                                  height: 80,
-                                  color: Colors.grey[200],
-                                  child: const Icon(
-                                    Icons.image,
-                                    color: Colors.grey,
-                                  ),
-                                );
-                              },
+                              cacheManager: CacheService.cacheManager,
+                              errorWidget: (context, url, error) => Container(
+                                width: 80,
+                                height: 80,
+                                color: Colors.grey[200],
+                                child: const Icon(
+                                  Icons.image,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             )
                           : Container(
                               width: 80,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/screens/comer/detalle_producto_screen.dart';
 
 class ActividadDetalleScreen extends StatelessWidget {
@@ -96,7 +98,10 @@ class ActividadDetalleScreen extends StatelessWidget {
                     radius: 32,
                     backgroundColor: Colors.grey[300],
                     backgroundImage: userFoto.isNotEmpty
-                        ? NetworkImage(userFoto)
+                        ? CachedNetworkImageProvider(
+                            userFoto,
+                            cacheManager: CacheService.cacheManager,
+                          )
                         : null,
                     child: userFoto.isEmpty
                         ? const Icon(
@@ -356,7 +361,10 @@ class ActividadDetalleScreen extends StatelessWidget {
                     radius: 32,
                     backgroundColor: Colors.grey[300],
                     backgroundImage: userFoto.isNotEmpty
-                        ? NetworkImage(userFoto)
+                        ? CachedNetworkImageProvider(
+                            userFoto,
+                            cacheManager: CacheService.cacheManager,
+                          )
                         : null,
                     child: userFoto.isEmpty
                         ? const Icon(
@@ -536,7 +544,10 @@ class ActividadDetalleScreen extends StatelessWidget {
                     radius: 48,
                     backgroundColor: Colors.grey[300],
                     backgroundImage: userFoto.isNotEmpty
-                        ? NetworkImage(userFoto)
+                        ? CachedNetworkImageProvider(
+                            userFoto,
+                            cacheManager: CacheService.cacheManager,
+                          )
                         : null,
                     child: userFoto.isEmpty
                         ? const Icon(

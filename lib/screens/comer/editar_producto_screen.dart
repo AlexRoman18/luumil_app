@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
 import 'dart:io';
 
@@ -420,34 +422,24 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.network(
-              url,
+            child: CachedNetworkImage(
+              imageUrl: url,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(
-                  color: Colors.grey[200],
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
-                          : null,
-                      strokeWidth: 2,
-                    ),
-                  ),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  color: Colors.grey[300],
-                  child: const Icon(
-                    Icons.broken_image,
-                    size: 40,
-                    color: Colors.grey,
-                  ),
-                );
-              },
+              cacheManager: CacheService.cacheManager,
+              placeholder: (context, url) => Container(
+                color: Colors.grey[200],
+                child: const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: Colors.grey[300],
+                child: const Icon(
+                  Icons.broken_image,
+                  size: 40,
+                  color: Colors.grey,
+                ),
+              ),
             ),
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:luumil_app/config/router/gemini/app_router.dart';
 import 'package:luumil_app/config/theme/gemini/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -13,6 +14,9 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
   AppTheme.setSistemUIOverlayStyle(isDarkmode: true);
+
+  // Configurar caché de imágenes con duración de 30 días
+  await CacheService.initialize();
 
   runApp(const ProviderScope(child: MyApp()));
 }

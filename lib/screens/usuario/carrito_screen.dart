@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/services/carrito_service.dart';
 
 class CarritoScreen extends StatefulWidget {
@@ -164,16 +166,15 @@ class _CarritoScreenState extends State<CarritoScreen> {
               child: item.imagen != null
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        item.imagen!,
+                      child: CachedNetworkImage(
+                        imageUrl: item.imagen!,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.image,
-                            color: Colors.grey[400],
-                            size: 40,
-                          );
-                        },
+                        cacheManager: CacheService.cacheManager,
+                        errorWidget: (context, url, error) => Icon(
+                          Icons.image,
+                          color: Colors.grey[400],
+                          size: 40,
+                        ),
                       ),
                     )
                   : Icon(Icons.image, color: Colors.grey[400], size: 40),

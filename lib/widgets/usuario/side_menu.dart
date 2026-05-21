@@ -266,7 +266,7 @@ class _SideMenuState extends State<SideMenu> {
               context: context,
               builder: (dialogContext) {
                 return AlertDialog(
-                  title: const Text('¿Quieres convertirte en comerciante?'),
+                  title: const Text('¿Quieres convertirte en vendedor?'),
                   content: const Text('Podrás registrar tus productos'),
                   actions: [
                     TextButton(

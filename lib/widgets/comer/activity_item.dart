@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 
 class ActivityItem extends StatelessWidget {
   final String name;
@@ -24,7 +26,13 @@ class ActivityItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(backgroundImage: NetworkImage(imageUrl), radius: 25),
+          CircleAvatar(
+            backgroundImage: CachedNetworkImageProvider(
+              imageUrl,
+              cacheManager: CacheService.cacheManager,
+            ),
+            radius: 25,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/config/theme/app_colors.dart';
 import 'package:luumil_app/widgets/usuario/pasos_modal.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -46,7 +48,10 @@ class ProductCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     image: imageUrl != null
                         ? DecorationImage(
-                            image: NetworkImage(imageUrl!),
+                            image: CachedNetworkImageProvider(
+                              imageUrl!,
+                              cacheManager: CacheService.cacheManager,
+                            ),
                             fit: BoxFit.cover,
                           )
                         : null,

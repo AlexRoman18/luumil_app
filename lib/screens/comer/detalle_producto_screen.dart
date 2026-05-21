@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/services/resena_service.dart';
 import 'package:luumil_app/screens/comer/resenas_screen.dart';
 import 'package:luumil_app/screens/usuario/tienda_perfil_screen.dart';
@@ -448,19 +450,24 @@ Reglas:
                           },
                           itemCount: imagenes.length,
                           itemBuilder: (context, index) {
-                            return Image.network(
-                              imagenes[index],
+                            return CachedNetworkImage(
+                              imageUrl: imagenes[index],
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey[300],
-                                  child: const Icon(
-                                    Icons.broken_image,
-                                    size: 80,
-                                    color: Colors.grey,
-                                  ),
-                                );
-                              },
+                              cacheManager: CacheService.cacheManager,
+                              placeholder: (context, url) => Container(
+                                color: Colors.grey[300],
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                color: Colors.grey[300],
+                                child: const Icon(
+                                  Icons.broken_image,
+                                  size: 80,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             );
                           },
                         ),
@@ -989,17 +996,15 @@ Reglas:
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(8),
                                         child: otrasImagenes.isNotEmpty
-                                            ? Image.network(
-                                                otrasImagenes[0],
+                                            ? CachedNetworkImage(
+                                                imageUrl: otrasImagenes[0],
                                                 width: 60,
                                                 height: 60,
                                                 fit: BoxFit.cover,
-                                                errorBuilder:
-                                                    (
-                                                      context,
-                                                      error,
-                                                      stackTrace,
-                                                    ) {
+                                                cacheManager:
+                                                    CacheService.cacheManager,
+                                                errorWidget:
+                                                    (context, url, error) {
                                                       return Container(
                                                         width: 60,
                                                         height: 60,

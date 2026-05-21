@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'package:luumil_app/screens/usuario/chat_screen.dart';
 
 class MensajesUsuarioScreen extends StatefulWidget {
@@ -135,7 +137,10 @@ class _MensajesUsuarioScreenState extends State<MensajesUsuarioScreen> {
                                 radius: 28,
                                 backgroundColor: const Color(0xFF007BFF),
                                 backgroundImage: fotoVendedor != null
-                                    ? NetworkImage(fotoVendedor)
+                                    ? CachedNetworkImageProvider(
+                                        fotoVendedor,
+                                        cacheManager: CacheService.cacheManager,
+                                      )
                                     : null,
                                 child: fotoVendedor == null
                                     ? Text(

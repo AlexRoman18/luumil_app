@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 
 class PasosModal extends StatelessWidget {
   final List<dynamic> pasos;
@@ -156,17 +158,14 @@ class PasosModal extends StatelessWidget {
                                                           BorderRadius.circular(
                                                             8,
                                                           ),
-                                                      child: Image.network(
-                                                        url,
+                                                      child: CachedNetworkImage(
+                                                        imageUrl: url,
                                                         width: 80,
                                                         height: 80,
                                                         fit: BoxFit.cover,
-                                                        errorBuilder:
-                                                            (
-                                                              _,
-                                                              __,
-                                                              ___,
-                                                            ) => const Icon(
+                                                        cacheManager: CacheService.cacheManager,
+                                                        errorWidget:
+                                                            (_, __, ___) => const Icon(
                                                               Icons.videocam,
                                                             ),
                                                       ),
@@ -191,12 +190,13 @@ class PasosModal extends StatelessWidget {
                                               : ClipRRect(
                                                   borderRadius:
                                                       BorderRadius.circular(8),
-                                                  child: Image.network(
-                                                    url,
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: url,
                                                     width: 80,
                                                     height: 80,
                                                     fit: BoxFit.cover,
-                                                    errorBuilder:
+                                                    cacheManager: CacheService.cacheManager,
+                                                    errorWidget:
                                                         (_, __, ___) =>
                                                             const Icon(
                                                               Icons.image,
@@ -228,7 +228,7 @@ class PasosModal extends StatelessWidget {
         backgroundColor: Colors.transparent,
         child: Stack(
           children: [
-            Center(child: InteractiveViewer(child: Image.network(url))),
+            Center(child: InteractiveViewer(child: CachedNetworkImage(imageUrl: url, cacheManager: CacheService.cacheManager))),
             Positioned(
               top: 10,
               right: 10,

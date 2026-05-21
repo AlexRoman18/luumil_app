@@ -7,6 +7,8 @@ import 'package:luumil_app/screens/usuario/home_screen.dart';
 import 'package:luumil_app/services/resena_service.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:luumil_app/services/cloudinary_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:luumil_app/services/cache_service.dart';
 import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
@@ -363,7 +365,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             radius: 45,
                             backgroundColor: Colors.white,
                             backgroundImage: _fotoPerfil != null
-                                ? NetworkImage(_fotoPerfil!)
+                                ? CachedNetworkImageProvider(
+                                    _fotoPerfil!,
+                                    cacheManager: CacheService.cacheManager,
+                                  )
                                 : null,
                             child: _fotoPerfil == null
                                 ? Icon(
