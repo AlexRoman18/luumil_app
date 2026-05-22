@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\FlutterProject\\\\luumil_app\\\\lib\\\\screens\" -File -Depth 0)",
+      "Bash(xargs grep -l \"splash\\\\|welcome\\\\|onboarding\\\\|inicio\")"
+    ]
+  }
+}

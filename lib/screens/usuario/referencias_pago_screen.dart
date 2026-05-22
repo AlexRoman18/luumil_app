@@ -412,13 +412,19 @@ class _ReferenciasPagoScreenState extends State<ReferenciasPagoScreen> {
               () => _abrirPagoTarjeta(context, referenciaId, monto),
             ),
             const SizedBox(height: 20),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Cancelar',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: Text(
+                  'Cancelar',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
                 ),
               ),
             ),
