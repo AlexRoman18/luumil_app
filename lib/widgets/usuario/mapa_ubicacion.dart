@@ -213,8 +213,10 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
     final b = _norm(busqueda);
     final t = _norm(texto);
     if (t.isEmpty) return false;
-    // Exacta o contención
-    if (t.contains(b) || b.contains(t)) return true;
+    // Exacta o contención directa
+    if (t.contains(b)) return true;
+    // b.contains(t) solo si t tiene longitud mínima para evitar falsos positivos
+    if (t.length >= 4 && b.contains(t)) return true;
     // Palabras individuales de la búsqueda presentes en el texto
     final palabrasB = b.split(' ').where((p) => p.length > 2);
     if (palabrasB.isNotEmpty && palabrasB.every((p) => t.contains(p))) {
@@ -296,28 +298,68 @@ class _MapaUbicacionState extends State<MapaUbicacion> {
         return;
       }
 
-      // Prioridad 1: usar coordenadas GPS reales del primer vendedor con ubicación
-      LatLng? coordenadas;
-      String comunidadNombreReal = _comunidadBuscada!;
-
-      for (final doc in vendedoresEnComunidad) {
-        final data = doc.data();
-        final ubicacion = data['ubicacion'] as Map<String, dynamic>?;
-        if (ubicacion != null &&
-            ubicacion['latitude'] != null &&
-            ubicacion['longitude'] != null) {
-          coordenadas = LatLng(
-            (ubicacion['latitude'] as num).toDouble(),
-            (ubicacion['longitude'] as num).toDouble(),
-          );
-          comunidadNombreReal =
-              data['comunidad'] as String? ?? _comunidadBuscada!;
-          break;
-        }
+      // Verificar si hay productos publicados en este municipio
+      final vendedorIds = vendedoresEnComunidad.map((d) => d.id).toList();
+      bool tieneProductos = false;
+      for (int i = 0; i < vendedorIds.length && !tieneProductos; i += 10) {
+        final chunk = vendedorIds.skip(i).take(10).toList();
+        final check = await FirebaseFirestore.instance
+            .collection('productos')
+            .where('vendedorId', whereIn: chunk)
+            .limit(1)
+            .get();
+        if (check.docs.isNotEmpty) tieneProductos = true;
       }
 
-      // Prioridad 2: fallback al mapa hardcodeado
-      coordenadas ??= _obtenerCoordenadasPorComunidad(_comunidadBuscada);
+      if (!tieneProductos) {
+        final nombreMostrar = _comunidadBuscada!
+            .split(' ')
+            .map((w) => w.isEmpty ? '' : w[0].toUpperCase() + w.substring(1))
+            .join(' ');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Aún no hay productos disponibles en $nombreMostrar'),
+              backgroundColor: Colors.grey[700],
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          setState(() {
+            _markers.clear();
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
+      // Nombre real del municipio desde el primer vendedor encontrado
+      String comunidadNombreReal = vendedoresEnComunidad.isNotEmpty
+          ? (vendedoresEnComunidad.first.data()['comunidad'] as String? ??
+              _comunidadBuscada!)
+          : _comunidadBuscada!;
+
+      // Prioridad 1: mapa hardcodeado (coordenadas geográficas precisas del municipio)
+      LatLng? coordenadas =
+          _obtenerCoordenadasPorComunidad(comunidadNombreReal) ??
+          _obtenerCoordenadasPorComunidad(_comunidadBuscada);
+
+      // Prioridad 2: GPS del vendedor (solo para municipios no registrados en el mapa)
+      if (coordenadas == null) {
+        for (final doc in vendedoresEnComunidad) {
+          final data = doc.data();
+          final ubicacion = data['ubicacion'] as Map<String, dynamic>?;
+          if (ubicacion != null &&
+              ubicacion['latitude'] != null &&
+              ubicacion['longitude'] != null) {
+            coordenadas = LatLng(
+              (ubicacion['latitude'] as num).toDouble(),
+              (ubicacion['longitude'] as num).toDouble(),
+            );
+            break;
+          }
+        }
+      }
 
       if (coordenadas == null) {
         if (mounted) {

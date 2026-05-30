@@ -9,11 +9,11 @@ class DashboardHeader extends StatelessWidget {
   String _obtenerSaludo() {
     final hora = DateTime.now().hour;
     if (hora < 12) {
-      return '¡Buenos días';
+      return '¡Buenos días!';
     } else if (hora < 18) {
-      return '¡Buenas tardes';
+      return '¡Buenas tardes!';
     } else {
-      return '¡Buenas noches';
+      return '¡Buenas noches!';
     }
   }
 

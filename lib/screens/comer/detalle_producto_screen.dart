@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -362,32 +364,62 @@ Reglas:
 - No incluyas introducciones ni despedidas, solo el contenido solicitado.
 ''';
 
-    String contenidoCompleto = '';
+    // Texto que va llegando del servidor (puede llegar en bloques grandes)
+    String objetivo = '';
+    // Texto que ya se reveló al usuario (efecto máquina de escribir)
+    String mostrado = '';
+    bool streamTerminado = false;
+    Object? errorStream;
+
+    // Productor: acumula los fragmentos conforme llegan del backend
+    final subscripcion = gemini
+        .getResponseStream(prompt)
+        .timeout(
+          const Duration(seconds: 30),
+          onTimeout: (sink) {
+            sink.addError(
+              Exception(
+                'Tiempo de espera agotado. Verifica que tu servidor backend esté corriendo.',
+              ),
+            );
+            sink.close();
+          },
+        )
+        .listen(
+          (chunk) => objetivo += chunk,
+          onError: (e) => errorStream = e,
+          onDone: () => streamTerminado = true,
+          cancelOnError: true,
+        );
 
     try {
-      await for (final chunk
-          in gemini
-              .getResponseStream(prompt)
-              .timeout(
-                const Duration(seconds: 30),
-                onTimeout: (sink) {
-                  sink.addError(
-                    Exception(
-                      'Tiempo de espera agotado. Verifica que tu servidor backend esté corriendo.',
-                    ),
-                  );
-                  sink.close();
-                },
-              )) {
-        contenidoCompleto += chunk;
-        yield contenidoCompleto;
+      // Consumidor: revela el texto poco a poco aunque llegue de golpe
+      while (!streamTerminado || mostrado.length < objetivo.length) {
+        if (errorStream != null) throw errorStream!;
+
+        if (mostrado.length < objetivo.length) {
+          final pendiente = objetivo.length - mostrado.length;
+          // Avanza más rápido si se quedó muy atrás, para no demorar de más
+          final paso = pendiente > 240 ? (pendiente ~/ 60) : 2;
+          final hasta = (mostrado.length + paso).clamp(0, objetivo.length);
+          mostrado = objetivo.substring(0, hasta);
+          yield mostrado;
+          await Future.delayed(const Duration(milliseconds: 14));
+        } else {
+          // Aún no llega más texto: esperar un poco al servidor
+          await Future.delayed(const Duration(milliseconds: 30));
+        }
       }
 
-      if (contenidoCompleto.isEmpty) {
+      if (errorStream != null) throw errorStream!;
+
+      if (mostrado.isEmpty) {
         throw Exception('No se recibió respuesta del servidor');
       }
     } catch (e) {
       throw Exception('Error: ${e.toString()}');
+    } finally {
+      await subscripcion.cancel();
     }
   }
 

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(Get-ChildItem -Path \"c:\\\\FlutterProject\\\\luumil_app\\\\lib\\\\screens\" -File -Depth 0)",
-      "Bash(xargs grep -l \"splash\\\\|welcome\\\\|onboarding\\\\|inicio\")"
+      "Bash(xargs grep -l \"splash\\\\|welcome\\\\|onboarding\\\\|inicio\")",
+      "Bash(Select-String -Pattern \"\\(search|busqueda|filter|autocomplete|suggest\\)\")",
+      "PowerShell(flutter analyze lib/screens/usuario/pantallainicio_screen.dart lib/widgets/usuario/mapa_ubicacion.dart lib/screens/usuario/productos_comunidad_screen.dart)"
     ]
   }
 }

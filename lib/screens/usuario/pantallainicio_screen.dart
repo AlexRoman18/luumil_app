@@ -25,11 +25,15 @@ class _PantallaInicioState extends State<PantallaInicio> {
       GlobalKey<State<MapaUbicacion>>();
   final TextEditingController _searchController = TextEditingController();
   String _nombreUsuario = 'Usuario';
+  List<String> _municipiosSugerencias = [];
+  List<String> _sugerenciasFiltradas = [];
+  bool _mostrarSugerencias = false;
 
   @override
   void initState() {
     super.initState();
     _cargarNombreUsuario();
+    _cargarMunicipiosSugerencias();
   }
 
   Future<void> _cargarNombreUsuario() async {
@@ -44,6 +48,52 @@ class _PantallaInicioState extends State<PantallaInicio> {
           _nombreUsuario = doc.data()?['nombrePersonal'] ?? 'Usuario';
         });
       }
+    }
+  }
+
+  Future<void> _cargarMunicipiosSugerencias() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .where('puedeSerVendedor', isEqualTo: true)
+          .get();
+      final municipios = <String>{};
+      for (final doc in snapshot.docs) {
+        final comunidad = doc.data()['comunidad'] as String?;
+        if (comunidad != null && comunidad.trim().isNotEmpty) {
+          municipios.add(comunidad.trim());
+        }
+      }
+      if (mounted) {
+        setState(() {
+          _municipiosSugerencias = municipios.toList()..sort();
+        });
+      }
+    } catch (_) {}
+  }
+
+  void _onSearchChanged(String value) {
+    setState(() {
+      if (value.trim().isEmpty) {
+        _mostrarSugerencias = false;
+        _sugerenciasFiltradas = [];
+      } else {
+        final query = value.toLowerCase().trim();
+        _sugerenciasFiltradas = _municipiosSugerencias
+            .where((m) => m.toLowerCase().contains(query))
+            .take(5)
+            .toList();
+        _mostrarSugerencias = _sugerenciasFiltradas.isNotEmpty;
+      }
+    });
+  }
+
+  void _seleccionarSugerencia(String municipio) {
+    _searchController.text = municipio;
+    setState(() => _mostrarSugerencias = false);
+    final state = _mapaKey.currentState;
+    if (state != null) {
+      (state as dynamic).buscarComunidad(municipio);
     }
   }
 
@@ -108,49 +158,122 @@ class _PantallaInicioState extends State<PantallaInicio> {
               ),
               SizedBox(height: AppSpacing.lg),
 
-              // Barra de búsqueda
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  border: Border.all(color: AppColors.border),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  boxShadow: AppColors.cardShadow,
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search, color: AppColors.textSecondary),
-                    SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Buscar...',
-                          border: InputBorder.none,
+              // Barra de búsqueda con autocompletado
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      boxShadow: AppColors.cardShadow,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.search, color: AppColors.textSecondary),
+                        SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              hintText: 'Buscar...',
+                              border: InputBorder.none,
+                            ),
+                            onChanged: _onSearchChanged,
+                            onSubmitted: (value) {
+                              if (value.trim().isNotEmpty) {
+                                setState(() => _mostrarSugerencias = false);
+                                final state = _mapaKey.currentState;
+                                if (state != null) {
+                                  (state as dynamic).buscarComunidad(
+                                    value.trim(),
+                                  );
+                                }
+                              }
+                            },
+                          ),
                         ),
-                        onSubmitted: (value) {
-                          if (value.trim().isNotEmpty) {
-                            final state = _mapaKey.currentState;
-                            if (state != null) {
-                              (state as dynamic).buscarComunidad(value.trim());
-                            }
-                          }
-                        },
+                        if (_searchController.text.isNotEmpty)
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 20),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() {
+                                _mostrarSugerencias = false;
+                                _sugerenciasFiltradas = [];
+                              });
+                              final state = _mapaKey.currentState;
+                              if (state != null) {
+                                (state as dynamic).buscarComunidad('');
+                              }
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (_mostrarSugerencias && _sugerenciasFiltradas.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.08),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: _sugerenciasFiltradas.map((municipio) {
+                          final capitalizado = municipio
+                              .split(' ')
+                              .map(
+                                (w) => w.isEmpty
+                                    ? ''
+                                    : w[0].toUpperCase() + w.substring(1),
+                              )
+                              .join(' ');
+                          return InkWell(
+                            onTap: () => _seleccionarSugerencia(municipio),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.location_on_outlined,
+                                    size: 16,
+                                    color: Colors.blue[600],
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      capitalizado,
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.north_west,
+                                    size: 14,
+                                    color: Colors.grey[400],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
-                    if (_searchController.text.isNotEmpty)
-                      IconButton(
-                        icon: const Icon(Icons.clear, size: 20),
-                        onPressed: () {
-                          _searchController.clear();
-                          final state = _mapaKey.currentState;
-                          if (state != null) {
-                            (state as dynamic).buscarComunidad('');
-                          }
-                        },
-                      ),
-                  ],
-                ),
+                ],
               ),
 
               const SizedBox(height: 20),
@@ -326,11 +449,18 @@ class _PantallaInicioState extends State<PantallaInicio> {
                                                 child: CachedNetworkImage(
                                                   imageUrl: imagenUrl,
                                                   fit: BoxFit.cover,
-                                                  cacheManager: CacheService.cacheManager,
-                                                  errorWidget: (context, url, error) => const Icon(
-                                                    Icons.image_not_supported,
-                                                    color: Colors.black45,
-                                                  ),
+                                                  cacheManager:
+                                                      CacheService.cacheManager,
+                                                  errorWidget:
+                                                      (
+                                                        context,
+                                                        url,
+                                                        error,
+                                                      ) => const Icon(
+                                                        Icons
+                                                            .image_not_supported,
+                                                        color: Colors.black45,
+                                                      ),
                                                 ),
                                               )
                                             : const Icon(

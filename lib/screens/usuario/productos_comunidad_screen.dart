@@ -98,7 +98,8 @@ class _ProductosComunidadScreenState extends State<ProductosComunidadScreen> {
     final b = _norm(busqueda);
     final t = _norm(texto);
     if (t.isEmpty || b.isEmpty) return false;
-    if (t.contains(b) || b.contains(t)) return true;
+    if (t.contains(b)) return true;
+    if (t.length >= 4 && b.contains(t)) return true;
     final palabrasB = b.split(' ').where((p) => p.length > 2).toList();
     final palabrasT = t.split(' ').where((p) => p.length > 2).toList();
     if (palabrasB.isNotEmpty && palabrasB.every((p) => t.contains(p))) {
